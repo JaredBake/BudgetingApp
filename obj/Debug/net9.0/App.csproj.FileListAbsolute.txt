@@ -44,3 +44,10 @@ C:\Users\Crook\coding\Budget\obj\Debug\net9.0\refint\App.dll
 C:\Users\Crook\coding\Budget\obj\Debug\net9.0\App.pdb
 C:\Users\Crook\coding\Budget\obj\Debug\net9.0\App.genruntimeconfig.cache
 C:\Users\Crook\coding\Budget\obj\Debug\net9.0\ref\App.dll
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\build\flutter_assets\AssetManifest.bin.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\build\flutter_assets\AssetManifest.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\build\flutter_assets\FontManifest.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\macos\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
+C:\Users\Crook\coding\Budget\bin\Debug\net9.0\flutter_app\flutter_application\web\manifest.json

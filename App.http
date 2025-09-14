@@ -3,4 +3,9 @@
 GET {{App_HostAddress}}/weatherforecast/
 Accept: application/json
 
+
+
+GET {{App_HostAddress}}/budgetTest/
+Accept: application/json
+
 ###
