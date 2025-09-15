@@ -2,10 +2,8 @@
 
 namespace App.Models
 {
-    public class MyDbContext : DbContext
+    public class BudgetDbContext(DbContextOptions<BudgetDbContext> options) : DbContext(options)
     {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
-
         public DbSet<User> Users { get; set; }
     }
 

@@ -8,9 +8,9 @@ namespace App.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly MyDbContext _context;
+    private readonly BudgetDbContext _context;
 
-    public UsersController(MyDbContext context)
+    public UsersController(BudgetDbContext context)
     {
         _context = context;
     }
