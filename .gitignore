@@ -1,2 +1,9 @@
 .idea/
 .git/
+asp.net_server/.idea/
+asp.net_server/bin/
+asp.net_server/obj/
+flutter_app/.dart_tool/
+flutter_app/.idea/
+
+
