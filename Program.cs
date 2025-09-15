@@ -1,32 +1,21 @@
-using Microsoft.AspNetCore.Authentication.Negotiate;
+using App.Models;
+using Microsoft.EntityFrameworkCore;
 
-string allowCORs = "_myAllowSpecificOrigins";
+string allowCORs = "_AllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-// builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-//     .AddNegotiate();
+builder.Services.AddControllers();
+
+builder.Services.AddDbContext<MyDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(o => o.AddPolicy(
-
     allowCORs, builder =>
     {
-
         builder.WithOrigins("http://localhost:58536") //Update with correct port number of front-end
             .AllowAnyHeader()
             .AllowAnyMethod();
     }));
-
-
-// Authentication removed via comment to start. Can re-enable later
-// builder.Services.AddAuthorization(options =>
-// {
-//     // By default, all incoming requests will be authorized according to the default policy.
-//     options.FallbackPolicy = options.DefaultPolicy;
-// });
 
 var app = builder.Build();
 
@@ -36,32 +25,26 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// app.UseHttpsRedirection();
 
-var summaries = new[]
+
+app.MapGet("/connection", () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return true;
+});
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
 
+app.UseHttpsRedirection();
 app.UseCors(allowCORs);
-
+app.UseRouting();
+app.UseAuthorization();
+app.MapControllers();
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+
+namespace App
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }
