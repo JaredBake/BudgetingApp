@@ -15,7 +15,8 @@ builder.Services.AddCors(o => o.AddPolicy(
         builder.WithOrigins("http://localhost:58536") //Update with correct port number of front-end
             .AllowAnyHeader()
             .AllowAnyMethod();
-    }));
+    })
+);
 
 var app = builder.Build();
 
@@ -24,14 +25,12 @@ app.MapGet("/test", () =>
     return true;
 });
 
-
 app.UseHttpsRedirection();
 app.UseCors(allowCORs);
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
 
 namespace App
 {
