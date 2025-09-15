@@ -1,8 +1,9 @@
+import 'dart:convert'; // For JSON encoding/decoding
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For JSON encoding/decoding
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,7 +32,7 @@ class MyAppState extends ChangeNotifier {
 }
 
 Future<void> fetchPosts() async {
-  final response = await http.get(Uri.parse('http://localhost:5284/weatherforecast'));
+  final response = await http.get(Uri.parse('http://localhost:5284/api/Users/GetUsers'));
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);

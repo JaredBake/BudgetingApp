@@ -8342,24 +8342,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Crook\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\18jab\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Crook\\coding\\Budget\\App.csproj",
+      "projectUniqueName": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
       "projectName": "App",
-      "projectPath": "C:\\Users\\Crook\\coding\\Budget\\App.csproj",
-      "packagesPath": "C:\\Users\\Crook\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Crook\\coding\\Budget\\obj\\",
+      "projectPath": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
+      "packagesPath": "C:\\Users\\18jab\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Crook\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
+        "C:\\Users\\18jab\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -8437,7 +8432,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
