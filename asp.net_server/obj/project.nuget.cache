@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QX102RcXHOo=",
+  "dgSpecHash": "YVgdqno4ZWI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
+  "projectFilePath": "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\18jab\\.nuget\\packages\\aspire.hosting\\9.4.2\\aspire.hosting.9.4.2.nupkg.sha512",
     "C:\\Users\\18jab\\.nuget\\packages\\aspire.hosting.postgresql\\9.4.2\\aspire.hosting.postgresql.9.4.2.nupkg.sha512",
