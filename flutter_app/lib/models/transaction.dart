@@ -1,3 +1,6 @@
+import 'money.dart';
+
+
 class Transaction {
     final int id;
     final int userId;
