@@ -1,21 +1,17 @@
 class Transaction {
     final int id;
-    final int userId;
+    final DateTime date;
+    final Money money;
     final String description;
-    DateTime date;
-    Money amount;
-    Category category;
-    TransactionType transactionType;
+    final TransactionType transactionType;
 
     Transaction({
-        required this.id,
-        required this.userId,
-        required this.description,
-        required this.date,
-        required this.amount,
-        required this.category,
-        required this.transactionType,
-    });
+        required this.id, 
+        required this.date, 
+        required this.money, 
+        required this.description, 
+        required this.transactionType
+        });
 
     bool isIncome() {
         // TODO
@@ -35,8 +31,11 @@ class Transaction {
         return this.date;
     }
 
-    Money getAmount() {
-        return this.amount;
+    Money getMoney() {
+        /*  Returns the money object associated with the transaction
+        *   Money is a class that holds both the amount and the currency
+        */
+        return this.money;
     }
 
     Category getCategory() {
@@ -46,7 +45,6 @@ class Transaction {
     TransactionType getTransactionType() {
         return this.transactionType;
     }
-
 
     @override
     String toString() {
