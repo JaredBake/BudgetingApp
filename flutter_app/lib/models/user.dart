@@ -1,4 +1,7 @@
 import 'credentials.dart';
+import 'fund.dart';
+import 'money.dart';
+import 'transaction.dart';
 
 
 class User {
