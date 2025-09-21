@@ -15,8 +15,8 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("CheckConnection")]
-    public bool CheckConnection()
+    [HttpGet("check")]
+    public bool check()
     {
         return true;
     }
