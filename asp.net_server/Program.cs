@@ -19,10 +19,13 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<BudgetDbContext>(options => 
     options.UseNpgsql(connectionString));
 
+
+var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
+
 builder.Services.AddCors(o => o.AddPolicy(
     allowCORs, builder =>
     {
-        builder.WithOrigins("http://localhost:8000") //Update with correct port number of front-end
+        builder.WithOrigins(localHostString) 
             .AllowAnyHeader()
             .AllowAnyMethod();
     })
