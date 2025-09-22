@@ -6,4 +6,9 @@ asp.net_server/obj/
 flutter_app/.dart_tool/
 flutter_app/.idea/
 .vscode/
-
+flutter_app/build/
+asp.net_server/appsettings.{Environment}.json
+.env
+.env.development
+.env.production
+!.env.example
