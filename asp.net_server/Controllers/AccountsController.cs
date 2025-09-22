@@ -66,8 +66,7 @@ public class AccountsController : ControllerBase
     {
         if (Id != account.Id) return BadRequest($"Id: {Id} parameter doesn't equal account.Id: {account.Id}");        
 
-        var a = await _context.Accounts.FindAsync(Id);
-        if (a == null) return NotFound($"No account found to update with Id: {account.Id}");
+        if (!AccountExists(Id)) return NotFound($"No account found to update with Id: {account.Id}");
 
         var u = await _context.Users.FindAsync(account.UserId);
         if (u == null) return NotFound($"User does not exist with Id: {account.UserId}");
@@ -110,6 +109,6 @@ public class AccountsController : ControllerBase
 
     private bool AccountExists(int Id)
     {
-        return _context.Users.Any(e => e.Id == Id);
+        return _context.Accounts.Any(e => e.Id == Id);
     }
 }
