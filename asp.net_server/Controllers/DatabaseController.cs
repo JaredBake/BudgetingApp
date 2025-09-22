@@ -34,17 +34,5 @@ public class DatabaseController : ControllerBase
             return StatusCode(500, $"Migration failed: {ex.Message}");
         }
          
-    }
-
-    [HttpPost("seed")]
-    public async Task<IActionResult> Seed()
-    {
-        try {
-            // await _db.Database ???
-            return Ok("Database successfully seeded");
-        }
-        catch (Exception ex){
-            return StatusCode(500, $"Seeding failed: {ex.Message}");
-        }
-    }
+    }    
 }
