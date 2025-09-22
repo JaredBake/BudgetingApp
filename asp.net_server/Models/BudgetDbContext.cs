@@ -76,12 +76,11 @@ namespace App.Models
     {
         public required int Id { get; set; }
         public required int AccountId { get; set; }
-        public required int UserId { get; set; }
         public DateTime Date { get; set; }
         public required Money Money { get; set; }
 
         [JsonIgnore]
-        public virtual Account Account { get; set; } = null!;
+        public virtual Account? Account { get; set; } = null!;
                
     }
 

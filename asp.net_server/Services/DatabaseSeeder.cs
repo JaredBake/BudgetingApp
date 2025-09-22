@@ -69,7 +69,6 @@ namespace App.Services
 
             var transaction = new Transaction()
             {
-                UserId = 10001,
                 AccountId = 10001,
                 Id = 40001,
                 Date = DateTime.UtcNow,
