@@ -25,7 +25,9 @@ public class AccountsController : ControllerBase
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
     {
-        return await _context.Accounts.ToListAsync();
+        return await _context.Accounts
+            .Include(a => a.Transactions)
+            .ToListAsync();
     }
 
     // [HttpGet("{id}")]

@@ -14,9 +14,7 @@ namespace App.Services
 
         public async Task SeedAsync()
         {
-            // // Apply migrations first
-            // await _db.Database.MigrateAsync();
-
+            
             await _db.Database.EnsureDeletedAsync();
             await _db.Database.EnsureCreatedAsync();
 
@@ -25,7 +23,7 @@ namespace App.Services
 
             var user = new User()
             {
-                id = 10001,
+                Id = 10001,
                 CreatedAt = DateTime.UtcNow,
                 UserName = "demo",
                 Name = "Demo User",
@@ -42,7 +40,8 @@ namespace App.Services
                 Name = "Checking",
                 AccountType = AccountType.Checking,
                 Balance = new Money { Amount = 1000, Currency = "USD" },
-                UserId = 10001
+                UserId = 10001,
+                User = user
             };
 
             _db.Accounts.Add(account);
@@ -74,7 +73,8 @@ namespace App.Services
                 AccountId = 10001,
                 Id = 40001,
                 Date = DateTime.UtcNow,
-                Money = new Money { Amount = -50, Currency = "$USD" }
+                Money = new Money { Amount = -50, Currency = "$USD" },
+                Account = account
             };
 
             _db.Transactions.Add(transaction);

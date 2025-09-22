@@ -2,6 +2,7 @@ using App.Models;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using App.Services;
+using System.Text.Json.Serialization;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -15,7 +16,14 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_HOST")};" 
                        $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};" +
                        $"Port={Environment.GetEnvironmentVariable("DB_PORT")}";
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.WriteIndented = true;
+        }
+    );
 
 builder.Services.AddDbContext<BudgetDbContext>(options => 
     options.UseNpgsql(connectionString));

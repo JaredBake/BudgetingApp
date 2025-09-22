@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace App.Models
 {
@@ -18,6 +19,46 @@ namespace App.Models
             modelBuilder.Entity<Fund>().OwnsOne(f => f.GoalAmount);
             modelBuilder.Entity<Fund>().OwnsOne(f => f.Current);
             modelBuilder.Entity<Transaction>().OwnsOne(t => t.Money);
+
+
+            // modelBuilder.Entity<Account>()
+            //     .HasOne(a => a.User)
+            //     .WithMany(u => u.Accounts)
+            //     .HasForeignKey(a => a.UserId)
+            //     .OnDelete(DeleteBehavior.Cascade);
+
+            // modelBuilder.Entity<Fund>()
+            //     .HasOne<User>()
+            //     .WithMany(u => u.Funds)
+            //     .HasForeignKey(f => f.UserId)
+            //     .OnDelete(DeleteBehavior.Cascade);
+
+            // modelBuilder.Entity<Transaction>()
+            //     .HasOne(t => t.Account)
+            //     .WithMany(a => a.Transactions)
+            //     .HasForeignKey(t => t.AccountId)
+            //     .OnDelete(DeleteBehavior.Cascade);
+
+            // modelBuilder.Entity<Transaction>()
+            //     .HasOne<User>()
+            //     .WithMany()
+            //     .HasForeignKey(t => t.UserId)
+            //     .OnDelete(DeleteBehavior.Restrict);
+
+             modelBuilder.Entity<User>()
+                .HasMany(u => u.Accounts)
+                .WithOne(a => a.User)
+                .HasForeignKey(a => a.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Funds)
+                .WithOne()
+                .HasForeignKey(f => f.UserId);
+
+            modelBuilder.Entity<Account>()
+                .HasMany(a => a.Transactions)
+                .WithOne(t => t.Account)
+                .HasForeignKey(t => t.AccountId);
         }       
     }
 
@@ -34,13 +75,16 @@ namespace App.Models
 
     public class Account
     {
-        public required int UserId { get; set; }
         public required int Id { get; set; }
+        public required int UserId { get; set; }
         public string? Name { get; set; }
         public required AccountType AccountType { get; set; }
         public required Money Balance { get; set; }
 
-        public List<Transaction>? Transactions { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+        [JsonIgnore]
+        public virtual User User { get; set; } = null!;
         
     }
 
@@ -55,27 +99,32 @@ namespace App.Models
 
     public class Transaction
     {
-        public required int AccountId { get; set; }       
         public required int Id { get; set; }
+        public required int AccountId { get; set; }
+        public required int UserId { get; set; }
         public DateTime Date { get; set; }
         public required Money Money { get; set; }
 
-        public required int UserId { get; set; }
+        [JsonIgnore]
+        public virtual Account Account { get; set; } = null!;
+        
+
         
     }
 
     public class User
     {
-        public required int id { get; set; }
+        public required int Id { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public string? UserName { get; set; }
         public string? Name { get; set; }
+        [JsonIgnore]
         public string? Password { get; set; }
         public string? Email { get; set; }
 
-        public List<Account>? Accounts { get; set; }
-        public List<Fund>? Funds { get; set; }
+        public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
+        public virtual ICollection<Fund> Funds { get; set; } = new List<Fund>();
         
     }
 }
