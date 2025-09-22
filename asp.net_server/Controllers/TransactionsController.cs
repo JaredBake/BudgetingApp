@@ -7,11 +7,23 @@ namespace App.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class TransactionsContoller : ControllerBase
+public class TransactionsController : ControllerBase
 {
-    [HttpGet("check")]
+    private readonly BudgetDbContext _context;
+    public TransactionsController(BudgetDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet()]
     public bool check()
     {
         return true;
+    }
+
+    [HttpGet("GetAll")]
+    public async Task<ActionResult<IEnumerable<Transaction>>> GetUsers()
+    {
+        return await _context.Transactions.ToListAsync();
     }
 }

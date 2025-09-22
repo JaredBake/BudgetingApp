@@ -15,13 +15,13 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("check")]
+    [HttpGet()]
     public bool check()
     {
         return true;
     }
 
-    [HttpGet("GetUsers")]
+    [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
         return await _context.Users.ToListAsync();

@@ -1,6 +1,7 @@
 using App.Models;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using App.Services;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -31,7 +32,7 @@ builder.Services.AddCors(o => o.AddPolicy(
     })
 );
 
-// builder.Services.AddScoped<DatabaseSeeder>();
+builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 

@@ -9,9 +9,22 @@ namespace App.Controllers;
 
 public class FundsController : ControllerBase
 {
-    [HttpGet("check")]
+     private readonly BudgetDbContext _context;
+
+    public FundsController(BudgetDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet()]
     public bool check()
     {
         return true;
+    }
+
+    [HttpGet("GetAll")]
+    public async Task<ActionResult<IEnumerable<Fund>>> GetFunds()
+    {
+        return await _context.Funds.ToListAsync();
     }
 }

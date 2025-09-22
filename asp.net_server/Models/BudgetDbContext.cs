@@ -24,7 +24,7 @@ namespace App.Models
     public class Money
     {
         public required decimal Amount { get; set; }
-        public required string Currency { get; set; }
+        public string? Currency { get; set; }
     }
 
     public enum AccountType
@@ -34,51 +34,48 @@ namespace App.Models
 
     public class Account
     {
+        public required int UserId { get; set; }
         public required int Id { get; set; }
-        public required string Name { get; set; }
+        public string? Name { get; set; }
         public required AccountType AccountType { get; set; }
         public required Money Balance { get; set; }
 
-        public required int UserId { get; set; }
-        public required User User { get; set; }
+        public List<Transaction>? Transactions { get; set; }
+        
     }
 
     public class Fund
     {
         public required int Id { get; set; }
-        public required string Description { get; set; }
+        public required int UserId { get; set; }
+        public string? Description { get; set; }
         public required Money GoalAmount { get; set; }
         public required Money Current { get; set; }
-
-        public required int UserId { get; set; }
-        public required User User { get; set; }
     }
 
     public class Transaction
     {
+        public required int AccountId { get; set; }       
         public required int Id { get; set; }
-        public required DateTime Date { get; set; }
+        public DateTime Date { get; set; }
         public required Money Money { get; set; }
- 
+
         public required int UserId { get; set; }
-        public required User User { get; set; }
- 
-        public required int? AccountId { get; set; }
-        public required Account Account { get; set; }
+        
     }
 
     public class User
     {
         public required int id { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        required public string UserName { get; set; }
-        required public string Name { get; set; }
-        required public string Password { get; set; }
-        required public string Email { get; set; }
+        public string? UserName { get; set; }
+        public string? Name { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
 
-        public required List<Account> Accounts { get; set; }
-        public required List<Fund> Funds { get; set; }
-        public required List<Transaction> Transactions { get; set; }
+        public List<Account>? Accounts { get; set; }
+        public List<Fund>? Funds { get; set; }
+        
     }
 }
