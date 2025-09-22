@@ -39,19 +39,25 @@ namespace App.Services
                 Id = 10001,
                 Name = "Checking",
                 AccountType = AccountType.Checking,
-                Balance = new Money { Amount = 1000, Currency = "USD" },
-                UserId = 10001,
-                User = user
+                Balance = new Money { Amount = 1000, Currency = "USD" }
             };
 
             _db.Accounts.Add(account);
             await _db.SaveChangesAsync();
 
+            var userAccount = new UserAccount()
+            {
+                UserId = user.Id,
+                AccountId = account.Id,
+            };
+
+            _db.UserAccounts.Add(userAccount);
+            await _db.SaveChangesAsync();
+
             var fund = new Fund()
             {
                 Id = 30001,
-                UserId = 10001,
-                Description = "n/a",
+                Description = "Emergency Fund",
                 GoalAmount = new Money()
                 {
                     Amount = 100.12M,
@@ -67,9 +73,18 @@ namespace App.Services
             _db.Funds.Add(fund);
             await _db.SaveChangesAsync();
 
+            var userFund = new UserFund()
+            {
+                UserId = user.Id,
+                FundId = fund.Id,
+            };
+
+            _db.UserFunds.Add(userFund);
+            await _db.SaveChangesAsync();
+            
             var transaction = new Transaction()
             {
-                AccountId = 10001,
+                AccountId = account.Id,
                 Id = 40001,
                 Date = DateTime.UtcNow,
                 Money = new Money { Amount = -50, Currency = "$USD" },

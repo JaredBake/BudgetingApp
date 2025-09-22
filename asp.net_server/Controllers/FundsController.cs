@@ -41,20 +41,44 @@ public class FundsController : ControllerBase
         return fund;
     }
 
-    [HttpPost("PostFund")]
+    [HttpPost()]
     public async Task<ActionResult<Account>> PostFund(Fund fund)
     {
 
         var a = await _context.Funds.FindAsync(fund.Id);
-        if (a != null) return BadRequest($"Fund already exists with Id: {fund.Id}");        
-
-        var user = await _context.Users.Include(u => u.Funds).FirstOrDefaultAsync(u => u.Id == fund.UserId);
-        if (user == null) return NotFound($"User does not exist with Id: {fund.UserId}");
+        if (a != null) return BadRequest($"Fund already exists with Id: {fund.Id}");              
 
         _context.Funds.Add(fund);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetFund), new { Id = fund.Id }, fund);
+    }
+
+    public class bodyObject { public int userId { get; set; } public int fundId { get; set; } }
+    [HttpPost("joinUserFund")]
+    public async Task<ActionResult> JoinUserFund([FromBody] bodyObject request)
+    {
+        var user = await _context.Users.FindAsync(request.userId);
+        var fund = await _context.Funds.FindAsync(request.fundId);
+
+        if (user == null) return NotFound($"User: {request.userId} not found");
+        if (fund == null) return NotFound($"Fund: {request.fundId} not found");
+
+        var existingJoin = await _context.UserFunds
+            .FirstOrDefaultAsync(ua => ua.UserId == request.userId && ua.FundId == request.fundId);
+
+        if (existingJoin != null) return BadRequest($"User: {request.userId} is already connected to this fund: {request.fundId}");
+
+        var userFund = new UserFund
+        {
+            UserId = request.userId,
+            FundId = request.fundId
+        };
+
+        _context.UserFunds.Add(userFund);
+        await _context.SaveChangesAsync();
+
+        return Ok("User association successfully created");        
     }
 
     [HttpPut("{Id}")]
@@ -63,9 +87,6 @@ public class FundsController : ControllerBase
         if (Id != fund.Id) return BadRequest($"Id: {Id} parameter doesn't equal fund.Id: {fund.Id}");        
 
         if (!FundExists(Id)) return NotFound($"No fund found to update with Id: {fund.Id}");
-
-        var u = await _context.Users.FindAsync(fund.UserId);
-        if (u == null) return NotFound($"User does not exist with Id: {fund.UserId}");
         
         _context.Entry(fund).State = EntityState.Modified;
 
