@@ -18,32 +18,7 @@ namespace App.Models
             modelBuilder.Entity<Account>().OwnsOne(a => a.Balance);
             modelBuilder.Entity<Fund>().OwnsOne(f => f.GoalAmount);
             modelBuilder.Entity<Fund>().OwnsOne(f => f.Current);
-            modelBuilder.Entity<Transaction>().OwnsOne(t => t.Money);
-
-
-            // modelBuilder.Entity<Account>()
-            //     .HasOne(a => a.User)
-            //     .WithMany(u => u.Accounts)
-            //     .HasForeignKey(a => a.UserId)
-            //     .OnDelete(DeleteBehavior.Cascade);
-
-            // modelBuilder.Entity<Fund>()
-            //     .HasOne<User>()
-            //     .WithMany(u => u.Funds)
-            //     .HasForeignKey(f => f.UserId)
-            //     .OnDelete(DeleteBehavior.Cascade);
-
-            // modelBuilder.Entity<Transaction>()
-            //     .HasOne(t => t.Account)
-            //     .WithMany(a => a.Transactions)
-            //     .HasForeignKey(t => t.AccountId)
-            //     .OnDelete(DeleteBehavior.Cascade);
-
-            // modelBuilder.Entity<Transaction>()
-            //     .HasOne<User>()
-            //     .WithMany()
-            //     .HasForeignKey(t => t.UserId)
-            //     .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Transaction>().OwnsOne(t => t.Money);          
 
              modelBuilder.Entity<User>()
                 .HasMany(u => u.Accounts)
@@ -84,8 +59,8 @@ namespace App.Models
         public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
         [JsonIgnore]
-        public virtual User User { get; set; } = null!;
-        
+        public virtual User? User { get; set; } = null!;
+                
     }
 
     public class Fund
@@ -107,9 +82,7 @@ namespace App.Models
 
         [JsonIgnore]
         public virtual Account Account { get; set; } = null!;
-        
-
-        
+               
     }
 
     public class User

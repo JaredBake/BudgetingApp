@@ -9,7 +9,7 @@ namespace App.Controllers;
 
 public class FundsController : ControllerBase
 {
-     private readonly BudgetDbContext _context;
+    private readonly BudgetDbContext _context;
 
     public FundsController(BudgetDbContext context)
     {
