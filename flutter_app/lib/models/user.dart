@@ -5,18 +5,15 @@ import 'transaction.dart';
 
 
 class User {
-  final int id;
   final DateTime createdAt;
   final Credentials credentials;  // Credentials objects hold name, username, password, email
-
-  final List<Transaction> transactions = []; // When a user is created, their transactions list is empty
-  final List<Fund> funds = []; // When a user is created, their funds list is empty
+  final Data data;
 
   // Constructor
   User({
-    required this.id, 
     required this.createdAt, 
-    required this.credentials
+    required this.credentials,
+    required this.data
     });
 
   bool addTransaction(Transaction transaction) {

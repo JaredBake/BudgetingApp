@@ -1,15 +1,15 @@
-import 'money.dart';
-
 
 class Transaction {
     final int id;
+    final int accountId;
     final DateTime date;
     final Money money;
     final String description;
     final TransactionType transactionType;
 
     Transaction({
-        required this.id, 
+        required this.id,
+        required this.accountId, 
         required this.date, 
         required this.money, 
         required this.description, 
@@ -17,12 +17,14 @@ class Transaction {
         });
 
     bool isIncome() {
-        // TODO
-        return false;
+        if (this.transactionType == TransactionType.income) {
+            return true;
+        }
     }
-
     bool isExpense() {
-        // TODO
+        if (this.transactionType == TransactionType.expense) {
+            return true;
+        }
         return false;
     }
 

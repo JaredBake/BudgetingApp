@@ -4,6 +4,14 @@ class Money {
 
   Money({required this.amount, required this.currency});
 
+  double getAmount() {
+    return this.amount;
+  }
+
+  String getCurrency() {
+    return this.currency;
+  }
+
   Money addMoney(Money other) {
     if (this.currency != other.currency) {
       throw Exception('Cannot add money with different currencies');
