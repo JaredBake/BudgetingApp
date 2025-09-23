@@ -26,6 +26,26 @@ namespace App.Models
             modelBuilder.Entity<Transaction>().OwnsOne(t => t.Money);
             modelBuilder.Entity<User>().OwnsOne(u => u.Credentials);
 
+            modelBuilder.Entity<User>()
+                .Property(u => u.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+
+             modelBuilder.Entity<Account>()
+                .Property(a => a.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+
+            modelBuilder.Entity<Fund>()
+                .Property(f => f.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+
 
             // User Account Junction Table Relationships
             modelBuilder.Entity<UserAccount>()
@@ -114,7 +134,7 @@ namespace App.Models
 
     public class Account
     {
-        public required int Id { get; set; }
+        public int Id { get; set; }
         public string? Name { get; set; }
         public required AccountType AccountType { get; set; }
         public required Money Balance { get; set; }
@@ -126,7 +146,7 @@ namespace App.Models
 
     public class Fund
     {
-        public required int Id { get; set; }
+        public int Id { get; set; }
         public string? Description { get; set; }
         public required Money GoalAmount { get; set; }
         public required Money Current { get; set; }
@@ -137,7 +157,7 @@ namespace App.Models
 
     public class Transaction
     {
-        public required int Id { get; set; }
+        public int Id { get; set; }
         public required int AccountId { get; set; }
         public DateTime Date { get; set; }
         public required Money Money { get; set; }
@@ -161,7 +181,7 @@ namespace App.Models
 
     public class User
     {
-        public required int Id { get; set; }
+        public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public required Credentials Credentials { get; set; }

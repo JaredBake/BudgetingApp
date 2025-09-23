@@ -23,7 +23,6 @@ namespace App.Services
 
             var user = new User()
             {
-                Id = 10001,
                 CreatedAt = DateTime.UtcNow,
                 Credentials = new Credentials
                 {
@@ -39,7 +38,6 @@ namespace App.Services
 
             var account = new Account()
             {
-                Id = 10001,
                 Name = "Checking",
                 AccountType = AccountType.Checking,
                 Balance = new Money { Amount = 1000, Currency = "USD" }
@@ -59,7 +57,6 @@ namespace App.Services
 
             var fund = new Fund()
             {
-                Id = 30001,
                 Description = "Emergency Fund",
                 GoalAmount = new Money()
                 {
@@ -88,7 +85,6 @@ namespace App.Services
             var transaction = new Transaction()
             {
                 AccountId = account.Id,
-                Id = 40001,
                 Date = DateTime.UtcNow,
                 Money = new Money { Amount = -50, Currency = "$USD" },
                 Account = account
