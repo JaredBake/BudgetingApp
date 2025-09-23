@@ -11,31 +11,40 @@ namespace App.Services
         {
             _db = db;
         }
+        
+        public async Task SeedUsers(){
+            var users = new List<User>();
 
-        public async Task SeedAsync()
-        {
-            
-            await _db.Database.EnsureDeletedAsync();
-            await _db.Database.EnsureCreatedAsync();
-
-            // Prevent duplicate seeding
-            if (await _db.Users.AnyAsync()) return;
-
-            var user = new User()
+            var user1 = new User()
             {
-                CreatedAt = DateTime.UtcNow,
                 Credentials = new Credentials
                 {
                     UserName = "demo",
                     Name = "Demo User",
                     Password = "password123",
-                    Email = "demo@example.com"                    
+                    Email = "demo@example.com"
                 }
             };
 
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            var user2 = new User()
+            {
+                Credentials = new Credentials
+                {
+                    UserName = "demo2",
+                    Name = "Demo User2",
+                    Password = "password123",
+                    Email = "demo@example.com"
+                }
+            };
 
+            users.Add(user1);
+            users.Add(user2);
+
+            await _db.Users.AddRangeAsync(users);
+            await _db.SaveChangesAsync();}
+
+        public async Task SeedAccounts()
+        {
             var account = new Account()
             {
                 Name = "Checking",
@@ -45,16 +54,19 @@ namespace App.Services
 
             _db.Accounts.Add(account);
             await _db.SaveChangesAsync();
-
-            var userAccount = new UserAccount()
+        }
+        public async Task SeedTransactions(){
+            var transaction = new Transaction()
             {
-                UserId = user.Id,
-                AccountId = account.Id,
+                AccountId = 1,
+                Date = DateTime.UtcNow,
+                Money = new Money { Amount = -50, Currency = "$USD" },
             };
 
-            _db.UserAccounts.Add(userAccount);
-            await _db.SaveChangesAsync();
-
+            _db.Transactions.Add(transaction);
+            await _db.SaveChangesAsync();}
+        public async Task SeedFunds()
+        {
             var fund = new Fund()
             {
                 Description = "Emergency Fund",
@@ -72,26 +84,42 @@ namespace App.Services
 
             _db.Funds.Add(fund);
             await _db.SaveChangesAsync();
+        }
+        public async Task SeedUserAccounts()
+        {
+            var userAccount = new UserAccount()
+            {
+                UserId = 1,
+                AccountId = 1,
+            };
 
+            _db.UserAccounts.Add(userAccount);
+            await _db.SaveChangesAsync();
+        }
+        public async Task SeedUserFunds()
+        {
             var userFund = new UserFund()
             {
-                UserId = user.Id,
-                FundId = fund.Id,
+                UserId = 1,
+                FundId = 1,
             };
 
             _db.UserFunds.Add(userFund);
             await _db.SaveChangesAsync();
+        }
 
-            var transaction = new Transaction()
-            {
-                AccountId = account.Id,
-                Date = DateTime.UtcNow,
-                Money = new Money { Amount = -50, Currency = "$USD" },
-                Account = account
-            };
+        public async Task SeedAsync()
+        {
 
-            _db.Transactions.Add(transaction);
-            await _db.SaveChangesAsync();
+            await _db.Database.EnsureDeletedAsync();
+            await _db.Database.EnsureCreatedAsync();
+
+            await SeedUsers();
+            await SeedFunds();
+            await SeedAccounts();
+            await SeedTransactions();
+            await SeedUserAccounts();
+            await SeedUserFunds();                     
         }
     }
 }
