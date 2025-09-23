@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace App.Models
@@ -23,6 +24,7 @@ namespace App.Models
             modelBuilder.Entity<Fund>().OwnsOne(f => f.GoalAmount);
             modelBuilder.Entity<Fund>().OwnsOne(f => f.Current);
             modelBuilder.Entity<Transaction>().OwnsOne(t => t.Money);
+            modelBuilder.Entity<User>().OwnsOne(u => u.Credentials);
 
 
             // User Account Junction Table Relationships
@@ -145,20 +147,33 @@ namespace App.Models
                
     }
 
+    public class Credentials
+    {
+        public required String Name { get; set; }
+
+        public required String? UserName { get; set; }
+
+        [JsonIgnore]
+        public String? Password { get; set; }
+        
+        public required String? Email { get; set; }
+    }
 
     public class User
     {
         public required int Id { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public string? UserName { get; set; }
-        public string? Name { get; set; }
-        [JsonIgnore]
-        public string? Password { get; set; }
-        public string? Email { get; set; }
+        public required Credentials Credentials { get; set; }
 
         public virtual ICollection<UserAccount> UserAccounts { get; set; } = new List<UserAccount>();
-        public virtual ICollection<UserFund> UserFunds { get; set; } = new List<UserFund>();       
+        public virtual ICollection<UserFund> UserFunds { get; set; } = new List<UserFund>();
+
+        [NotMapped]
+        public IEnumerable<Account> Accounts => UserAccounts.Select(ua => ua.Account!);
+
+        [NotMapped]
+        public IEnumerable<Fund> Funds => UserFunds.Select(uf => uf.Fund!);
 
     }
 }

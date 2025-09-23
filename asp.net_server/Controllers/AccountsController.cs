@@ -27,13 +27,17 @@ public class AccountsController : ControllerBase
     {
         return await _context.Accounts
             .Include(a => a.Transactions)
+            .Include(a => a.UserAccounts)
             .ToListAsync();
     }
 
     [HttpGet("{Id}")]
     public async Task<ActionResult<Account>> GetAccount(int Id)
     {
-        var account = await _context.Accounts.FindAsync(Id);
+        var account = await _context.Accounts
+            // .Include(a => a.Transactions)
+            // .Include(a => a.UserAccounts)
+            .FindAsync(Id);
 
         if (account == null)
         {

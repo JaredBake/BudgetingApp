@@ -25,10 +25,13 @@ namespace App.Services
             {
                 Id = 10001,
                 CreatedAt = DateTime.UtcNow,
-                UserName = "demo",
-                Name = "Demo User",
-                Password = "password123",
-                Email = "demo@example.com"
+                Credentials = new Credentials
+                {
+                    UserName = "demo",
+                    Name = "Demo User",
+                    Password = "password123",
+                    Email = "demo@example.com"                    
+                }
             };
 
             _db.Users.Add(user);
@@ -81,7 +84,7 @@ namespace App.Services
 
             _db.UserFunds.Add(userFund);
             await _db.SaveChangesAsync();
-            
+
             var transaction = new Transaction()
             {
                 AccountId = account.Id,
