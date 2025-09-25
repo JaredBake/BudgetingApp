@@ -11,7 +11,7 @@ class Data {
         required this.accounts
         });
 
-    List<Fund> getAccounts() {
+    List<Account> getAccounts() {
         return this.accounts;
     }
 
