@@ -30,5 +30,6 @@ class Credentials {
     String getEmail() {
         return this.email;
     }
+
 }
 

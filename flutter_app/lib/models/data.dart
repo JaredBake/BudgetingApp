@@ -1,3 +1,7 @@
+import 'account.dart';
+import 'fund.dart';
+
+
 class Data {
     List<Fund> funds;
     List<Account> accounts;

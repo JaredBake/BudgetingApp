@@ -1,5 +1,8 @@
+import 'money.dart';
+
+
 class Fund {
-    string name;
+    String name;
     Money goalAmount;
     Money currentAmount;
     DateTime targetDate;

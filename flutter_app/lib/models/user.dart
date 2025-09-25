@@ -2,6 +2,7 @@ import 'credentials.dart';
 import 'fund.dart';
 import 'money.dart';
 import 'transaction.dart';
+import 'data.dart';
 
 
 class User {

@@ -1,3 +1,8 @@
+import 'money.dart';
+import 'category.dart';
+import 'TransactionType.dart';
+
+
 
 class Transaction {
     final int id;
@@ -20,6 +25,7 @@ class Transaction {
         if (this.transactionType == TransactionType.income) {
             return true;
         }
+        return false;
     }
     bool isExpense() {
         if (this.transactionType == TransactionType.expense) {
@@ -43,18 +49,19 @@ class Transaction {
         return this.money;
     }
 
-    Category getCategory() {
-        return this.category;
-    }
-
     TransactionType getTransactionType() {
         return this.transactionType;
     }
 
     @override
     String toString() {
-        return 'Transaction{id: $id, userId: $userId, description: 
-                            $description, date: $date, amount: $amount, 
-                            category: $category, transactionType: $transactionType}';
+        return '''Transaction{
+            id: $id,
+            accountId: $accountId,
+            date: $date,
+            money: ${money.toString()},
+            description: $description,
+            transactionType: $transactionType
+        }''';
     }
 }
