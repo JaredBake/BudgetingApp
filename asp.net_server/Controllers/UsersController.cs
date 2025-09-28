@@ -26,19 +26,26 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
 
-        return await _context.Users
-            .Include(u => u.Accounts)
-            .ThenInclude(a => a.Transactions)
-            .Include(u => u.Funds)
-            .ToListAsync();               
+        var users = await _context.Users
+            .Include(u => u.UserAccounts)
+                .ThenInclude(ua => ua.Account)
+                    .ThenInclude(a => a!.Transactions)
+            .Include(u => u.UserFunds)
+                .ThenInclude(uf => uf.Fund)
+            .ToListAsync();
+
+        return users;     
     }   
 
     [HttpGet("{Id}")]
     public async Task<ActionResult<User>> GetUser(int Id)
     {
         var user = await _context.Users
-            .Include(u => u.Accounts)
-            .Include(u => u.Funds)
+            .Include(u => u.UserAccounts)
+                .ThenInclude(ua => ua.Account)
+                    .ThenInclude(a => a!.Transactions)
+            .Include(u => u.UserFunds)
+                .ThenInclude(uf => uf.Fund)
             .FirstOrDefaultAsync(u => u.Id == Id);
 
         if (user == null)
@@ -98,6 +105,9 @@ public class UsersController : ControllerBase
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+
+        // var userFunds = await _context.UserFunds.SelectMany(uf => uf.UserId = Id);
+        // _context.UserFunds.RemoveRange()
 
         return NoContent();
     }

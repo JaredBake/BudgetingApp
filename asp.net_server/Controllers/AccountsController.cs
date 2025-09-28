@@ -27,77 +27,112 @@ public class AccountsController : ControllerBase
     {
         return await _context.Accounts
             .Include(a => a.Transactions)
+            .Include(a => a.UserAccounts)
             .ToListAsync();
     }
 
-    // [HttpGet("{id}")]
-    // public async Task<ActionResult<User>> GetUser(int id)
-    // {
-    //     var user = await _context.Users.FindAsync(id);
+    [HttpGet("{Id}")]
+    public async Task<ActionResult<Account>> GetAccount(int Id)
+    {
+        var account = await _context.Accounts
+            // .Include(a => a.Transactions)
+            // .Include(a => a.UserAccounts)
+            .FindAsync(Id);
 
-    //     if (user == null)
-    //     {
-    //         return NotFound();
-    //     }
+        if (account == null)
+        {
+            return NotFound();
+        }
 
-    //     return user;
-    // }
+        return account;
+    }
 
-    // [HttpPost("PostUser")]
-    // public async Task<ActionResult<User>> PostUser(User user)
-    // {
-    //     _context.Users.Add(user);
-    //     await _context.SaveChangesAsync();
+    [HttpPost()]
+    public async Task<ActionResult<Account>> PostAccount(Account account)
+    {
 
-    //     return CreatedAtAction(nameof(GetUser), new { id = user.id }, user);
-    // }
+        var a = await _context.Accounts.FindAsync(account.Id);
+        if (a != null) return BadRequest($"Account already exists with Id: {account.Id}");        
 
-    // [HttpPut("{id}")]
-    // public async Task<IActionResult> PutUser(int id, User user)
-    // {
-    //     if (id != user.id)
-    //     {
-    //         return BadRequest();
-    //     }
+        _context.Accounts.Add(account);
+        await _context.SaveChangesAsync();
 
-    //     _context.Entry(user).State = EntityState.Modified;
+        return CreatedAtAction(nameof(GetAccount), new { Id = account.Id }, account);
+    }
 
-    //     try
-    //     {
-    //         await _context.SaveChangesAsync();
-    //     }
-    //     catch (DbUpdateConcurrencyException)
-    //     {
-    //         if (!UserExists(id))
-    //         {
-    //             return NotFound();
-    //         }
-    //         else
-    //         {
-    //             throw;
-    //         }
-    //     }
+    public class bodyObject { public int userId { get; set; } public int accountId { get; set; } }
+    [HttpPost("joinUserAccount")]
+    public async Task<ActionResult> JoinUserAccount([FromBody] bodyObject request)
+    {
+        var user = await _context.Users.FindAsync(request.userId);
+        var account = await _context.Accounts.FindAsync(request.accountId);
 
-    //     return NoContent();
-    // }
+        if (user == null) return NotFound($"User: {request.userId} not found");
+        if (account == null) return NotFound($"Account: {request.accountId} not found");
 
-    // [HttpDelete("{id}")]
-    // public async Task<IActionResult> DeleteUser(int id)
-    // {
-    //     var user = await _context.Users.FindAsync(id);
-    //     if (user == null)
-    //     {
-    //         return NotFound();
-    //     }
+        var existingJoin = await _context.UserAccounts
+            .FirstOrDefaultAsync(ua => ua.UserId == request.userId && ua.AccountId == request.accountId);
 
-    //     _context.Users.Remove(user);
-    //     await _context.SaveChangesAsync();
+        if (existingJoin != null) return BadRequest($"User: {request.userId} is already connected to this account: {request.accountId}");
 
-    //     return NoContent();
-    // }
+        var userAccount = new UserAccount
+        {
+            UserId = request.userId,
+            AccountId = request.accountId
+        };
 
-    // private bool UserExists(int id)
-    // {
-    //     return _context.Users.Any(e => e.id == id);
-    // }
+        _context.UserAccounts.Add(userAccount);
+        await _context.SaveChangesAsync();
+
+        return Ok("User association successfully created");        
+    }
+
+
+    [HttpPut("{Id}")]
+    public async Task<IActionResult> PutAccount(int Id, Account account)
+    {
+        if (Id != account.Id) return BadRequest($"Id: {Id} parameter doesn't equal account.Id: {account.Id}");        
+
+        if (!AccountExists(Id)) return NotFound($"No account found to update with Id: {account.Id}");
+        
+        _context.Entry(account).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AccountExists(Id))
+            {
+                return NotFound($"No account found to update with Id: {account.Id}");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{Id}")]
+    public async Task<IActionResult> DeleteAccount(int Id)
+    {
+        var account = await _context.Accounts.FindAsync(Id);
+        if (account == null)
+        {
+            return NotFound($"No account found to delete with Id: {Id}");
+        }
+
+        _context.Accounts.Remove(account);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool AccountExists(int Id)
+    {
+        return _context.Accounts.Any(e => e.Id == Id);
+    }
 }
