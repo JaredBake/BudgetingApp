@@ -32,7 +32,7 @@ class MyAppState extends ChangeNotifier {
 }
 
 Future<void> fetchPosts() async {
-  final response = await http.get(Uri.parse('http://localhost:5284/api/Users/GetUsers'));
+  final response = await http.get(Uri.parse('http://localhost:5284/test'));
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
