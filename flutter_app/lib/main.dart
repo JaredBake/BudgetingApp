@@ -1,4 +1,5 @@
 import 'dart:convert'; // For JSON encoding/decoding
+import 'pages/welcome.dart'
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: WelcomePage(),
       ),
     );
   }
