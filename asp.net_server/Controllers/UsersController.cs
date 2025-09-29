@@ -1,6 +1,7 @@
 ﻿using App.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace App.Controllers;
 
@@ -15,22 +16,37 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("CheckConnection")]
-    public bool CheckConnection()
+    [HttpGet()]
+    public bool check()
     {
         return true;
     }
 
-    [HttpGet("GetUsers")]
+    [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _context.Users.ToListAsync();
-    }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUser(int id)
+        var users = await _context.Users
+            .Include(u => u.UserAccounts)
+                .ThenInclude(ua => ua.Account)
+                    .ThenInclude(a => a!.Transactions)
+            .Include(u => u.UserFunds)
+                .ThenInclude(uf => uf.Fund)
+            .ToListAsync();
+
+        return users;     
+    }   
+
+    [HttpGet("{Id}")]
+    public async Task<ActionResult<User>> GetUser(int Id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users
+            .Include(u => u.UserAccounts)
+                .ThenInclude(ua => ua.Account)
+                    .ThenInclude(a => a!.Transactions)
+            .Include(u => u.UserFunds)
+                .ThenInclude(uf => uf.Fund)
+            .FirstOrDefaultAsync(u => u.Id == Id);
 
         if (user == null)
         {
@@ -46,13 +62,13 @@ public class UsersController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetUser), new { id = user.id }, user);
+        return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, user);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(int id, User user)
+    [HttpPut("{Id}")]
+    public async Task<IActionResult> PutUser(int Id, User user)
     {
-        if (id != user.id)
+        if (Id != user.Id)
         {
             return BadRequest();
         }
@@ -65,7 +81,7 @@ public class UsersController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!UserExists(id))
+            if (!UserExists(Id))
             {
                 return NotFound();
             }
@@ -78,10 +94,10 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
+    [HttpDelete("{Id}")]
+    public async Task<IActionResult> DeleteUser(int Id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(Id);
         if (user == null)
         {
             return NotFound();
@@ -90,11 +106,14 @@ public class UsersController : ControllerBase
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
+        // var userFunds = await _context.UserFunds.SelectMany(uf => uf.UserId = Id);
+        // _context.UserFunds.RemoveRange()
+
         return NoContent();
     }
 
-    private bool UserExists(int id)
+    private bool UserExists(int Id)
     {
-        return _context.Users.Any(e => e.id == id);
+        return _context.Users.Any(e => e.Id == Id);
     }
 }

@@ -1,22 +1,46 @@
 using App.Models;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
+using App.Services;
+using System.Text.Json.Serialization;
 
 string allowCORs = "_AllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+Env.Load();
 
-builder.Services.AddDbContext<BudgetDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_HOST")};" +
+                       $"Database={Environment.GetEnvironmentVariable("DB_NAME")};" +
+                       $"Username={Environment.GetEnvironmentVariable("DB_USER")};" +
+                       $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};" +
+                       $"Port={Environment.GetEnvironmentVariable("DB_PORT")}";
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.WriteIndented = true;
+        }
+    );
+
+builder.Services.AddDbContext<BudgetDbContext>(options => 
+    options.UseNpgsql(connectionString));
+
+
+var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
 
 builder.Services.AddCors(o => o.AddPolicy(
     allowCORs, builder =>
     {
-        builder.WithOrigins("http://localhost:8000") //Update with correct port number of front-end
+        builder.WithOrigins(localHostString) 
             .AllowAnyHeader()
             .AllowAnyMethod();
     })
 );
+
+builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 
@@ -25,7 +49,7 @@ app.MapGet("/test", () =>
     return true;
 });
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCors(allowCORs);
 app.UseRouting();
 app.UseAuthorization();
@@ -34,8 +58,5 @@ app.Run();
 
 namespace App
 {
-    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-    {
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
+    
 }

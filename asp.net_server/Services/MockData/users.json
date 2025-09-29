@@ -1,0 +1,210 @@
+[
+  {
+    "Credentials": {
+      "UserName": "Charizard",
+      "Name": "Charizard Smith",
+      "Password": "1234567!",
+      "Email": "charizard@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Pikachu",
+      "Name": "Pikachu Sparks",
+      "Password": "1234567!",
+      "Email": "pikachu@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Bulbasaur",
+      "Name": "Bulbasaur Green",
+      "Password": "1234567!",
+      "Email": "bulbasaur@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Squirtle",
+      "Name": "Squirtle Wave",
+      "Password": "1234567!",
+      "Email": "squirtle@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Gengar",
+      "Name": "Gengar Shade",
+      "Password": "1234567!",
+      "Email": "gengar@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Eevee",
+      "Name": "Eevee Fluff",
+      "Password": "1234567!",
+      "Email": "eevee@pokemail.com"    
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Alakazam",
+      "Name": "Alakazam Mind",
+      "Password": "1234567!",
+      "Email": "alakazam@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Machamp",
+      "Name": "Machamp Flex",
+      "Password": "1234567!",
+      "Email": "machamp@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Gyarados",
+      "Name": "Gyarados Rage",
+      "Password": "1234567!",
+      "Email": "gyarados@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Lapras",
+      "Name": "Lapras Wave",
+      "Password": "1234567!",
+      "Email": "lapras@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Dragonite",
+      "Name": "Dragonite Wings",
+      "Password": "1234567!",
+      "Email": "dragonite@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Scizor",
+      "Name": "Scizor Claw",
+      "Password": "1234567!",
+      "Email": "scizor@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Umbreon",
+      "Name": "Umbreon Shadow",
+      "Password": "1234567!",
+      "Email": "umbreon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Espeon",
+      "Name": "Espeon Light",
+      "Password": "1234567!",
+      "Email": "espeon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Sylveon",
+      "Name": "Sylveon Charm",
+      "Password": "1234567!",
+      "Email": "sylveon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Leafeon",
+      "Name": "Leafeon Bloom",
+      "Password": "1234567!",
+      "Email": "leafeon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Glaceon",
+      "Name": "Glaceon Frost",
+      "Password": "1234567!",
+      "Email": "glaceon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Vaporeon",
+      "Name": "Vaporeon Mist",
+      "Password": "1234567!",
+      "Email": "vaporeon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Jolteon",
+      "Name": "Jolteon Bolt",
+      "Password": "1234567!",
+      "Email": "jolteon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Flareon",
+      "Name": "Flareon Ember",
+      "Password": "1234567!",
+      "Email": "flareon@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Metagross",
+      "Name": "Metagross Steel",
+      "Password": "1234567!",
+      "Email": "metagross@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Salamence",
+      "Name": "Salamence Sky",
+      "Password": "1234567!",
+      "Email": "salamence@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Garchomp",
+      "Name": "Garchomp Fang",
+      "Password": "1234567!",
+      "Email": "garchomp@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Lucario",
+      "Name": "Lucario Pulse",
+      "Password": "1234567!",
+      "Email": "lucario2@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Greninja",
+      "Name": "Greninja Strike",
+      "Password": "1234567!",
+      "Email": "greninja@pokemail.com"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Zoroark",
+      "Name": "Zoroark Illusion",
+      "Password": "1234567!",
+      "Email": "zoroark@pokemail.com"
+    }
+  }
+]

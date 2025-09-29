@@ -1,0 +1,110 @@
+[
+  {
+    "Description": "Dream Home Fund",
+    "GoalAmount": {
+      "Amount": 75000.00
+    },
+    "Current": {
+      "Amount": 15000.00
+    }
+  },
+  {
+    "Description": "College Tuition",
+    "GoalAmount": {
+      "Amount": 42000.00
+    },
+    "Current": {
+      "Amount": 5000.00
+    }
+  },
+  {
+    "Description": "Travel the World",
+    "GoalAmount": {
+      "Amount": 28000.50
+    },
+    "Current": {
+      "Amount": 9200.00
+    }
+  },
+  {
+    "Description": "Emergency Savings",
+    "GoalAmount": {
+      "Amount": 10000.00
+    },
+    "Current": {
+      "Amount": 3000.00
+    }
+  },
+  {
+    "Description": "New Car Fund",
+    "GoalAmount": {
+      "Amount": 35000.00
+    },
+    "Current": {
+      "Amount": 7000.00
+    }
+  },
+  {
+    "Description": "Wedding Fund",
+    "GoalAmount": {
+      "Amount": 18000.75
+    },
+    "Current": {
+      "Amount": 2500.00
+    }
+  },
+  {
+    "Description": "Startup Capital",
+    "GoalAmount": {
+      "Amount": 90000.00
+    },
+    "Current": {
+      "Amount": 12000.00
+    }
+  },
+  {
+    "Description": "Charity Giving",
+    "GoalAmount": {
+      "Amount": 8000.00
+    },
+    "Current": {
+      "Amount": 1000.00
+    }
+  },
+  {
+    "Description": "Tech Gadgets",
+    "GoalAmount": {
+      "Amount": 6000.00
+    },
+    "Current": {
+      "Amount": 800.00
+    }
+  },
+  {
+    "Description": "Adventure Gear",
+    "GoalAmount": {
+      "Amount": 4500.50
+    },
+    "Current": {
+      "Amount": 1200.00
+    }
+  },
+  {
+    "Description": "Pet Care Savings",
+    "GoalAmount": {
+      "Amount": 3000.00
+    },
+    "Current": {
+      "Amount": 750.00
+    }
+  },
+  {
+    "Description": "Garden Renovation",
+    "GoalAmount": {
+      "Amount": 22000.00
+    },
+    "Current": {
+      "Amount": 4200.00
+    }
+  }
+]
