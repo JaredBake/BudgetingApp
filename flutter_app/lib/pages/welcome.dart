@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // import 'pages/Login.dart';
 import 'register.dart';
+import 'login.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -70,6 +71,10 @@ class WelcomePage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Login()),
+                    );
                     // Navigate to login page
                     print('Navigate to Login');
                   },
