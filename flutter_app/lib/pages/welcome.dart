@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // import 'pages/Login.dart';
-// import 'pages/Register.dart';
+import 'register.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -99,7 +99,10 @@ class WelcomePage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     // Navigate to register page
-                    print('Navigate to Register');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Register()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[400],
