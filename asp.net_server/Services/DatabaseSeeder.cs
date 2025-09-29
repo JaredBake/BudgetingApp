@@ -13,57 +13,36 @@ namespace App.Services
             _db = db;
         }
 
-        public async Task SeedUsers() {
-            List<User> users = new List<User>();
-
-            List<Credentials>? creds;
+        public async Task SeedUsers()
+        {
+            List<User>? users;           
             
-            using (StreamReader r = new StreamReader("Services/MockData/credentials.json"))
+            using (StreamReader r = new StreamReader("Services/MockData/users.json"))
             {
                 string json = r.ReadToEnd();
-                creds = JsonConvert.DeserializeObject<List<Credentials>>(json);
+                users = JsonConvert.DeserializeObject<List<User>>(json);
             }
 
-            if (creds == null) throw new NullReferenceException("Creds was not read properly");
-
-            foreach (var cred in creds)
-            {
-                User user = new User{
-
-                    Credentials = cred
-                };
-
-                users.Add(user);
-            }
-
-            // var user1 = new User()
-            // {
-            //     Credentials = new Credentials
-            //     {
-            //         UserName = "demo",
-            //         Name = "Demo User",
-            //         Password = "password123",
-            //         Email = "demo@example.com"
-            //     }
-            // };
-
-            // var user2 = new User()
-            // {
-            //     Credentials = new Credentials
-            //     {
-            //         UserName = "demo2",
-            //         Name = "Demo User2",
-            //         Password = "password123",
-            //         Email = "demo@example.com"
-            //     }
-            // };
-
-            // users.Add(user1);
-            // users.Add(user2);
-
+            if (users == null) throw new NullReferenceException("Creds were not read properly");
+            
             await _db.Users.AddRangeAsync(users);
             await _db.SaveChangesAsync();}
 
+        public async Task SeedFunds()
+        {
+            List<Fund>? funds;
+
+            using (StreamReader r = new StreamReader("Services/MockData/funds.json"))
+            {
+                string json = r.ReadToEnd();
+                funds = JsonConvert.DeserializeObject<List<Fund>>(json);
+            }
+
+            if (funds == null) throw new NullReferenceException("Funds were not read properly");
+
+            await _db.Funds.AddRangeAsync(funds);
+            await _db.SaveChangesAsync();
+        }
         public async Task SeedAccounts()
         {
             var account = new Account()
@@ -86,26 +65,7 @@ namespace App.Services
 
             _db.Transactions.Add(transaction);
             await _db.SaveChangesAsync();}
-        public async Task SeedFunds()
-        {
-            var fund = new Fund()
-            {
-                Description = "Emergency Fund",
-                GoalAmount = new Money()
-                {
-                    Amount = 100.12M,
-                    Currency = "$USD"
-                },
-                Current = new Money()
-                {
-                    Amount = 0.00M,
-                    Currency = "$USD"
-                }
-            };
-
-            _db.Funds.Add(fund);
-            await _db.SaveChangesAsync();
-        }
+        
         public async Task SeedUserAccounts()
         {
             var userAccount = new UserAccount()
@@ -135,12 +95,19 @@ namespace App.Services
             await _db.Database.EnsureDeletedAsync();
             await _db.Database.EnsureCreatedAsync();
 
-            await SeedUsers();
-            await SeedFunds();
-            await SeedAccounts();
-            await SeedTransactions();
-            await SeedUserAccounts();
-            await SeedUserFunds();                     
+            try
+            {
+                await SeedUsers();
+                await SeedFunds();
+                // await SeedAccounts();
+                // await SeedTransactions();
+                // await SeedUserAccounts();
+                // await SeedUserFunds();
+            }
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine("Cannot load data: " + e.Message);
+            }
         }
     }
 }

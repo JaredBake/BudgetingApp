@@ -124,7 +124,7 @@ namespace App.Models
     public class Money
     {
         public required decimal Amount { get; set; }
-        public string? Currency { get; set; }
+        public string? Currency { get; set; } = "$USD";
     }
 
     public enum AccountType
