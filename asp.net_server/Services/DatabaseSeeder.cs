@@ -1,5 +1,6 @@
 using App.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace App.Services
 {
@@ -11,34 +12,54 @@ namespace App.Services
         {
             _db = db;
         }
-        
-        public async Task SeedUsers(){
-            var users = new List<User>();
 
-            var user1 = new User()
+        public async Task SeedUsers() {
+            List<User> users = new List<User>();
+
+            List<Credentials>? creds;
+            
+            using (StreamReader r = new StreamReader("Services/MockData/credentials.json"))
             {
-                Credentials = new Credentials
-                {
-                    UserName = "demo",
-                    Name = "Demo User",
-                    Password = "password123",
-                    Email = "demo@example.com"
-                }
-            };
+                string json = r.ReadToEnd();
+                creds = JsonConvert.DeserializeObject<List<Credentials>>(json);
+            }
 
-            var user2 = new User()
+            if (creds == null) throw new NullReferenceException("Creds was not read properly");
+
+            foreach (var cred in creds)
             {
-                Credentials = new Credentials
-                {
-                    UserName = "demo2",
-                    Name = "Demo User2",
-                    Password = "password123",
-                    Email = "demo@example.com"
-                }
-            };
+                User user = new User{
 
-            users.Add(user1);
-            users.Add(user2);
+                    Credentials = cred
+                };
+
+                users.Add(user);
+            }
+
+            // var user1 = new User()
+            // {
+            //     Credentials = new Credentials
+            //     {
+            //         UserName = "demo",
+            //         Name = "Demo User",
+            //         Password = "password123",
+            //         Email = "demo@example.com"
+            //     }
+            // };
+
+            // var user2 = new User()
+            // {
+            //     Credentials = new Credentials
+            //     {
+            //         UserName = "demo2",
+            //         Name = "Demo User2",
+            //         Password = "password123",
+            //         Email = "demo@example.com"
+            //     }
+            // };
+
+            // users.Add(user1);
+            // users.Add(user2);
 
             await _db.Users.AddRangeAsync(users);
             await _db.SaveChangesAsync();}
