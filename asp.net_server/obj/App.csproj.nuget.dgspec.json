@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj": {}
+    "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj": {}
   },
   "projects": {
-    "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj": {
+    "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
+        "projectUniqueName": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
         "projectName": "App",
-        "projectPath": "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
+        "projectPath": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\App.csproj",
         "packagesPath": "C:\\Users\\18jab\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\obj\\",
+        "outputPath": "C:\\Users\\18jab\\UVUClasses\\CS4400\\BudgetingApp\\asp.net_server\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\18jab\\AppData\\Roaming\\NuGet\\NuGet.Config"
