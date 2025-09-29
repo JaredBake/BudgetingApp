@@ -124,12 +124,12 @@ namespace App.Models
     public class Money
     {
         public required decimal Amount { get; set; }
-        public string? Currency { get; set; }
+        public string? Currency { get; set; } = "$USD";
     }
 
     public enum AccountType
     {
-        Checking, Saving
+        Checking, Saving, CreditCard, Brokerage
     }
 
     public class Account
@@ -159,7 +159,7 @@ namespace App.Models
     {
         public int Id { get; set; }
         public required int AccountId { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         public required Money Money { get; set; }
 
         [JsonIgnore]
