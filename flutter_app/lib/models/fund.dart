@@ -7,7 +7,6 @@ class Fund {
     Money currentAmount;
     DateTime targetDate;
 
-
     Fund({
         required this.name, 
         required this.goalAmount, 
@@ -23,8 +22,13 @@ class Fund {
             throw Exception('Cannot add money with different currencies');
         }
 
-        this.currentAmount.getAmount() += amount.getAmount();
-        return this.currentAmount;
+        // Instead of modifying the existing Money object, a new one is created and returned
+        currentAmount = Money(
+        amount: currentAmount.amount + amount.amount,
+        currency: currentAmount.currency,
+        );
+
+        return currentAmount;
     }
 
     Money spendMoney(Money amount) {
@@ -40,8 +44,14 @@ class Fund {
             throw Exception('Cannot spend more money than is available in the fund');
         }
 
-        this.currentAmount.getAmount() -= amount.getAmount();
-        return this.currentAmount;
+        // Instead of modifying the existing Money object, a new one is created and returned
+
+        currentAmount = Money(
+        amount: currentAmount.amount - amount.amount,
+        currency: currentAmount.currency,
+        );
+
+        return currentAmount;
     }
 
 }
