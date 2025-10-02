@@ -25,32 +25,13 @@ class _LoginState extends State<Login> {
       _isLoading = true;
       _errorMessage = null;
     });
-
     try {
-      final isAuthenticated = await AuthService.authenticateUser(
+      final users = await AuthService.getAllUsers(
         _emailController.text.trim(),
         _passwordController.text,
       );
 
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:5284/api/Users/GetAll'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final users = jsonDecode(response.body) as List;
-        print('Users from database: $users');
-      } else {
-        print('Failed to load users. Status code: ${response.statusCode}');
-      }
-
-      if (isAuthenticated) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        setState(() {
-          _errorMessage = 'Invalid email or password';
-        });
-      }
+      print('Users from database: $users');
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred. Please try again.';
