@@ -24,3 +24,5 @@ flutter_app/ios/Flutter/flutter_export_environment.sh
 .env
 asp.net_server/.env
 *.env
+*.txt
+

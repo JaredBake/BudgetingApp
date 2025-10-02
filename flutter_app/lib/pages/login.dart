@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register.dart';
+import '../api/auth_service.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -18,13 +19,47 @@ class _LoginState extends State<Login> {
   String? _errorMessage;
 
   Future<void> _login() async {
-    //if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    return;
+
+    try {
+      final isAuthenticated = await AuthService.authenticateUser(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:5284/api/Users/GetAll'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final users = jsonDecode(response.body) as List;
+        print('Users from database: $users');
+      } else {
+        print('Failed to load users. Status code: ${response.statusCode}');
+      }
+
+      if (isAuthenticated) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        setState(() {
+          _errorMessage = 'Invalid email or password';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
