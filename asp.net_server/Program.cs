@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using App.Services;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -29,6 +32,30 @@ builder.Services.AddDbContext<BudgetDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration.GetSection("JwtSettings")["Issuer"],
+        ValidAudience = builder.Configuration.GetSection("JwtSettings")["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
+
 var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
 
 builder.Services.AddCors(o => o.AddPolicy(
@@ -52,6 +79,7 @@ app.MapGet("/test", () =>
 // app.UseHttpsRedirection();
 app.UseCors(allowCORs);
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
