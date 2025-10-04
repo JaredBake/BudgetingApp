@@ -42,7 +42,7 @@ Future<void> fetchPosts() async {
     print('HTTP GET test successful with budget app on localhost:5284');
   } else {
     print('GET Request failed with status: ${response.statusCode}');
-  }                  
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -53,7 +53,8 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Text('A random idea:'), Text(appState.current.asLowerCase),
+          Text('A random idea:'),
+          Text(appState.current.asLowerCase),
           Text('A random change added hot 3'),
 
           ElevatedButton(
@@ -67,9 +68,9 @@ class MyHomePage extends StatelessWidget {
             onPressed: () {
               fetchPosts();
             },
-            child: Text('HTTP test')
-          )
-        ]          
+            child: Text('HTTP test'),
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register.dart';
+import 'home.dart';
 import '../api/auth_service.dart';
 
 class Login extends StatefulWidget {
@@ -32,8 +33,13 @@ class _LoginState extends State<Login> {
       );
 
       print('Users from database: $users');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
     } catch (e) {
       setState(() {
+        print(e);
         _errorMessage = 'An error occurred. Please try again.';
       });
     } finally {
