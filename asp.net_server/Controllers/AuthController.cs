@@ -42,7 +42,6 @@ public class AuthController : ControllerBase
         public string? Token { get; set; }
         public int? UserId { get; set; }
         public DateTime? ExpiresAt { get; set; }
-        public int StatusTest { get; set; } = 0;
     }
 
     public class RegisterRequest {
@@ -99,8 +98,7 @@ public class AuthController : ControllerBase
         {
             Authenticated = false,
             Username = null,
-            Token = null,
-            StatusTest = 1
+            Token = null
         };
 
         User? user = null;
@@ -141,8 +139,7 @@ public class AuthController : ControllerBase
             Username = user.Credentials.UserName,
             UserId = user.Id,
             Token = GenerateJwtToken(user),
-            ExpiresAt = DateTime.UtcNow.AddDays(1),
-            StatusTest = 0
+            ExpiresAt = DateTime.UtcNow.AddDays(1)
         });
     }
 

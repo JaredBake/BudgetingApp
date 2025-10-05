@@ -27,9 +27,9 @@ class _LoginState extends State<Login> {
       _errorMessage = null;
     });
     try {
-      final users = await AuthService.getAllUsers(
+      final users = await AuthService.login(
         _emailController.text.trim(),
-        _passwordController.text,
+        _passwordController.text
       );
 
       print('Users from database: $users');
