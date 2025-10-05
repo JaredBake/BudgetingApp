@@ -40,7 +40,7 @@ public class TransactionsController : ControllerBase
         return fund;
     }
 
-    [HttpPost("PostTransaction")]
+    [HttpPost()]
     public async Task<ActionResult<Account>> PostTransaction(Transaction transaction)
     {
         if (TransactionExists(transaction.Id)) return BadRequest($"Transaction already exists with Id: {transaction.Id}");
