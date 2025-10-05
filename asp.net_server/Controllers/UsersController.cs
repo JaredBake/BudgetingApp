@@ -57,8 +57,11 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("PostUser")]
-    public async Task<ActionResult<User>> PostUser(User user)
+    public async Task<ActionResult<User>> PostUser(Credentials cred)
     {
+        User user = new User { Credentials = cred };
+
+        // TODO: Don't allow duplicate users to be created
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
@@ -68,6 +71,7 @@ public class UsersController : ControllerBase
     [HttpPut("{Id}")]
     public async Task<IActionResult> PutUser(int Id, User user)
     {
+        //TODO: Update this to make more sense with credentials class
         if (Id != user.Id)
         {
             return BadRequest();
@@ -82,13 +86,10 @@ public class UsersController : ControllerBase
         catch (DbUpdateConcurrencyException)
         {
             if (!UserExists(Id))
-            {
                 return NotFound();
-            }
+
             else
-            {
                 throw;
-            }
         }
 
         return NoContent();
@@ -105,9 +106,6 @@ public class UsersController : ControllerBase
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-
-        // var userFunds = await _context.UserFunds.SelectMany(uf => uf.UserId = Id);
-        // _context.UserFunds.RemoveRange()
 
         return NoContent();
     }
