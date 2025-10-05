@@ -55,7 +55,6 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-
 var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
 
 builder.Services.AddCors(o => o.AddPolicy(
@@ -82,9 +81,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+// .RequireAuthorization();
 
-namespace App
-{
-    
-}
+app.Run();

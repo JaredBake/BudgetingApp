@@ -29,10 +29,10 @@ public class AuthController : ControllerBase
 
     public struct LoginRequest
     {
-        public int? UserId { get; }
-        public string? Username { get; }
-        public string? Email { get; }
-        public string? Password { get; }
+        public int UserId { get; set; }
+        public string? Username { get; set; }
+        public string? Email { get; set; }
+        public string? Password { get; set; }
     }
 
     public class LoginResponse
@@ -42,6 +42,7 @@ public class AuthController : ControllerBase
         public string? Token { get; set; }
         public int? UserId { get; set; }
         public DateTime? ExpiresAt { get; set; }
+        public int StatusTest { get; set; } = 0;
     }
 
     public class RegisterRequest {
@@ -54,8 +55,6 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<LoginResponse>> Register([FromBody] RegisterRequest request)
     {
-        LoginResponse badRequest = new() { Authenticated = false, Username = null };
-
         var existingUser = await _context.Users
             .FirstOrDefaultAsync(u =>
                 u.Credentials.UserName == request.Username ||
@@ -89,41 +88,61 @@ public class AuthController : ControllerBase
             Username = user.Credentials.UserName,
             UserId = user.Id,
             Token = token,
-            ExpiresAt = expiresAt
+            ExpiresAt = expiresAt,
         });
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request) {
+    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+    {
         var badRequest = new LoginResponse
         {
             Authenticated = false,
             Username = null,
-            Token = null
+            Token = null,
+            StatusTest = 1
         };
 
-        var user = await _context.Users.FirstOrDefaultAsync(u =>
-            u.Credentials.UserName == request.Username ||
-            u.Credentials.Email == request.Email ||
-            u.Id == request.UserId
-        );
+        User? user = null;
+
+        if (request.UserId != 0)
+        {
+            user = await _context.Users
+                .Where(u => u.Id == request.UserId)
+                .FirstOrDefaultAsync();
+        }
+        else if (!string.IsNullOrEmpty(request.Username))
+        {
+            user = await _context.Users
+                .Where(u => u.Credentials.UserName == request.Username)
+                .FirstOrDefaultAsync();
+        }
+        else if (!string.IsNullOrEmpty(request.Email))
+        {
+            user = await _context.Users
+                .Where(u => u.Credentials.Email == request.Email)
+                .FirstOrDefaultAsync();
+        }
+        else
+        {
+            return Unauthorized(badRequest);
+        }
 
         if (user == null || string.IsNullOrEmpty(request.Password))
             return Unauthorized(badRequest);
 
         if (!VerifyPassword(request.Password, user.Credentials.Password ?? ""))
             return Unauthorized(badRequest);
-
-        var token = GenerateJwtToken(user);
-        var expiresAt = DateTime.UtcNow.AddDays(1);
+              
 
         return Ok(new LoginResponse
         {
             Authenticated = true,
             Username = user.Credentials.UserName,
             UserId = user.Id,
-            Token = token,
-            ExpiresAt = expiresAt
+            Token = GenerateJwtToken(user),
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
+            StatusTest = 0
         });
     }
 
@@ -151,11 +170,11 @@ public class AuthController : ControllerBase
 
         return Convert.ToBase64String(hashWithSalt);
     }
-
-    private bool VerifyPassword(string password, string hashedPassword) {
+    private static bool VerifyPassword(string password, string hashedPassword)
+    {
         try
         {
-            if (hashedPassword == "1234567!" && password == hashedPassword) return true;
+            // if (hashedPassword == "1234567!" && password == hashedPassword) return true;
 
             var hashWithSalt = Convert.FromBase64String(hashedPassword);
 
@@ -190,11 +209,8 @@ public class AuthController : ControllerBase
     
     private string GenerateJwtToken(User user)
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new InvalidOperationException("JWT SecretKey not configured");
-        var issuer = jwtSettings["Issuer"] ?? "BudgetApp";
-        var audience = jwtSettings["Audience"] ?? "BudgetAppUsers";
-
+        
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -207,8 +223,8 @@ public class AuthController : ControllerBase
         };
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: _configuration.GetSection("JwtSettings")["Issuer"] ?? "BudgetApp",
+            audience: _configuration.GetSection("JwtSettings")["Audience"] ?? "BudgetAppUsers",
             claims: claims,
             expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials
