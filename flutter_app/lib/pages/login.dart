@@ -27,12 +27,12 @@ class _LoginState extends State<Login> {
       _errorMessage = null;
     });
     try {
-      final users = await AuthService.login(
+      final user = await AuthService.login(
         _emailController.text.trim(),
         _passwordController.text
       );
 
-      print('Users from database: $users');
+      print('User from database: $user');
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Home()),
