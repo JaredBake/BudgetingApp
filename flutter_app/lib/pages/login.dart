@@ -27,16 +27,25 @@ class _LoginState extends State<Login> {
       _errorMessage = null;
     });
     try {
-      final user = await AuthService.login(
+      final response = await AuthService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
 
-      print('User from database: $user');
-      if (!mounted) return;
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
+      print('User from database: $response');
+
+      if (response != null){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Home()),
+        );
+      }
+      else {
+        setState(() {
+        _errorMessage = 'User could not be autheniticated. Please try again.';
+      });
+      }      
+
     } catch (e) {
       setState(() {
         print(e);

@@ -16,3 +16,24 @@ Options 2: Docker Compose (WARNING: Docker compose installation is not yet ready
 This is the intended long term solution to allow people to easily self host the application. 
 The only dependency for this installation is Docker, follow instructions here to install for your system: https://www.docker.com/products/docker-desktop/
 After cloning the repo, simply navigate to the root directory in a terminal and run "docker compose up". The application should be accessible on port 8080 of your machine 
+
+
+#Team Organization:
+Team Members:
+Caleb Terry
+Jared Bake
+Santos Laprida
+Shawn Crook
+
+Meeting Schedule:
+Monday  @10AM
+Thursday @12PM (w/ Professor)
+Saturday @10AM
+
+Team Leader Rotation
+S1: Caleb Terry
+S2: Jared Bake
+S3: Santos Laprida
+S4: Shawn Crook
+
+Github Link: https://github.com/JaredBake/BudgetingApp

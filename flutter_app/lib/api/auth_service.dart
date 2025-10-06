@@ -8,7 +8,7 @@ import 'dart:convert';
 class AuthService {
   static const String baseUrl = 'http://localhost:5284';
 
-  static Future<Map<String, dynamic>> register(
+  static Future<Map<String, dynamic>?> register(
     String name,
     String username,
     String email,
@@ -31,7 +31,7 @@ class AuthService {
     ); 
 
     if (response.statusCode != 200){
-      return <String, String>{};
+      return null;
     }  
 
     final res = json.decode(response.body) as Map<String, dynamic>;
@@ -50,7 +50,7 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>> login(
+  static Future<Map<String, dynamic>?> login(
     String email,
     String password
   ) async {    
@@ -70,7 +70,7 @@ class AuthService {
       );
 
     if (response.statusCode != 200) {
-      return <String, String>{};
+      return null;
     }
 
     final res = json.decode(response.body) as Map<String, dynamic>;
