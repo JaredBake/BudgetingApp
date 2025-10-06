@@ -27,18 +27,17 @@ class _LoginState extends State<Login> {
       _errorMessage = null;
     });
     try {
-      final response = await AuthService.login(
+      final user = await AuthService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
 
-      print('User from database: $response');
+      print('User from database: $user');
 
-      if (response != null){
-        Navigator.push(
+      if (user != null){
+          Navigator.of(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
-        );
+        ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
       }
       else {
         setState(() {

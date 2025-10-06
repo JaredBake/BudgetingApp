@@ -34,31 +34,23 @@ class _RegisterState extends State<Register> {
     });
 
     try {
-      final response = await AuthService.register(
+      final user = await AuthService.register(
         _nameController.text.trim(),
         _usernameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text
       );
 
-      if (response != null){
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Home()),
-        );
+      if (user != null){
+        Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
       }
       else {
         setState(() {
         _errorMessage = 'User could not be created. Please try again.';
       });
-      }   
-
-      print('New Registration: $response');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
-
+      }        
 
     } catch (e) {
       setState(() {
