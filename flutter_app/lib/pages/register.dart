@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'welcome.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'register.dart';
+import 'home.dart';
+import '../api/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -10,6 +14,7 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -27,14 +32,42 @@ class _RegisterState extends State<Register> {
       _isLoading = true;
       _errorMessage = null;
     });
+
+    try {
+      final user = await AuthService.register(
+        _nameController.text.trim(),
+        _usernameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text
+
+      );
+
+      print('New Registration: $user');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+
+      
+    } catch (e) {
+      setState(() {
+        print(e);
+        _errorMessage = 'An error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _usernameController..dispose();
-    _emailController..dispose();
-    _passwordController..dispose();
-    _confirmPasswordController..dispose();
+    _nameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -73,6 +106,33 @@ class _RegisterState extends State<Register> {
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
+
+                // Name
+                TextFormField(
+                  controller: _nameController,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
+                    }
+                    if (value.length < 3 || value.length > 20) {
+                      return 'Name must be 3–20 characters';
+                    }
+                    final valid = RegExp(r'^[a-zA-Z0-9_ ]+$').hasMatch(value);
+                    if (!valid) return 'Only letters, numbers, spaces and _';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
 
                 // Email
                 TextFormField(
