@@ -29,7 +29,7 @@ class _LoginState extends State<Login> {
     try {
       final response = await AuthService.login(
         _emailController.text.trim(),
-        _passwordController.text
+        _passwordController.text,
       );
 
       print('User from database: $response');
