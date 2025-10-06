@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  final Map<String, dynamic> user;
+  const Home({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
+    final username =
+        (user['userName'] ??
+                user['username'] ??
+                user['Credentials']?['UserName'] ??
+                user['credentials']?['userName'] ??
+                user['name'])
+            ?.toString() ??
+        'Guest';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -37,9 +47,9 @@ class Home extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                const Text(
-                  'Budgeting Application CS4400 X01',
-                  style: TextStyle(
+                Text(
+                  'Budgeting Application CS4400 X01 — $username',
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

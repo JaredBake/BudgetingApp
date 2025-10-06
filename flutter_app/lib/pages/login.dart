@@ -29,14 +29,14 @@ class _LoginState extends State<Login> {
     try {
       final user = await AuthService.login(
         _emailController.text.trim(),
-        _passwordController.text
+        _passwordController.text,
       );
 
       print('User from database: $user');
-      Navigator.push(
+      if (!mounted) return;
+      Navigator.of(
         context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
+      ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
     } catch (e) {
       setState(() {
         print(e);

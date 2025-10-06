@@ -38,17 +38,14 @@ class _RegisterState extends State<Register> {
         _nameController.text.trim(),
         _usernameController.text.trim(),
         _emailController.text.trim(),
-        _passwordController.text
-
+        _passwordController.text,
       );
 
       print('New Registration: $user');
-      Navigator.push(
+      if (!mounted) return;
+      Navigator.of(
         context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
-
-      
+      ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
     } catch (e) {
       setState(() {
         print(e);
@@ -132,7 +129,6 @@ class _RegisterState extends State<Register> {
                   },
                 ),
                 const SizedBox(height: 16),
-
 
                 // Email
                 TextFormField(
