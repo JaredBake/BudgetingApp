@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/bottomNavBar.dart';
 
 class Home extends StatelessWidget {
   final Map<String, dynamic> user;
@@ -17,12 +18,12 @@ class Home extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
-        backgroundColor: Colors.black87,
+        title: const Text('Home'),
+        backgroundColor: Colors.green,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -98,15 +99,21 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Colors.black87,
-        padding: const EdgeInsets.all(16),
-        child: const Text(
-          '© 2025 CS4400 Budget App.\n Caleb Terry, Shawn Crook, Jared Blake, Santos Laprida',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey),
-        ),
+      bottomNavigationBar: BottomNavBar(
+        onItemTapped: (index) {
+          print('Selected index: $index');
+        },
+        initialIndex: 2,
       ),
+      // Container(
+      //   color: Colors.red,
+      //   padding: const EdgeInsets.all(16),
+      //   child: const Text(
+      //     '© 2025 CS4400 Budget App.\n Caleb Terry, Shawn Crook, Jared Blake, Santos Laprida',
+      //     textAlign: TextAlign.center,
+      //     style: TextStyle(color: Colors.grey),
+      //   ),
+      // ),
     );
   }
 
