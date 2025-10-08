@@ -1,0 +1,34 @@
+CONNECT TO postgres
+psql -h localhost -p 5432 -U postgres
+
+Create database
+CREATE DATABASE budget;
+
+
+SEED
+Invoke-WebRequest -Uri http://localhost:5284/api/Seed -Method POST
+
+
+LIST TABLES
+psql -U postgres -d budget -c "\dt"
+
+QUERY USERS
+psql -U postgres -d budget -c "SELECT * FROM \"Users\";
+
+psql -U postgres -d budget -c "SELECT * FROM USERS";
+
+
+URL ENDPOINT get all users
+http://localhost:5284/api/Users/GetAll
+
+
+run dotnet
+
+    dotnet run
+
+ADJUST PATH FOR POSTGRESQL FOR THAT SESSION
+    $env:Path += ";C:\Program Files\PostgreSQL\18\bin"
+    MAKE SURE SQL IS RUNNING
+        Open services.msc, find postgresql-x64-18, and click Start if it’s stopped.
+
+flutter run -d web-server --web-port 8000
