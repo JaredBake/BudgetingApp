@@ -12,3 +12,5 @@ asp.net_server/appsettings.{Environment}.json
 .env.development
 .env.production
 !.env.example
+
+*.txt
