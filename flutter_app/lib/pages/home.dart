@@ -1,39 +1,51 @@
 import 'package:flutter/material.dart';
 import 'widgets/bottomNavBar.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'widgets/pieChart.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   final Map<String, dynamic> user;
   const Home({super.key, required this.user});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  int _selectedIndex = 2;
+  final List<String> _messages = [
+    'Should navigate to Accounts.',
+    'Should navigate to Transactions.',
+    'Welcome to Home!',
+    'Should navigate to Funds.',
+    'Should navigate to Settings.',
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final username =
-        (user['userName'] ??
-                user['username'] ??
-                user['Credentials']?['UserName'] ??
-                user['credentials']?['userName'] ??
-                user['name'])
+        (widget.user['userName'] ??
+                widget.user['username'] ??
+                widget.user['Credentials']?['UserName'] ??
+                widget.user['credentials']?['userName'] ??
+                widget.user['name'])
             ?.toString() ??
         'Guest';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
-        backgroundColor: Colors.green,
+        backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            tooltip: 'Logout',
-          ),
-        ],
       ),
       body: Container(
         width: double.infinity,
-        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -41,58 +53,33 @@ class Home extends StatelessWidget {
             colors: [Colors.black87, Colors.grey.shade900],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Text(
-                  'Budgeting Application CS4400 X01 — $username',
+                  'Welcome Back $username',
                   style: const TextStyle(
-                    fontSize: 32,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 40),
-                GridView.count(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  shrinkWrap: true,
-                  childAspectRatio: 2.0,
-                  children: [
-                    _buildDashboardCard(
-                      context,
-                      icon: Icons.account_balance_wallet,
-                      title: 'Accounts',
-                      color: Colors.blue,
-                      onTap: () {},
-                    ),
-                    _buildDashboardCard(
-                      context,
-                      icon: Icons.receipt_long,
-                      title: 'Transactions',
-                      color: Colors.green,
-                      onTap: () {},
-                    ),
-                    _buildDashboardCard(
-                      context,
-                      icon: Icons.pie_chart,
-                      title: 'Funds',
-                      color: Colors.orange,
-                      onTap: () {},
-                    ),
-                    _buildDashboardCard(
-                      context,
-                      icon: Icons.settings,
-                      title: 'Settings',
-                      color: Colors.purple,
-                      onTap: () {},
-                    ),
-                  ],
+
+                const SizedBox(height: 100),
+
+                const Center(child: BudgetPieChart()),
+
+                const SizedBox(height: 30),
+                Center(
+                  child: Text(
+                    _messages[_selectedIndex],
+                    style: const TextStyle(fontSize: 18, color: Colors.white70),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
@@ -100,62 +87,8 @@ class Home extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        onItemTapped: (index) {
-          print('Selected index: $index');
-        },
-        initialIndex: 2,
-      ),
-      // Container(
-      //   color: Colors.red,
-      //   padding: const EdgeInsets.all(16),
-      //   child: const Text(
-      //     '© 2025 CS4400 Budget App.\n Caleb Terry, Shawn Crook, Jared Blake, Santos Laprida',
-      //     textAlign: TextAlign.center,
-      //     style: TextStyle(color: Colors.grey),
-      //   ),
-      // ),
-    );
-  }
-
-  Widget _buildDashboardCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      elevation: 4,
-      color: Colors.grey.shade800,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 40, color: color),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
+        onItemTapped: _onItemTapped,
+        initialIndex: _selectedIndex,
       ),
     );
   }

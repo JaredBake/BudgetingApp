@@ -50,7 +50,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         ), // 5th item
       ],
       currentIndex: _selectedIndex,
-      unselectedItemColor: Colors.blueGrey,
+      unselectedItemColor: const Color(0xFF26A69A),
       selectedItemColor: Colors.orange,
       onTap: _onTap,
     );
