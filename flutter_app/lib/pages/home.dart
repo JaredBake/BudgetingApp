@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'widgets/bottomNavBar.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'widgets/pieChart.dart';
+// import 'profile.dart';
 
 class Home extends StatefulWidget {
   final Map<String, dynamic> user;
