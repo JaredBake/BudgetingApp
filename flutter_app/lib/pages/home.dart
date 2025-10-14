@@ -44,6 +44,7 @@ class _HomeState extends State<Home> {
         backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
       ),
+
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
