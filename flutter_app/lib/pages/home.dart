@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'widgets/bottomNavBar.dart';
-import 'widgets/topNavBar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'widgets/pieChart.dart';
 
@@ -40,14 +39,10 @@ class _HomeState extends State<Home> {
         'Guest';
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: TopNavBar(
-          title: 'Home',
-          backgroundColor: Colors.grey,
-          showBackButton: true,
-          showProfileButton: true,
-        ),
+      appBar: AppBar(
+        title: const Text('Home'),
+        backgroundColor: const Color(0xFF2E7D32),
+        elevation: 0,
       ),
 
       body: Container(

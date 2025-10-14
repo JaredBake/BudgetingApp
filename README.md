@@ -32,8 +32,8 @@ Saturday @10AM
 
 Team Leader Rotation
 S1: Caleb Terry
-S2: Jared Bake
-S3: Santos Laprida
+S2: Santos Laprida
+S3: Jared Bake
 S4: Shawn Crook
 
 Github Link: https://github.com/JaredBake/BudgetingApp
