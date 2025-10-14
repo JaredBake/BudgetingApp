@@ -1,16 +1,18 @@
-import 'package:flutter/material.dart';
-import 'widgets/bottomNavBar.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'widgets/pieChart.dart';
+import 'package:flutter/material.dart';
 
+import 'widgets/bottomNavBar.dart';
+import 'widgets/pieChart.dart';
+import 'widgets/topNavBar.dart';
+ 
 class Home extends StatefulWidget {
   final Map<String, dynamic> user;
   const Home({super.key, required this.user});
-
+ 
   @override
   State<Home> createState() => _HomeState();
 }
-
+ 
 class _HomeState extends State<Home> {
   int _selectedIndex = 2;
   final List<String> _messages = [
@@ -20,13 +22,13 @@ class _HomeState extends State<Home> {
     'Should navigate to Funds.',
     'Should navigate to Settings.',
   ];
-
+ 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final username =
@@ -37,14 +39,18 @@ class _HomeState extends State<Home> {
                 widget.user['name'])
             ?.toString() ??
         'Guest';
-
+ 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: const Color(0xFF2E7D32),
-        elevation: 0,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: TopNavBar(
+          title: 'Home',
+          backgroundColor: Colors.grey,
+          showBackButton: true,
+          showProfileButton: true,
+        ),
       ),
-
+ 
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -69,11 +75,11 @@ class _HomeState extends State<Home> {
                     color: Colors.white,
                   ),
                 ),
-
+ 
                 const SizedBox(height: 100),
-
+ 
                 const Center(child: BudgetPieChart()),
-
+ 
                 const SizedBox(height: 30),
                 Center(
                   child: Text(
@@ -94,3 +100,4 @@ class _HomeState extends State<Home> {
     );
   }
 }
+ 
