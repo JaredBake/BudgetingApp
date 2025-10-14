@@ -5,7 +5,7 @@ class TopNavBar extends StatelessWidget {
   final Color backgroundColor;
   final VoidCallback? onBackPressed;
   final bool showBackButton;
-  final bool showMenuButton;
+  final bool showProfileButton;
 
   const TopNavBar({
     super.key,
@@ -13,7 +13,7 @@ class TopNavBar extends StatelessWidget {
     this.backgroundColor = Colors.green,
     this.onBackPressed,
     this.showBackButton = true,
-    this.showMenuButton = false,
+    this.showProfileButton = false,
   });
 
   @override
@@ -45,14 +45,14 @@ class TopNavBar extends StatelessWidget {
               ),
             ),
           ),
-          if (showMenuButton)
+          if (showProfileButton)
             IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
+              icon: const Icon(Icons.person, color: Colors.white),
               onPressed: () {
-                // TODO: Function when menu button is pressed
-                print('Menu button pressed');
+                // TODO: Function when profile button is pressed
+                // Navigator.pushNamed(context, '/profile');
               },
-              tooltip: 'Menu',
+              tooltip: 'Profile',
             ),
         ],
       ),

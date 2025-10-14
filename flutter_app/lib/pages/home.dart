@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
           title: 'Home',
           backgroundColor: Colors.grey,
           showBackButton: true,
-          showMenuButton: true,
+          showProfileButton: true,
         ),
       ),
 
