@@ -3,6 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register.dart';
 import 'home.dart';
+
+import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/models/credentials.dart';
+import 'package:flutter_application/models/data.dart';
+
 import '../api/auth_service.dart';
 
 class Login extends StatefulWidget {
@@ -32,19 +37,34 @@ class _LoginState extends State<Login> {
         _passwordController.text,
       );
 
-      print('User from database: $user');
+      // print('User from database: $user');
 
-      if (user != null){
-          Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
-      }
-      else {
+      if (user != null) {
+        // First we build the credentials object
+        final credentials = Credentials(
+          userId: user['id'],
+          name: user['credentials']?['name'] ?? '',
+          userName: user['credentials']?['userName'] ?? '',
+          email: user['credentials']?['email'] ?? '',
+        );
+
+        // Now we build the User object, but the ignore the data model for performance
+        // That is going to be dealt with later as the user navigates through the app
+        final userObject = User(
+          createdAt: DateTime.parse(user['createdAt']),
+          credentials: credentials,
+          // Data requires a list for accounts and a list of funds, so we can pass empty lists
+          data: Data(funds: [], accounts: []),
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => Home(user: userObject)),
+        );
+      } else {
         setState(() {
-        _errorMessage = 'User could not be autheniticated. Please try again.';
-      });
-      }      
-
+          _errorMessage = 'User could not be autheniticated. Please try again.';
+        });
+      }
     } catch (e) {
       setState(() {
         print(e);

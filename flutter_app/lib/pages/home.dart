@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'widgets/bottomNavBar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'widgets/pieChart.dart';
+
+import 'widgets/bottomNavBar.dart';
 import 'widgets/topNavBar.dart';
 
+import '../api/stats_service.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:flutter_application/models/user.dart';
+
 class Home extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final User user;
   const Home({super.key, required this.user});
 
   @override
@@ -30,14 +36,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final username =
-        (widget.user['userName'] ??
-                widget.user['username'] ??
-                widget.user['Credentials']?['UserName'] ??
-                widget.user['credentials']?['userName'] ??
-                widget.user['name'])
-            ?.toString() ??
-        'Guest';
+    // All the user information we are going to need
+    // final username = widget.user['credentials']?['userName'] ?? 'Guest';
+    // final name = widget.user['credentials']?['name'] ?? 'Guest';
+    // final userId = widget.user['id'];
+    // final email = widget.user['credentials']?['email'];
+
+    final username = widget.user.getCredentials().getUserName();
 
     return Scaffold(
       appBar: PreferredSize(
@@ -68,6 +73,15 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: 10),
                 Text(
                   'Welcome Back $username',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
+                Text(
+                  'Assets overview:',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
