@@ -31,6 +31,7 @@ class _LoginState extends State<Login> {
       _isLoading = true;
       _errorMessage = null;
     });
+
     try {
       final user = await AuthService.login(
         _emailController.text.trim(),

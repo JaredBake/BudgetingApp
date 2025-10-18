@@ -9,6 +9,20 @@ import '../api/stats_service.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/models/credentials.dart';
+import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
+
+class HomeOverview {
+  final int totalAccounts;
+  final double totalBalance;
+  final int totalFunds;
+
+  HomeOverview({
+    required this.totalAccounts,
+    required this.totalBalance,
+    required this.totalFunds,
+  });
+}
 
 class Home extends StatefulWidget {
   final User user;
@@ -20,6 +34,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 2;
+  late Future<HomeOverview> _overviewFuture;
   final List<String> _messages = [
     'Should navigate to Accounts.',
     'Should navigate to Transactions.',
@@ -27,6 +42,25 @@ class _HomeState extends State<Home> {
     'Should navigate to Funds.',
     'Should navigate to Settings.',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final userId = widget.user.getCredentials().getUserId();
+    _overviewFuture = _fetchOverview(userId);
+  }
+
+  Future<HomeOverview> _fetchOverview(int userId) async {
+    final res = await StatsService.getUserAccountStats(userId);
+    if (res == null) {
+      return HomeOverview(totalAccounts: 0, totalBalance: 0.0, totalFunds: 0);
+    }
+    return HomeOverview(
+      totalAccounts: (res['totalAccounts'] ?? 0) as int,
+      totalBalance: (res['totalBalance'] ?? 0).toDouble(),
+      totalFunds: 0, // later: fill from /api/Stats/users/{id}/funds
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -48,7 +82,7 @@ class _HomeState extends State<Home> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: TopNavBar(
-          title: 'Budgeting App',
+          title: 'Home',
           backgroundColor: Colors.green,
           showBackButton: true,
           showProfileButton: true,
@@ -89,10 +123,61 @@ class _HomeState extends State<Home> {
                   ),
                 ),
 
+                FutureBuilder<HomeOverview>(
+                  future: _overviewFuture,
+                  builder: (context, snap) {
+                    if (snap.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        width: double.infinity,
+                        height: 52,
+                        margin: const EdgeInsets.only(top: 12, bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    }
+                    if (snap.hasError) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(top: 12, bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          "Couldn’t load overview. Tap to retry.",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    }
+                    final data =
+                        snap.data ??
+                        HomeOverview(
+                          totalAccounts: 0,
+                          totalBalance: 0.0,
+                          totalFunds: 0,
+                        );
+                    return OverviewBanner(data: data);
+                  },
+                ),
+
+                const SizedBox(height: 12),
+                const Text(
+                  'Assets overview:',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
                 const SizedBox(height: 100),
-
                 const Center(child: BudgetPieChart()),
-
                 const SizedBox(height: 30),
                 Center(
                   child: Text(

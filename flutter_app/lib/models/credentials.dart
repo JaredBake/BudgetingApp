@@ -15,6 +15,10 @@ class Credentials {
     required this.email,
   });
 
+  int getUserId() {
+    return this.userId;
+  }
+
   String getName() {
     return this.name;
   }
