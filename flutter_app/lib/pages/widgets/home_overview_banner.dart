@@ -24,6 +24,7 @@ class OverviewBanner extends StatelessWidget {
       ),
       child: data.totalAccounts == 0
           ? Row(
+              // This is the case where there are no accounts and no funds in the current user
               children: [
                 const Icon(Icons.info_outline, color: Colors.white70),
                 const SizedBox(width: 8),
@@ -42,6 +43,7 @@ class OverviewBanner extends StatelessWidget {
               ],
             )
           : Text(
+              // ← CASE 2: Has data
               "You have ${data.totalAccounts} account${data.totalAccounts == 1 ? '' : 's'} totaling \$${data.totalBalance.toStringAsFixed(2)}.",
               style: style,
             ),

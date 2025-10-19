@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_application/models/account.dart';
 import 'widgets/pieChart.dart';
 
 import 'widgets/bottomNavBar.dart';
@@ -11,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/credentials.dart';
 import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
+import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
 
 class HomeOverview {
   final int totalAccounts;
@@ -51,14 +53,22 @@ class _HomeState extends State<Home> {
   }
 
   Future<HomeOverview> _fetchOverview(int userId) async {
-    final res = await StatsService.getUserAccountStats(userId);
-    if (res == null) {
+    final results = await Future.wait([
+      StatsService.getUserAccountStats(userId),
+      StatsService.getUserFundStats(userId),
+    ]);
+
+    final accountStats = results[0];
+    final fundStats = results[1];
+
+    if (accountStats == null && fundStats == null) {
       return HomeOverview(totalAccounts: 0, totalBalance: 0.0, totalFunds: 0);
     }
+
     return HomeOverview(
-      totalAccounts: (res['totalAccounts'] ?? 0) as int,
-      totalBalance: (res['totalBalance'] ?? 0).toDouble(),
-      totalFunds: 0, // later: fill from /api/Stats/users/{id}/funds
+      totalAccounts: (accountStats?['totalAccounts'] ?? 0) as int,
+      totalBalance: (accountStats?['totalBalance'] ?? 0).toDouble(),
+      totalFunds: (fundStats?['totalFunds'] ?? 0) as int,
     );
   }
 
@@ -70,12 +80,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // All the user information we are going to need
-    // final username = widget.user['credentials']?['userName'] ?? 'Guest';
-    // final name = widget.user['credentials']?['name'] ?? 'Guest';
-    // final userId = widget.user['id'];
-    // final email = widget.user['credentials']?['email'];
-
     final username = widget.user.getCredentials().getUserName();
 
     return Scaffold(
@@ -88,7 +92,6 @@ class _HomeState extends State<Home> {
           showProfileButton: true,
         ),
       ),
-
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -114,47 +117,52 @@ class _HomeState extends State<Home> {
                   ),
                 ),
 
-                Text(
-                  'Assets overview:',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-
                 FutureBuilder<HomeOverview>(
                   future: _overviewFuture,
                   builder: (context, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
-                      return Container(
-                        width: double.infinity,
-                        height: 52,
-                        margin: const EdgeInsets.only(top: 12, bottom: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.06),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
+                      return Expanded(
+                        child: Center(
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       );
                     }
                     if (snap.hasError) {
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(top: 12, bottom: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.06),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          "Couldn’t load overview. Tap to retry.",
-                          style: TextStyle(color: Colors.white70),
+                      return Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 60,
+                                color: Colors.white38,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "Couldn't load your data",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _overviewFuture = _fetchOverview(
+                                      widget.user.getCredentials().getUserId(),
+                                    );
+                                  });
+                                },
+                                child: Text('Tap to retry'),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }
+
                     final data =
                         snap.data ??
                         HomeOverview(
@@ -162,29 +170,113 @@ class _HomeState extends State<Home> {
                           totalBalance: 0.0,
                           totalFunds: 0,
                         );
-                    return OverviewBanner(data: data);
+
+                    // Empty state: No accounts
+                    if (data.totalAccounts == 0) {
+                      return Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 100,
+                                color: Colors.white24,
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'No accounts yet',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Add your first account to get started',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  final account =
+                                      await showModalBottomSheet<Account>(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) =>
+                                            AddAccountBottomSheet(
+                                              userId: widget.user
+                                                  .getCredentials()
+                                                  .getUserId(),
+                                            ),
+                                      );
+                                  // TODO
+                                  // Here if account is not null
+                                  // We will add the account to the user data
+                                  // Something like: widget.user.getData().addAccount(account);
+                                  //  THEN REFRESH THE UI
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add Account'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 16,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Has accounts: Show banner and pie chart
+                    return Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Overview banner with stats
+                          OverviewBanner(data: data),
+
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Assets overview:',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 50),
+                          const Center(child: BudgetPieChart()),
+                          const Spacer(),
+                          Center(
+                            child: Text(
+                              _messages[_selectedIndex],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white70,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    );
                   },
-                ),
-
-                const SizedBox(height: 12),
-                const Text(
-                  'Assets overview:',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-
-                const SizedBox(height: 100),
-                const Center(child: BudgetPieChart()),
-                const SizedBox(height: 30),
-                Center(
-                  child: Text(
-                    _messages[_selectedIndex],
-                    style: const TextStyle(fontSize: 18, color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
                 ),
               ],
             ),
