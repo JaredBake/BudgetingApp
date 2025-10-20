@@ -217,7 +217,7 @@ public class AuthController : ControllerBase
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Credentials.UserName ?? ""),
             new Claim(JwtRegisteredClaimNames.Email, user.Credentials.Email ?? ""),
-            new Claim(ClaimTypes.Role, user.Credentials.Role.ToString()),
+            new Claim(ClaimTypes.Role, user.Credentials.Role.ToString() ?? ""),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
