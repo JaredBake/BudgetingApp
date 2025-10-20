@@ -1,4 +1,5 @@
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +16,13 @@ public class StatsController : ControllerBase
         _db = db;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
     public bool check() { return true; }
+
+    [Authorize]
+    [HttpGet("auth")]
+
 
     [HttpGet("overview")]
     public async Task<ActionResult<OverviewStatistics>> GetOverview()

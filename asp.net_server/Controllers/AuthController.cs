@@ -71,7 +71,8 @@ public class AuthController : ControllerBase
                 Name = request.Name,
                 UserName = request.Username,
                 Email = request.Email,
-                Password = hashed
+                Password = hashed,
+                Role = UserRole.User // DO NOT ALLOW ADMIN PERMISSIONS TO BE CREATED HERE
             }
         };
 
@@ -149,7 +150,7 @@ public class AuthController : ControllerBase
         // Don't have a way to token blacklist yet...
     }
 
-    private static string HashPassword(string password) {
+    public static string HashPassword(string password) {
 
         using var sha256 = SHA256.Create();
         var saltBytes = RandomNumberGenerator.GetBytes(16);
@@ -216,6 +217,7 @@ public class AuthController : ControllerBase
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Credentials.UserName ?? ""),
             new Claim(JwtRegisteredClaimNames.Email, user.Credentials.Email ?? ""),
+            new Claim(ClaimTypes.Role, user.Credentials.Role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

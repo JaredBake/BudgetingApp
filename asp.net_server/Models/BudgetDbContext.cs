@@ -164,7 +164,12 @@ namespace App.Models
 
         [JsonIgnore]
         public virtual Account? Account { get; set; } = null!;
-               
+
+    }
+    
+    public enum UserRole
+    {
+        Admin, User
     }
 
     public class Credentials
@@ -177,6 +182,8 @@ namespace App.Models
         public String? Password { get; set; }
         
         public required String? Email { get; set; }
+
+        public UserRole? Role { get; set; } = UserRole.User;
     }
 
     public class User

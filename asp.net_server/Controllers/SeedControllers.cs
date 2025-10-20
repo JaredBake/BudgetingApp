@@ -1,8 +1,10 @@
 using App.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.Controllers
 {
+    // [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class SeedController : ControllerBase
@@ -14,11 +16,13 @@ namespace App.Controllers
             _seeder = seeder;
         }
 
+        [AllowAnonymous]
         [HttpGet()]
-        public bool check()
-        {
-            return true;
-        }
+        public bool check() { return true; }
+
+        // [Authorize]
+        [HttpGet("auth")]
+
 
         [HttpPost]
         public async Task<IActionResult> Seed()

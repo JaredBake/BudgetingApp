@@ -6,7 +6,7 @@ using Microsoft.VisualBasic;
 
 namespace App.Controllers;
 
-// [Authorize]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
     public bool check() { return true; }
 
     [Authorize]
-    [HttpGet("testAuth")]
+    [HttpGet("auth")]
     public bool checkAuth() { return true; }
 
     [HttpGet("GetAll")]
@@ -134,4 +134,10 @@ public class UsersController : ControllerBase
     {
         return _context.Users.Any(e => e.Id == Id);
     }
+
+    // protected int GetCurrentUserId()
+    // {
+    //     var userIdClaim = _context.Users.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    //     return int.Parse(userIdClaim ?? "0");
+    // }
 }

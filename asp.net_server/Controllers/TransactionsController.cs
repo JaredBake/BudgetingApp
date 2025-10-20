@@ -1,4 +1,5 @@
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,13 @@ public class TransactionsController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
-    public bool check()
-    {
-        return true;
-    }
+    public bool check() { return true; }
+
+    [Authorize]
+    [HttpGet("auth")]
+
 
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetUsers()

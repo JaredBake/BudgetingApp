@@ -1,5 +1,6 @@
 using App.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers;
@@ -16,11 +17,13 @@ public class AccountsController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
-    public bool check()
-    {
-        return true;
-    }
+    public bool check() { return true; }
+
+    [Authorize]
+    [HttpGet("auth")]
+    public bool checkAuth() { return true; }
     
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
