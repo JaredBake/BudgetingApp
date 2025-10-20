@@ -1,10 +1,12 @@
 ﻿using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
 namespace App.Controllers;
 
+// [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -16,11 +18,13 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
-    public bool check()
-    {
-        return true;
-    }
+    public bool check() { return true; }
+
+    [Authorize]
+    [HttpGet("testAuth")]
+    public bool checkAuth() { return true; }
 
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()

@@ -1,12 +1,40 @@
 // import 'dart:ffi';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_application/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:localstorage/localstorage.dart';
+
 
 class AuthService {
   static const String baseUrl = 'http://localhost:5284';
+
+  static Future<bool> recordToken(Map<String, dynamic> response) async {
+    if (response['authenticated'] != null &&
+        response['username'] != null &&
+        response['token'] != null &&
+        response['userId'] != null &&    
+        response['expiresAt'] != null)
+    {
+      return false;
+    }    
+
+    print(response);
+
+    if (!response['authenticated']) return false;
+
+    WidgetsFlutterBinding.ensureInitialized();
+    await initLocalStorage();
+
+    localStorage.setItem('username', response['username']);
+    localStorage.setItem('token', response['token']);
+    localStorage.setItem('userId', response['userId'].toString());
+    localStorage.setItem('expiration', response['expiresAt'].toString());
+
+    return true;
+  }
 
   static Future<Map<String, dynamic>?> register(
     String name,
@@ -35,6 +63,12 @@ class AuthService {
     }  
 
     final res = json.decode(response.body) as Map<String, dynamic>;
+
+    if (! await recordToken(res)) {
+      // Error login response unsuccessful
+      return null;
+    }
+
     final userId = res['userId'];
 
     final userGet = await http.get(
@@ -74,6 +108,12 @@ class AuthService {
     }
 
     final res = json.decode(response.body) as Map<String, dynamic>;
+
+    if (! await recordToken(res)) {
+      // Error login response unsuccessful
+      return null;
+    }
+    
     final userId = res['userId'];
 
     final userGet = await http.get(

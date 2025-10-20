@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -25,6 +27,7 @@ builder.Services
         {
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.WriteIndented = true;
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         }
     );
 
@@ -52,8 +55,6 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
-
-builder.Services.AddAuthorization();
 
 var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
 
