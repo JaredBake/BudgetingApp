@@ -68,7 +68,7 @@ public class UsersController : ControllerBase
         {
             return BadRequest("Username already exists");
         }
-        
+
         user = new User { Credentials = cred };
 
         _context.Users.Add(user);
@@ -77,14 +77,21 @@ public class UsersController : ControllerBase
         return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, user);
     }
 
+    
+
     [HttpPut("{Id}")]
-    public async Task<IActionResult> PutUser(int Id, User user)
+    public async Task<IActionResult> PutUser(int Id, Credentials creds)
     {
-        //TODO: Update this to make more sense with credentials class
-        if (Id != user.Id)
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == Id);
+
+        if (user == null)
         {
-            return BadRequest();
+            return BadRequest("User does not exist with that Id!");
         }
+
+        user.Credentials = creds;  // Does this work? Is that all that it needs to update credentials?
 
         _context.Entry(user).State = EntityState.Modified;
 
@@ -105,18 +112,18 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{Id}")]
-    public async Task<IActionResult> DeleteUser(int Id)
+    public async Task<ActionResult<User>> DeleteUser(int Id)
     {
         var user = await _context.Users.FindAsync(Id);
         if (user == null)
         {
-            return NotFound();
-        }
+            return NotFound($"No user found with given Id: {Id}");
+        }        
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return new ObjectResult(user) { StatusCode = 204 };
     }
 
     private bool UserExists(int Id)

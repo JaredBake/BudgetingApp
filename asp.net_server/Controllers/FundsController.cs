@@ -43,10 +43,7 @@ public class FundsController : ControllerBase
 
     [HttpPost()]
     public async Task<ActionResult<Account>> PostFund(Fund fund)
-    {
-
-        var a = await _context.Funds.FindAsync(fund.Id);
-        if (a != null) return BadRequest($"Fund already exists with Id: {fund.Id}");              
+    {      
 
         _context.Funds.Add(fund);
         await _context.SaveChangesAsync();

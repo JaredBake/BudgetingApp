@@ -49,10 +49,7 @@ public class AccountsController : ControllerBase
 
     [HttpPost()]
     public async Task<ActionResult<Account>> PostAccount(Account account)
-    {
-
-        var a = await _context.Accounts.FindAsync(account.Id);
-        if (a != null) return BadRequest($"Account already exists with Id: {account.Id}");        
+    {       
 
         _context.Accounts.Add(account);
         await _context.SaveChangesAsync();

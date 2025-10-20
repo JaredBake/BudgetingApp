@@ -43,8 +43,6 @@ public class TransactionsController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult<Account>> PostTransaction(Transaction transaction)
     {
-        if (TransactionExists(transaction.Id)) return BadRequest($"Transaction already exists with Id: {transaction.Id}");
-
         var account = await _context.Accounts.Include(a => a.Transactions).FirstOrDefaultAsync(a => a.Id == transaction.AccountId);
         if (account == null) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
 
