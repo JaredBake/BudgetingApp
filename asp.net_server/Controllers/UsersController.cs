@@ -25,7 +25,6 @@ public class UsersController : ControllerBase
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-
         var users = await _context.Users
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
@@ -59,9 +58,19 @@ public class UsersController : ControllerBase
     [HttpPost("PostUser")]
     public async Task<ActionResult<User>> PostUser(Credentials cred)
     {
-        User user = new User { Credentials = cred };
 
-        // TODO: Don't allow duplicate users to be created
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Credentials.UserName == cred.UserName);
+
+        user ??= await _context.Users.FirstOrDefaultAsync(u => u.Credentials.Email == cred.Email);
+
+        if (user != null)
+        {
+            return BadRequest("Username already exists");
+        }
+        
+        user = new User { Credentials = cred };
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 

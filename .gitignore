@@ -14,3 +14,4 @@ asp.net_server/appsettings.{Environment}.json
 !.env.example
 
 *.txt
+TODO.md
