@@ -171,7 +171,7 @@ public class AccountsController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(account);
     }
 
     [HttpDelete("{Id}")]
