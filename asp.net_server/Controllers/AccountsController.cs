@@ -2,9 +2,13 @@ using App.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace App.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 
@@ -25,6 +29,7 @@ public class AccountsController : ControllerBase
     [HttpGet("auth")]
     public bool checkAuth() { return true; }
     
+    [Authorize(Roles = "Admin")]
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
     {
@@ -37,6 +42,7 @@ public class AccountsController : ControllerBase
     [HttpGet("{Id}")]
     public async Task<ActionResult<Account>> GetAccount(int Id)
     {
+
         var account = await _context.Accounts
             // .Include(a => a.Transactions)
             // .Include(a => a.UserAccounts)
@@ -46,6 +52,8 @@ public class AccountsController : ControllerBase
         {
             return NotFound();
         }
+
+        if (!await AuthorizeUser(Id)) return Forbid();
 
         return account;
     }
@@ -61,7 +69,7 @@ public class AccountsController : ControllerBase
     }
 
     public class bodyObject { public int userId { get; set; } public int accountId { get; set; } }
-    [HttpPost("joinUserAccount")]
+    [HttpPost("User")]
     public async Task<ActionResult> JoinUserAccount([FromBody] bodyObject request)
     {
         var user = await _context.Users.FindAsync(request.userId);
@@ -70,10 +78,11 @@ public class AccountsController : ControllerBase
         if (user == null) return NotFound($"User: {request.userId} not found");
         if (account == null) return NotFound($"Account: {request.accountId} not found");
 
-        var existingJoin = await _context.UserAccounts
-            .FirstOrDefaultAsync(ua => ua.UserId == request.userId && ua.AccountId == request.accountId);
 
-        if (existingJoin != null) return BadRequest($"User: {request.userId} is already connected to this account: {request.accountId}");
+        if (await BelongsToUser(request.accountId, request.userId))
+        {
+            return BadRequest($"User: {request.userId} is already connected to this account: {request.accountId}");
+        }
 
         var userAccount = new UserAccount
         {
@@ -84,7 +93,47 @@ public class AccountsController : ControllerBase
         _context.UserAccounts.Add(userAccount);
         await _context.SaveChangesAsync();
 
-        return Ok("User association successfully created");        
+        return Ok("User association successfully created");
+    }
+
+    [HttpDelete("User")]
+    public async Task<ActionResult> DeleteUserAccount([FromBody] bodyObject request)
+    {
+        if (!await AuthorizeUser(request.accountId)) return Forbid();
+
+        var userAccount = new UserAccount
+        {
+            UserId = request.userId,
+            AccountId = request.accountId
+        };
+
+        try
+        {
+            _context.UserAccounts.Remove(userAccount);
+            await _context.SaveChangesAsync();
+
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!await BelongsToUser(request.accountId, request.userId))
+            {
+                return BadRequest($"Association doesn't exist! User: {request.userId} Account: {request.accountId}");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return Ok("User association successfully deleted");
+        
+    }
+    
+    [HttpGet("User")]
+    public async Task<ActionResult<bool>> TestBelongs([FromBody] bodyObject request)
+    {
+        if (!await AuthorizeUser(request.accountId)) return Forbid();
+        return await BelongsToUser(request.accountId, request.userId);       
     }
 
 
@@ -134,5 +183,28 @@ public class AccountsController : ControllerBase
     private bool AccountExists(int Id)
     {
         return _context.Accounts.Any(e => e.Id == Id);
+    }
+
+    
+    public async Task<bool> BelongsToUser(int accountId, int userId)
+    {
+        var existingJoin = await _context.UserAccounts
+            .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.AccountId == accountId);
+
+        if (existingJoin == null) return false;
+        else return true;
+    }
+
+    public async Task<bool> AuthorizeUser(int accountId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return await BelongsToUser(accountId, GetCurrentUserId());
+    }
+
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(userIdClaim ?? "0");
     }
 }

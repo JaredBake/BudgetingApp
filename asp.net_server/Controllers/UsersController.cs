@@ -62,7 +62,7 @@ public class UsersController : ControllerBase
         return user;
     }
 
-
+    [Authorize(Roles = "Admin")]
     [HttpPost("PostUser")]
     public async Task<ActionResult<User>> PostUser(Credentials cred)
     {
@@ -82,14 +82,15 @@ public class UsersController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, user);
+        return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
     }
-
     
 
     [HttpPut("{Id}")]
     public async Task<IActionResult> PutUser(int Id, Credentials creds)
     {
+
+        if (!AuthorizeUser(Id)) return Forbid();
 
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == Id);
@@ -99,7 +100,7 @@ public class UsersController : ControllerBase
             return BadRequest("User does not exist with that Id!");
         }
 
-        user.Credentials = creds;  // Does this work? Is that all that it needs to update credentials?
+        user.Credentials = creds; 
 
         _context.Entry(user).State = EntityState.Modified;
 
@@ -116,12 +117,15 @@ public class UsersController : ControllerBase
                 throw;
         }
 
-        return NoContent();
+        return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
     }
 
     [HttpDelete("{Id}")]
     public async Task<ActionResult<User>> DeleteUser(int Id)
     {
+
+        if (!AuthorizeUser(Id)) return Forbid();
+
         var user = await _context.Users.FindAsync(Id);
         if (user == null)
         {
@@ -131,7 +135,7 @@ public class UsersController : ControllerBase
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
-        return new ObjectResult(user) { StatusCode = 204 };
+        return Ok(user);
     }
 
     private bool UserExists(int Id)
@@ -141,18 +145,9 @@ public class UsersController : ControllerBase
 
     public bool AuthorizeUser(int userId)
     {
-        if (userId == GetCurrentUserId()) return true;
-
         if (User.IsInRole("Admin")) return true;
 
-        return false;
-    }
-
-    public bool IsAdmin()
-    {
-        if (User.IsInRole("Admin")) return true;
-
-        return false;
+        return userId == GetCurrentUserId();
     }
 
     private int GetCurrentUserId()
