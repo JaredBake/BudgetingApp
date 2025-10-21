@@ -13,9 +13,10 @@ Post User Route
 Auto-seed database when restarting server or if database doesn't exist 
 
 ## Endpoints
-Accounts : POST - Remove id as it should auto-generate :: TEST
-Funds : POST - Remove id as it should auto-generate :: TEST
-Transaction : POST - Remove id as it should auto-generate :: TEST
+
+* Delete User - Should delete ALL UserAccounts && UserFunds
+* Delete Accounts - Should delete ALL UserAccounts 
+* Delete Funds - Should delete ALL UserFunds
 
 
 ## Authorization

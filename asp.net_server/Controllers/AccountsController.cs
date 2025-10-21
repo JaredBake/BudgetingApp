@@ -42,6 +42,7 @@ public class AccountsController : ControllerBase
     [HttpGet("{Id}")]
     public async Task<ActionResult<Account>> GetAccount(int Id)
     {
+        if (!await AuthorizeUser(Id)) return Forbid();
 
         var account = await _context.Accounts
             // .Include(a => a.Transactions)
@@ -52,8 +53,6 @@ public class AccountsController : ControllerBase
         {
             return NotFound();
         }
-
-        if (!await AuthorizeUser(Id)) return Forbid();
 
         return account;
     }
@@ -72,6 +71,8 @@ public class AccountsController : ControllerBase
     [HttpPost("User")]
     public async Task<ActionResult> JoinUserAccount([FromBody] bodyObject request)
     {
+        if (!await AuthorizeUser(request.accountId)) return Forbid();
+
         var user = await _context.Users.FindAsync(request.userId);
         var account = await _context.Accounts.FindAsync(request.accountId);
 
@@ -111,13 +112,20 @@ public class AccountsController : ControllerBase
         {
             _context.UserAccounts.Remove(userAccount);
             await _context.SaveChangesAsync();
-
         }
         catch (DbUpdateConcurrencyException)
         {
             if (!await BelongsToUser(request.accountId, request.userId))
             {
                 return BadRequest($"Association doesn't exist! User: {request.userId} Account: {request.accountId}");
+            }
+            if (!AccountExists(request.userId))
+            {
+                return NotFound($"No account found to update with Id: {request.accountId}");
+            }
+            if (!UserExists(request.userId))
+            {
+                return NotFound($"No user found to update with Id: {request.userId}");
             }
             else
             {
@@ -137,12 +145,13 @@ public class AccountsController : ControllerBase
     }
 
 
-    [HttpPut("{Id}")]
-    public async Task<IActionResult> PutAccount(int Id, Account account)
+    [HttpPut()]
+    public async Task<IActionResult> PutAccount(Account account)
     {
-        if (Id != account.Id) return BadRequest($"Id: {Id} parameter doesn't equal account.Id: {account.Id}");        
 
-        if (!AccountExists(Id)) return NotFound($"No account found to update with Id: {account.Id}");
+        if (!await AuthorizeUser(account.Id)) return Forbid();            
+
+        if (!AccountExists(account.Id)) return NotFound($"No account found to update with Id: {account.Id}");
         
         _context.Entry(account).State = EntityState.Modified;
 
@@ -152,7 +161,7 @@ public class AccountsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!AccountExists(Id))
+            if (!AccountExists(account.Id))
             {
                 return NotFound($"No account found to update with Id: {account.Id}");
             }
@@ -168,16 +177,25 @@ public class AccountsController : ControllerBase
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteAccount(int Id)
     {
+        if (!await AuthorizeUser(Id)) return Forbid(); 
+
         var account = await _context.Accounts.FindAsync(Id);
         if (account == null)
         {
             return NotFound($"No account found to delete with Id: {Id}");
         }
 
+        // _context.UserAccounts.RemoveRange(userAccounts); // ???
+
         _context.Accounts.Remove(account);
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private bool UserExists(int Id)
+    {
+        return _context.Users.Any(e => e.Id == Id);
     }
 
     private bool AccountExists(int Id)
