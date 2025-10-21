@@ -10,6 +10,14 @@
   },
   {
     "Credentials": {
+      "UserName": "Default",
+      "Name": "Default",
+      "Password": "default123",
+      "Email": "default@gmail.com"
+    }
+  },
+  {
+    "Credentials": {
       "UserName": "Charizard",
       "Name": "Charizard Smith",
       "Password": "1234567!",

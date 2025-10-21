@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace App.Controllers
 {
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class SeedController : ControllerBase
@@ -20,9 +20,7 @@ namespace App.Controllers
         [HttpGet()]
         public bool check() { return true; }
 
-        // [Authorize]
         [HttpGet("auth")]
-
 
         [HttpPost]
         public async Task<IActionResult> Seed()

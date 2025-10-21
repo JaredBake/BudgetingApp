@@ -1,4 +1,5 @@
-﻿using App.Models;
+﻿using System.Security.Claims;
+using App.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,10 +23,10 @@ public class UsersController : ControllerBase
     [HttpGet()]
     public bool check() { return true; }
 
-    [Authorize]
     [HttpGet("auth")]
     public bool checkAuth() { return true; }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
@@ -43,6 +44,8 @@ public class UsersController : ControllerBase
     [HttpGet("{Id}")]
     public async Task<ActionResult<User>> GetUser(int Id)
     {
+        if (!AuthorizeUser(Id)) return Forbid();
+        
         var user = await _context.Users
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
@@ -58,6 +61,7 @@ public class UsersController : ControllerBase
 
         return user;
     }
+
 
     [HttpPost("PostUser")]
     public async Task<ActionResult<User>> PostUser(Credentials cred)
@@ -135,9 +139,25 @@ public class UsersController : ControllerBase
         return _context.Users.Any(e => e.Id == Id);
     }
 
-    // protected int GetCurrentUserId()
-    // {
-    //     var userIdClaim = _context.Users.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    //     return int.Parse(userIdClaim ?? "0");
-    // }
+    public bool AuthorizeUser(int userId)
+    {
+        if (userId == GetCurrentUserId()) return true;
+
+        if (User.IsInRole("Admin")) return true;
+
+        return false;
+    }
+
+    public bool IsAdmin()
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return false;
+    }
+
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(userIdClaim ?? "0");
+    }
 }
