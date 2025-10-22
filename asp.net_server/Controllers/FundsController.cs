@@ -137,12 +137,11 @@ public class FundsController : ControllerBase
     }
 
     [HttpPut()]
-    public async Task<IActionResult> PutFund(int Id, Fund fund)
+    public async Task<IActionResult> PutFund(Fund fund)
     {
         if (!await AuthorizeUser(fund.Id)) return Forbid();
 
-
-        if (!FundExists(Id)) return NotFound($"No fund found to update with Id: {fund.Id}");
+        if (!FundExists(fund.Id)) return NotFound($"No fund found to update with Id: {fund.Id}");
         
         _context.Entry(fund).State = EntityState.Modified;
 
@@ -152,7 +151,7 @@ public class FundsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!FundExists(Id))
+            if (!FundExists(fund.Id))
             {
                 return NotFound($"No fund found to update with Id: {fund.Id}");
             }

@@ -12,16 +12,16 @@ class AuthService {
   static const String baseUrl = 'http://localhost:5284';
 
   static Future<bool> recordToken(Map<String, dynamic> response) async {
-    if (response['authenticated'] != null &&
-        response['username'] != null &&
-        response['token'] != null &&
-        response['userId'] != null &&    
-        response['expiresAt'] != null)
+    print(response);
+
+    if (response['authenticated'] == null ||
+        response['username'] == null ||
+        response['token'] == null ||
+        response['userId'] == null ||   
+        response['expiresAt'] == null)
     {
       return false;
-    }    
-
-    print(response);
+    }       
 
     if (!response['authenticated']) return false;
 
@@ -34,6 +34,26 @@ class AuthService {
     localStorage.setItem('expiration', response['expiresAt'].toString());
 
     return true;
+  }
+
+   static Future<Map<String, dynamic>> getUser() async {
+    final token = localStorage.getItem('token');
+    final userId = localStorage.getItem('userId');
+
+    final userGet = await http.get(
+      Uri.parse('$baseUrl/api/Users/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', 
+        },
+    );
+
+    if (userGet.statusCode == 200) {
+      final user = jsonDecode(userGet.body) as Map<String, dynamic>;
+      return user;
+    } else {
+      throw Exception('Failed to load user after logging in');
+    }
   }
 
   static Future<Map<String, dynamic>?> register(
@@ -69,20 +89,8 @@ class AuthService {
       return null;
     }
 
-    final userId = res['userId'];
-
-    final userGet = await http.get(
-      Uri.parse('$baseUrl/api/Users/$userId'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (userGet.statusCode == 200) {
-      final user = jsonDecode(userGet.body) as Map<String, dynamic>;
-      return user;
-    } else {
-      throw Exception('Failed to load user after logging in');
-    }
-  }
+    return getUser(); 
+  } 
 
   static Future<Map<String, dynamic>?> login(
     String email,
@@ -113,20 +121,8 @@ class AuthService {
       // Error login response unsuccessful
       return null;
     }
-    
-    final userId = res['userId'];
 
-    final userGet = await http.get(
-      Uri.parse('$baseUrl/api/Users/$userId'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (userGet.statusCode == 200) {
-      final user = jsonDecode(userGet.body) as Map<String, dynamic>;
-      return user;
-    } else {
-      throw Exception('Failed to load user after logging in');
-    }
+    return getUser();  
   
   }
 }
