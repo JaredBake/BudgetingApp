@@ -38,7 +38,7 @@ public class SeedController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost]
+    [HttpPost("Force")]
     public async Task<IActionResult> ForceSeed()
     {
         try
