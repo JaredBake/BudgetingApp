@@ -49,8 +49,7 @@ class TopNavBar extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.person, color: Colors.white),
               onPressed: () {
-                // TODO: Function when profile button is pressed
-                // Navigator.pushNamed(context, '/profile');
+                Navigator.pushNamed(context, '/profile');
               },
               tooltip: 'Profile',
             ),
