@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers;
 
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/[controller]")]
 public class StatsController : ControllerBase

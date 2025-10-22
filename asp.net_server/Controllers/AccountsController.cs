@@ -119,7 +119,7 @@ public class AccountsController : ControllerBase
             {
                 return BadRequest($"Association doesn't exist! User: {request.userId} Account: {request.accountId}");
             }
-            if (!AccountExists(request.userId))
+            if (!AccountExists(request.accountId))
             {
                 return NotFound($"No account found to update with Id: {request.accountId}");
             }
@@ -202,9 +202,8 @@ public class AccountsController : ControllerBase
     {
         return _context.Accounts.Any(e => e.Id == Id);
     }
-
     
-    public async Task<bool> BelongsToUser(int accountId, int userId)
+    private async Task<bool> BelongsToUser(int accountId, int userId)
     {
         var existingJoin = await _context.UserAccounts
             .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.AccountId == accountId);

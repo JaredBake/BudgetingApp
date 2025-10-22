@@ -1,4 +1,11 @@
 
+## Authorization Controllers
+* Funds
+* Transactions
+* Stats???
+* Auth
+
+
 
 ## Users Controller
  
