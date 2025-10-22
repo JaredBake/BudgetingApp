@@ -36,6 +36,21 @@ public class SeedController : ControllerBase
             return StatusCode(500, $"Seeding failed: {ex.Message}");
         }
     }
+
+    [AllowAnonymous]
+    [HttpPost]
+    public async Task<IActionResult> ForceSeed()
+    {
+        try
+        {
+            await _seeder.SeedAsync();
+            return Ok("Database seeded with fake data.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Seeding failed: {ex.Message}");
+        }
+    }
 }
 
 

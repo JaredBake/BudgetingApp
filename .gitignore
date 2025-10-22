@@ -13,5 +13,7 @@ asp.net_server/appsettings.{Environment}.json
 .env.production
 !.env.example
 
+flutter_app/macos/
+
 *.txt
 TODO.md
