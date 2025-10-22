@@ -7,7 +7,6 @@ import 'dart:convert';
 
 import 'package:localstorage/localstorage.dart';
 
-
 class AuthService {
   static const String baseUrl = 'http://localhost:5284';
 
@@ -60,27 +59,28 @@ class AuthService {
     String name,
     String username,
     String email,
-    String password
+    String password,
   ) async {
-
     final jsonBody = jsonEncode({
       'name': name,
       'username': username,
       'email': email,
-      'password': password
+      'password': password,
     });
 
     final url = Uri.parse('$baseUrl/api/Auth/register');
 
     final response = await http.post(
       url,
-      headers: <String, String>{'Content-Type': 'application/json; charst=UTF-8'},
-      body: jsonBody
-    ); 
+      headers: <String, String>{
+        'Content-Type': 'application/json; charst=UTF-8',
+      },
+      body: jsonBody,
+    );
 
-    if (response.statusCode != 200){
+    if (response.statusCode != 200) {
       return null;
-    }  
+    }
 
     final res = json.decode(response.body) as Map<String, dynamic>;
 
@@ -94,22 +94,19 @@ class AuthService {
 
   static Future<Map<String, dynamic>?> login(
     String email,
-    String password
-  ) async {    
-
-    final jsonBody = jsonEncode({
-      'email': email,
-      'password': password
-    });
+    String password,
+  ) async {
+    final jsonBody = jsonEncode({'email': email, 'password': password});
 
     final url = Uri.parse('$baseUrl/api/Auth/login');
-    
 
     final response = await http.post(
       url,
-      headers: <String, String>{'Content-Type': 'application/json; charst=UTF-8'},
-      body: jsonBody
-      );
+      headers: <String, String>{
+        'Content-Type': 'application/json; charst=UTF-8',
+      },
+      body: jsonBody,
+    );
 
     if (response.statusCode != 200) {
       return null;

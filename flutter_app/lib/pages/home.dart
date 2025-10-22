@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'widgets/bottomNavBar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'widgets/pieChart.dart';
+import 'widgets/topNavBar.dart';
 
 class Home extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -39,11 +40,16 @@ class _HomeState extends State<Home> {
         'Guest';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: const Color(0xFF2E7D32),
-        elevation: 0,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: TopNavBar(
+          title: 'Budgeting App',
+          backgroundColor: Colors.green,
+          showBackButton: true,
+          showProfileButton: true,
+        ),
       ),
+
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
