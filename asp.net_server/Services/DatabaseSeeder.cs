@@ -1,3 +1,4 @@
+using App.Controllers;
 using App.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -28,6 +29,34 @@ namespace App.Services
             await _db.Set<T>().AddRangeAsync(entities);
             await _db.SaveChangesAsync();
         }
+        
+        private async Task SeedUsers(string entityName)
+        {
+            List<User>? entities;
+
+            using (StreamReader r = new StreamReader($"Services/MockData/{entityName}.json"))
+            {
+                string json = r.ReadToEnd();
+                entities = JsonConvert.DeserializeObject<List<User>>(json);
+            }
+
+            if (entities == null) throw new NullReferenceException($"{entityName} was not read properly");
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                var user = entities[i];
+
+                if (user.Credentials.Password == null) continue;
+            
+
+                string newPassword = AuthController.HashPassword(user.Credentials.Password);
+                
+                entities[i].Credentials.Password = newPassword;
+            }
+            
+            await _db.Set<User>().AddRangeAsync(entities);
+            await _db.SaveChangesAsync();
+        }
        
         public async Task SeedAsync()
         {
@@ -37,7 +66,8 @@ namespace App.Services
 
             try
             {
-                await SeedEntity<User>("Users");
+                await SeedUsers("Users"); // Special function for password handling
+
                 await SeedEntity<Fund>("Funds");
                 await SeedEntity<Account>("Accounts");
                 await SeedEntity<Transaction>("Transactions");

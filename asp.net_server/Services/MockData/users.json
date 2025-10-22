@@ -1,6 +1,23 @@
 [
   {
     "Credentials": {
+      "UserName": "Admin",
+      "Name": "Admin",
+      "Password": "admin123",
+      "Email":"admin@gmail.com",
+      "Role":"Admin"
+    }
+  },
+  {
+    "Credentials": {
+      "UserName": "Default",
+      "Name": "Default",
+      "Password": "default123",
+      "Email": "default@gmail.com"
+    }
+  },
+  {
+    "Credentials": {
       "UserName": "Charizard",
       "Name": "Charizard Smith",
       "Password": "1234567!",

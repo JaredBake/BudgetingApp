@@ -1,10 +1,13 @@
-﻿using App.Models;
+﻿using System.Security.Claims;
+using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
 namespace App.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -16,16 +19,17 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
-    public bool check()
-    {
-        return true;
-    }
+    public bool check() { return true; }
 
+    [HttpGet("auth")]
+    public bool checkAuth() { return true; }
+
+    [Authorize(Roles = "Admin")]
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-
         var users = await _context.Users
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
@@ -40,6 +44,8 @@ public class UsersController : ControllerBase
     [HttpGet("{Id}")]
     public async Task<ActionResult<User>> GetUser(int Id)
     {
+        if (!AuthorizeUser(Id)) return Forbid();
+        
         var user = await _context.Users
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
@@ -56,26 +62,45 @@ public class UsersController : ControllerBase
         return user;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("PostUser")]
     public async Task<ActionResult<User>> PostUser(Credentials cred)
     {
-        User user = new User { Credentials = cred };
 
-        // TODO: Don't allow duplicate users to be created
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Credentials.UserName == cred.UserName);
+
+        user ??= await _context.Users.FirstOrDefaultAsync(u => u.Credentials.Email == cred.Email);
+
+        if (user != null)
+        {
+            return BadRequest("Username already exists");
+        }
+
+        user = new User { Credentials = cred };
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, user);
+        return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
     }
+    
 
     [HttpPut("{Id}")]
-    public async Task<IActionResult> PutUser(int Id, User user)
+    public async Task<IActionResult> PutUser(int Id, Credentials creds)
     {
-        //TODO: Update this to make more sense with credentials class
-        if (Id != user.Id)
+
+        if (!AuthorizeUser(Id)) return Forbid();
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == Id);
+
+        if (user == null)
         {
-            return BadRequest();
+            return BadRequest("User does not exist with that Id!");
         }
+
+        user.Credentials = creds; 
 
         _context.Entry(user).State = EntityState.Modified;
 
@@ -92,26 +117,42 @@ public class UsersController : ControllerBase
                 throw;
         }
 
-        return NoContent();
+        return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
     }
 
     [HttpDelete("{Id}")]
-    public async Task<IActionResult> DeleteUser(int Id)
+    public async Task<ActionResult<User>> DeleteUser(int Id)
     {
+
+        if (!AuthorizeUser(Id)) return Forbid();
+
         var user = await _context.Users.FindAsync(Id);
         if (user == null)
         {
-            return NotFound();
-        }
+            return NotFound($"No user found with given Id: {Id}");
+        }        
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok(user);
     }
 
     private bool UserExists(int Id)
     {
         return _context.Users.Any(e => e.Id == Id);
+    }
+
+    public bool AuthorizeUser(int userId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return userId == GetCurrentUserId();
+    }
+
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(userIdClaim ?? "0");
     }
 }

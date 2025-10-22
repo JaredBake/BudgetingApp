@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,21 +17,27 @@ public class TransactionsController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
-    public bool check()
-    {
-        return true;
-    }
+    public bool check() { return true; }
 
+    [Authorize]
+    [HttpGet("auth")]
+    public bool checkAuth() { return true; }
+
+    [Authorize(Roles = "Admin")]
     [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetUsers()
     {
         return await _context.Transactions.ToListAsync();
     }
 
+
     [HttpGet("{Id}")]
     public async Task<ActionResult<Transaction>> GetTransaction(int Id)
     {
+        if (!await AuthorizeUser(Id)) return Forbid();
+
         var fund = await _context.Transactions.FindAsync(Id);
 
         if (fund == null)
@@ -43,8 +51,6 @@ public class TransactionsController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult<Account>> PostTransaction(Transaction transaction)
     {
-        if (TransactionExists(transaction.Id)) return BadRequest($"Transaction already exists with Id: {transaction.Id}");
-
         var account = await _context.Accounts.Include(a => a.Transactions).FirstOrDefaultAsync(a => a.Id == transaction.AccountId);
         if (account == null) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
 
@@ -54,14 +60,14 @@ public class TransactionsController : ControllerBase
         return CreatedAtAction(nameof(GetTransaction), new { Id = transaction.Id }, transaction);
     }
 
-    [HttpPut("{Id}")]
-    public async Task<IActionResult> PutTransaction(int Id, Transaction transaction)
+    [HttpPut()]
+    public async Task<IActionResult> PutTransaction(Transaction transaction)
     {
-        if (Id != transaction.Id) return BadRequest($"Id: {Id} parameter doesn't equal fund.Id: {transaction.Id}");
-
-        if (!TransactionExists(Id)) return NotFound($"No transaction found to update with Id: {transaction.Id}");
-
+        if (!TransactionExists(transaction.Id)) return NotFound($"No transaction found to update with Id: {transaction.Id}");
+        
         if (!AccountExists(transaction.AccountId)) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
+
+        if (!await AuthorizeUser(transaction.Id)) return Forbid();
 
         _context.Entry(transaction).State = EntityState.Modified;
 
@@ -71,7 +77,7 @@ public class TransactionsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!TransactionExists(Id))
+            if (!TransactionExists(transaction.Id))
             {
                 return NotFound($"No transaction found to update with Id: {transaction.Id}");
             }
@@ -87,6 +93,8 @@ public class TransactionsController : ControllerBase
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteTransaction(int Id)
     {
+        if (!await AuthorizeUser(Id)) return Forbid();
+
         var transaction = await _context.Transactions.FindAsync(Id);
         if (transaction == null)
         {
@@ -108,9 +116,30 @@ public class TransactionsController : ControllerBase
     {
         return _context.Accounts.Any(e => e.Id == Id);
     }
-    
-    private bool UserExists(int Id)
+   
+    private async Task<bool> BelongsToUser(int transactionId, int userId)
     {
-        return _context.Users.Any(e => e.Id == Id);
+        var transaction = await _context.Transactions.FindAsync(transactionId);
+
+        if (transaction == null) return false;
+
+        var existingJoin = await _context.UserAccounts
+            .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.AccountId == transaction.AccountId);
+
+        if (existingJoin == null) return false;
+        else return true;
+    }
+
+    private async Task<bool> AuthorizeUser(int transactionId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return await BelongsToUser(transactionId, GetCurrentUserId());
+    }
+    
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(userIdClaim ?? "0");
     }
 }

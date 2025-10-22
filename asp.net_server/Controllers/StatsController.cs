@@ -1,9 +1,11 @@
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers;
 
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/[controller]")]
 public class StatsController : ControllerBase
@@ -15,8 +17,13 @@ public class StatsController : ControllerBase
         _db = db;
     }
 
+    [AllowAnonymous]
     [HttpGet()]
     public bool check() { return true; }
+
+    [Authorize]
+    [HttpGet("auth")]
+
 
     [HttpGet("overview")]
     public async Task<ActionResult<OverviewStatistics>> GetOverview()
