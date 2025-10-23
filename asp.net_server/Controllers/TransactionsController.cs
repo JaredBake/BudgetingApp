@@ -33,6 +33,20 @@ public class TransactionsController : ControllerBase
     }
 
 
+    [HttpGet("MyTransactions")]
+    public async Task<ActionResult<IEnumerable<Transaction>>> GetUserTransactions()
+    {
+        var userId = GetCurrentUserId();
+        
+        var userTransactions = await _context.UserAccounts
+            .Where(ua => ua.UserId == userId)
+            .SelectMany(ua => ua.Account!.Transactions)
+            .OrderByDescending(t => t.Date)
+            .ToListAsync();
+
+        return Ok(userTransactions);
+    }
+
     [HttpGet("{Id}")]
     public async Task<ActionResult<Transaction>> GetTransaction(int Id)
     {
@@ -54,13 +68,16 @@ public class TransactionsController : ControllerBase
         var account = await _context.Accounts.Include(a => a.Transactions).FirstOrDefaultAsync(a => a.Id == transaction.AccountId);
         if (account == null) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
 
+        // Ensure the DateTime is in UTC
+        transaction.Date = transaction.Date.Kind == DateTimeKind.Unspecified 
+            ? DateTime.SpecifyKind(transaction.Date, DateTimeKind.Utc)
+            : transaction.Date.ToUniversalTime();
+
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetTransaction), new { Id = transaction.Id }, transaction);
-    }
-
-    [HttpPut()]
+    }    [HttpPut()]
     public async Task<IActionResult> PutTransaction(Transaction transaction)
     {
         if (!TransactionExists(transaction.Id)) return NotFound($"No transaction found to update with Id: {transaction.Id}");
@@ -68,6 +85,11 @@ public class TransactionsController : ControllerBase
         if (!AccountExists(transaction.AccountId)) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
 
         if (!await AuthorizeUser(transaction.Id)) return Forbid();
+
+        // Ensure the DateTime is in UTC
+        transaction.Date = transaction.Date.Kind == DateTimeKind.Unspecified 
+            ? DateTime.SpecifyKind(transaction.Date, DateTimeKind.Utc)
+            : transaction.Date.ToUniversalTime();
 
         _context.Entry(transaction).State = EntityState.Modified;
 

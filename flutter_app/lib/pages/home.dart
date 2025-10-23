@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets/bottomNavBar.dart';
+import 'widgets/app_bottom_nav_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'widgets/pieChart.dart';
 import 'widgets/topNavBar.dart';
@@ -21,12 +21,6 @@ class _HomeState extends State<Home> {
     'Should navigate to Funds.',
     'Should navigate to Settings.',
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +86,9 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        onItemTapped: _onItemTapped,
-        initialIndex: _selectedIndex,
+      bottomNavigationBar: AppBottomNavBar(
+        user: widget.user,
+        currentIndex: _selectedIndex,
       ),
     );
   }
