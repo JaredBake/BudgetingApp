@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 import '../../services/navigation_service.dart';
 
 class AppBottomNavBar extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final User user;
   final int currentIndex;
 
   const AppBottomNavBar({

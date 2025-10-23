@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application/models/user.dart';
 import '../api/transaction_service.dart';
 import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 class CreateTransactionPage extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final User user;
   final VoidCallback? onTransactionCreated;
 
   const CreateTransactionPage({

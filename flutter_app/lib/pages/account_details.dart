@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 import '../models/account_model.dart';
 import '../models/accountType.dart';
 import 'widgets/topNavBar.dart';
@@ -6,7 +7,7 @@ import 'widgets/app_bottom_nav_bar.dart';
 
 class AccountDetailsPage extends StatefulWidget {
   final AccountModel account;
-  final Map<String, dynamic> user;
+  final User user;
 
   const AccountDetailsPage({
     super.key,

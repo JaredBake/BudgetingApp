@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 
 class NavigationService {
-  static void navigateToTab(BuildContext context, int index, Map<String, dynamic> user) {
+  static void navigateToTab(BuildContext context, int index, User user) {
     switch (index) {
       case 0: // Accounts
         Navigator.pushNamedAndRemoveUntil(

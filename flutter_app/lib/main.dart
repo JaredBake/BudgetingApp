@@ -2,6 +2,7 @@ import 'dart:convert'; // For JSON encoding/decoding
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -29,15 +30,15 @@ class MyApp extends StatelessWidget {
         home: WelcomePage(),
         routes: {
           '/home': (context) {
-            final user = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+            final user = ModalRoute.of(context)?.settings.arguments as User;
             return Home(user: user);
           },
           '/accounts': (context) {
-            final user = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+            final user = ModalRoute.of(context)?.settings.arguments as User;
             return AccountsPage(user: user);
           },
           '/transactions': (context) {
-            final user = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+            final user = ModalRoute.of(context)?.settings.arguments as User;
             return TransactionsPage(user: user);
           },
         },

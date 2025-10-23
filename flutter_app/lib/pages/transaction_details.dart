@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 import '../models/transaction.dart';
 import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
@@ -6,7 +7,7 @@ import 'widgets/app_bottom_nav_bar.dart';
 
 class TransactionDetailsPage extends StatefulWidget {
   final Transaction transaction;
-  final Map<String, dynamic> user;
+  final User user;
 
   const TransactionDetailsPage({
     super.key,

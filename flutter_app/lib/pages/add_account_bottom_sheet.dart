@@ -32,8 +32,10 @@ class _AddAccountBottomSheetState extends State<AddAccountBottomSheet> {
         return 'Checking';
       case AccountType.savings:
         return 'Savings';
-      case AccountType.credit:
+      case AccountType.creditCard:
         return 'Credit Card';
+      case AccountType.brokerage:
+        return 'Brokerage';
     }
   }
 
