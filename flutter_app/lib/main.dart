@@ -2,10 +2,14 @@ import 'dart:convert'; // For JSON encoding/decoding
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import 'pages/welcome.dart';
+import 'pages/home.dart';
+import 'pages/accounts.dart';
+import 'pages/transactions.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,11 +23,25 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'Budgeting App',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
         home: WelcomePage(),
+        routes: {
+          '/home': (context) {
+            final user = ModalRoute.of(context)?.settings.arguments as User;
+            return Home(user: user);
+          },
+          '/accounts': (context) {
+            final user = ModalRoute.of(context)?.settings.arguments as User;
+            return AccountsPage(user: user);
+          },
+          '/transactions': (context) {
+            final user = ModalRoute.of(context)?.settings.arguments as User;
+            return TransactionsPage(user: user);
+          },
+        },
       ),
     );
   }
