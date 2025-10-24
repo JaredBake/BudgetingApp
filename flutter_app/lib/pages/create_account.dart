@@ -24,7 +24,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
-  
+
   AccountType _selectedAccountType = AccountType.checking;
   bool _isLoading = false;
   String? _errorMessage;
@@ -48,16 +48,17 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       });
 
       final balance = double.parse(_balanceController.text);
-      
+
       await AccountService.createAccount(
         name: _nameController.text.trim(),
         accountType: _selectedAccountType,
         initialBalance: balance,
+        currency: 'USD',
       );
 
       // Call callback to refresh the accounts list
       widget.onAccountCreated?.call();
-      
+
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,8 +77,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     }
   }
 
-
-
   String _getAccountTypeDisplayName(AccountType type) {
     switch (type) {
       case AccountType.checking:
@@ -88,6 +87,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         return 'Credit Card';
       case AccountType.brokerage:
         return 'Brokerage Account';
+      case AccountType.cash:
+        return 'Cash Account';
     }
   }
 
@@ -101,6 +102,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         return Icons.credit_card;
       case AccountType.brokerage:
         return Icons.trending_up;
+      case AccountType.cash:
+        return Icons.money;
     }
   }
 
@@ -132,9 +135,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     children: [
                       Text(
                         'Account Type',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 12),
                       ...AccountType.values.map((type) {
@@ -159,9 +161,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Account Details
               Card(
                 child: Padding(
@@ -171,20 +173,20 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     children: [
                       Text(
                         'Account Details',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Account Name
                       TextFormField(
                         controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: 'Account Name',
+                          hintText: 'e.g., Chase Checking',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.account_balance_wallet),
-                          hintText: 'Enter account name',
+                          // hintText: 'Enter account name',
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -196,9 +198,36 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           return null;
                         },
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
+                      DropdownButtonFormField<String>(
+                        value: 'USD', // Hardcode USD as the selected value
+                        decoration: const InputDecoration(
+                          labelText: 'Currency',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.currency_exchange),
+                        ),
+                        items: const [
+                          DropdownMenuItem<String>(
+                            value: 'USD',
+                            child: Text('USD'),
+                          ),
+                        ],
+                        onChanged:
+                            null, // Disable changes by setting onChanged to null
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please select a currency';
+                          }
+                          if (value.trim() != 'USD') {
+                            return 'Currency must be USD';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
                       // Initial Balance
                       TextFormField(
                         controller: _balanceController,
@@ -208,9 +237,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           prefixIcon: Icon(Icons.attach_money),
                           hintText: '0.00',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,2}')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^-?\d*\.?\d{0,2}'),
+                          ),
                         ],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -223,24 +256,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           return null;
                         },
                       ),
-                      
+
                       const SizedBox(height: 12),
-                      
+
                       // Helper text for negative balances
                       Text(
                         'Note: Negative balances are allowed for credit cards and overdrafts',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Error Message
               if (_errorMessage != null)
                 Container(
@@ -265,7 +295,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ],
                   ),
                 ),
-              
+
               // Create Button
               SizedBox(
                 width: double.infinity,
@@ -285,7 +315,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(

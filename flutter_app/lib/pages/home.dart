@@ -141,7 +141,7 @@ class _HomeState extends State<Home> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                "Couldn't load your data",
+                                "Couldn't load your data${snap.error}",
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 18,

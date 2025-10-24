@@ -112,7 +112,7 @@ class AccountService {
     required String name,
     required AccountType accountType,
     required double initialBalance,
-    String currency = 'USD',
+    required String currency,
   }) async {
     final token = localStorage.getItem('token');
     final userId = localStorage.getItem('userId');
@@ -161,6 +161,8 @@ class AccountService {
         return 2;
       case AccountType.brokerage:
         return 3;
+      case AccountType.cash:
+        return 4;
     }
   }
 
