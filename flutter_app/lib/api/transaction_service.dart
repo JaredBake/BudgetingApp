@@ -6,8 +6,8 @@ import '../models/money.dart';
 import '../models/TransactionType.dart';
 
 class TransactionService {
-  //static const String baseUrl = 'http://localhost:5284';
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://localhost:5284';
+
   static Future<List<Transaction>> getUserTransactions() async {
     final token = localStorage.getItem('token');
 

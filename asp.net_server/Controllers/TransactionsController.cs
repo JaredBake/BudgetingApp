@@ -78,8 +78,6 @@ public class TransactionsController : ControllerBase
 
         return CreatedAtAction(nameof(GetTransaction), new { Id = transaction.Id }, transaction);
     }    [HttpPut()]
-
-    
     public async Task<IActionResult> PutTransaction(Transaction transaction)
     {
         if (!TransactionExists(transaction.Id)) return NotFound($"No transaction found to update with Id: {transaction.Id}");
