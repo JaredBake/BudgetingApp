@@ -3,8 +3,8 @@ import 'money.dart';
 import 'transaction.dart';
 import 'accountType.dart';
 
-class CreditCard extends Account {
-  CreditCard({
+class Brokerage extends Account {
+  Brokerage({
     required int accountId,
     required String name,
     required Money balance,
@@ -12,7 +12,7 @@ class CreditCard extends Account {
   }) : super(
          accountId: accountId,
          name: name,
-         accountType: AccountType.creditCard,
+         accountType: AccountType.brokerage,
          balance: balance,
          transactions: transactions,
        );
@@ -42,7 +42,7 @@ class CreditCard extends Account {
       return false;
     }
 
-    Money newBalance = balance.spendMoney(transaction.getMoney());
+    Money newBalance = balance.addMoney(transaction.getMoney());
     balance = newBalance;
 
     transactions.remove(transaction);

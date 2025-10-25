@@ -8,22 +8,31 @@ import 'widgets/bottomNavBar.dart';
 import 'widgets/topNavBar.dart';
 
 import '../api/stats_service.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/credentials.dart';
 import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
 import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
+import 'package:flutter_application/models/account.dart';
+import 'package:flutter_application/models/accountType.dart';
 
 class HomeOverview {
   final int totalAccounts;
   final double totalBalance;
   final int totalFunds;
+  final double totalFundGoalAmount;
+  final double totalFundCurrentAmount;
+  final double overallFundProgress;
+  final Map<String, int> accountsByType;
 
   HomeOverview({
     required this.totalAccounts,
     required this.totalBalance,
     required this.totalFunds,
+    required this.totalFundGoalAmount,
+    required this.totalFundCurrentAmount,
+    required this.overallFundProgress,
+    required this.accountsByType,
   });
 }
 
@@ -38,13 +47,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 2;
   late Future<HomeOverview> _overviewFuture;
-  final List<String> _messages = [
-    'Should navigate to Accounts.',
-    'Should navigate to Transactions.',
-    'Welcome to Home!',
-    'Should navigate to Funds.',
-    'Should navigate to Settings.',
-  ];
 
   @override
   void initState() {
@@ -63,13 +65,30 @@ class _HomeState extends State<Home> {
     final fundStats = results[1];
 
     if (accountStats == null && fundStats == null) {
-      return HomeOverview(totalAccounts: 0, totalBalance: 0.0, totalFunds: 0);
+      return HomeOverview(
+        totalAccounts: 0,
+        totalBalance: 0.0,
+        totalFunds: 0,
+        totalFundGoalAmount: 0.0,
+        totalFundCurrentAmount: 0.0,
+        overallFundProgress: 0.0,
+        accountsByType: {},
+      );
     }
 
     return HomeOverview(
       totalAccounts: (accountStats?['totalAccounts'] ?? 0) as int,
       totalBalance: (accountStats?['totalBalance'] ?? 0).toDouble(),
       totalFunds: (fundStats?['totalFunds'] ?? 0) as int,
+      totalFundGoalAmount: (fundStats?['totalGoalAmount'] ?? 0).toDouble(),
+      totalFundCurrentAmount: (fundStats?['totalCurrentAmount'] ?? 0)
+          .toDouble(),
+      overallFundProgress: (fundStats?['overallProgressPercentage'] ?? 0)
+          .toDouble(),
+      accountsByType:
+          ((accountStats?['accountsByType'] ?? {}) as Map<String, dynamic>).map(
+            (k, v) => MapEntry(k, (v as num).toInt()),
+          ),
     );
   }
 
@@ -77,6 +96,44 @@ class _HomeState extends State<Home> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Color _getColorForAccountType(AccountType type) {
+    switch (type) {
+      case AccountType.savings:
+        return Colors.blue;
+      case AccountType.checking:
+        return Colors.green;
+      case AccountType.cash:
+        return Colors.orange;
+      case AccountType.creditCard:
+        return Colors.red;
+      case AccountType.brokerage:
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  List<ChartSlice> _createChartSlices(Map<String, int> accountsByType) {
+    return accountsByType.entries.map((entry) {
+      return ChartSlice(
+        entry.key,
+        entry.value.toDouble(), // Use the count as the value
+        _getColorForAccountType(_stringToAccountType(entry.key)),
+      );
+    }).toList();
+  }
+
+  AccountType _stringToAccountType(String type) {
+    try {
+      return AccountType.values.firstWhere(
+        (e) => e.toString().split('.').last.toLowerCase() == type.toLowerCase(),
+        orElse: () => AccountType.cash, // Fallback to cash for unknown types
+      );
+    } catch (e) {
+      return AccountType.cash;
+    }
   }
 
   @override
@@ -170,6 +227,10 @@ class _HomeState extends State<Home> {
                           totalAccounts: 0,
                           totalBalance: 0.0,
                           totalFunds: 0,
+                          totalFundGoalAmount: 0.0,
+                          totalFundCurrentAmount: 0.0,
+                          overallFundProgress: 0.0,
+                          accountsByType: {},
                         );
 
                     // Empty state: No accounts
@@ -261,18 +322,13 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           const SizedBox(height: 50),
-                          const Center(child: BudgetPieChart()),
-                          const Spacer(),
                           Center(
-                            child: Text(
-                              _messages[_selectedIndex],
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.white70,
-                              ),
-                              textAlign: TextAlign.center,
+                            child: BudgetPieChart(
+                              slices: _createChartSlices(data.accountsByType),
                             ),
                           ),
+                          const Spacer(),
+                          Center(),
                           const SizedBox(height: 20),
                         ],
                       ),
