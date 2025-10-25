@@ -9,7 +9,7 @@ abstract class Account {
   final int accountId;
   final String name;
   final AccountType accountType;
-  final Money balance;
+  Money balance;
   List<Transaction> transactions;
 
   Account({
