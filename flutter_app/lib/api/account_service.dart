@@ -6,7 +6,8 @@ import '../models/accountType.dart';
 import '../models/money.dart';
 
 class AccountService {
-  static const String baseUrl = 'http://localhost:5284';
+  //static const String baseUrl = 'http://localhost:5284';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   static Future<List<AccountModel>> getUserAccounts() async {
     final token = localStorage.getItem('token');
@@ -25,18 +26,18 @@ class AccountService {
 
     if (response.statusCode == 200) {
       final accountsData = jsonDecode(response.body) as List<dynamic>;
-      final accounts = accountsData.map((data) => _parseAccount(data as Map<String, dynamic>)).toList();
-      
+      final accounts = accountsData
+          .map((data) => _parseAccount(data as Map<String, dynamic>))
+          .toList();
+
       // Sort by account name
       accounts.sort((a, b) => a.getName().compareTo(b.getName()));
-      
+
       return accounts;
     } else {
       throw Exception('Failed to load accounts');
     }
   }
-
-
 
   static AccountModel _parseAccount(Map<String, dynamic> data) {
     return AccountModel(
@@ -112,7 +113,7 @@ class AccountService {
     required String name,
     required AccountType accountType,
     required double initialBalance,
-    String currency = 'USD',
+    required String currency,
   }) async {
     final token = localStorage.getItem('token');
     final userId = localStorage.getItem('userId');
@@ -124,10 +125,7 @@ class AccountService {
     final accountData = {
       'name': name,
       'accountType': _accountTypeToInt(accountType),
-      'balance': {
-        'amount': initialBalance,
-        'currency': currency,
-      },
+      'balance': {'amount': initialBalance, 'currency': currency},
     };
 
     final response = await http.post(
@@ -142,13 +140,15 @@ class AccountService {
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final account = _parseAccount(data);
-      
+
       // Associate the account with the current user
       await _associateAccountWithUser(account.getId(), int.parse(userId));
-      
+
       return account;
     } else {
-      throw Exception('Failed to create account: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to create account: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
@@ -162,20 +162,22 @@ class AccountService {
         return 2;
       case AccountType.brokerage:
         return 3;
+      case AccountType.cash:
+        return 4;
     }
   }
 
-  static Future<void> _associateAccountWithUser(int accountId, int userId) async {
+  static Future<void> _associateAccountWithUser(
+    int accountId,
+    int userId,
+  ) async {
     final token = localStorage.getItem('token');
 
     if (token == null) {
       throw Exception('User not authenticated');
     }
 
-    final associationData = {
-      'userId': userId,
-      'accountId': accountId,
-    };
+    final associationData = {'userId': userId, 'accountId': accountId};
 
     final response = await http.post(
       Uri.parse('$baseUrl/api/Accounts/User'),
@@ -187,7 +189,9 @@ class AccountService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to associate account with user: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to associate account with user: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
@@ -221,7 +225,9 @@ class AccountService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return _parseAccount(data);
     } else {
-      throw Exception('Failed to update account: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to update account: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
@@ -241,7 +247,9 @@ class AccountService {
     );
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete account: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to delete account: ${response.statusCode} ${response.body}',
+      );
     }
   }
 }

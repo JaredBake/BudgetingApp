@@ -8,7 +8,8 @@ import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost:5284';
+  //static const String baseUrl = 'http://localhost:5284';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   static Future<bool> recordToken(Map<String, dynamic> response) async {
     print(response);
@@ -16,11 +17,10 @@ class AuthService {
     if (response['authenticated'] == null ||
         response['username'] == null ||
         response['token'] == null ||
-        response['userId'] == null ||   
-        response['expiresAt'] == null)
-    {
+        response['userId'] == null ||
+        response['expiresAt'] == null) {
       return false;
-    }       
+    }
 
     if (!response['authenticated']) return false;
 
@@ -35,7 +35,7 @@ class AuthService {
     return true;
   }
 
-   static Future<Map<String, dynamic>> getUser() async {
+  static Future<Map<String, dynamic>> getUser() async {
     final token = localStorage.getItem('token');
     final userId = localStorage.getItem('userId');
 
@@ -43,8 +43,8 @@ class AuthService {
       Uri.parse('$baseUrl/api/Users/$userId'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', 
-        },
+        'Authorization': 'Bearer $token',
+      },
     );
 
     if (userGet.statusCode == 200) {
@@ -72,54 +72,86 @@ class AuthService {
 
     final response = await http.post(
       url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charst=UTF-8',
-      },
+      headers: const {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonBody,
+    );
+    debugPrint(
+      'register() status=${response.statusCode} body=${response.body}',
     );
 
     if (response.statusCode != 200) {
       return null;
     }
 
-    final res = json.decode(response.body) as Map<String, dynamic>;
+    final raw = json.decode(response.body) as Map<String, dynamic>;
 
-    if (! await recordToken(res)) {
-      // Error login response unsuccessful
+    final normalized = <String, dynamic>{
+      'authenticated': raw['authenticated'] ?? true,
+      'username':
+          raw['username'] ??
+          raw['userName'] ??
+          raw['user']?['username'] ??
+          username,
+      'token': raw['token'],
+      'userId': raw['userId'],
+      'expiresAt': raw['expiresAt'],
+    };
+
+    if (normalized['token'] == null || normalized['userId'] == null) {
+      return login(email, password);
+    }
+
+    if (!await recordToken(normalized)) {
       return null;
     }
 
-    return getUser(); 
-  } 
+    return getUser();
+  }
 
   static Future<Map<String, dynamic>?> login(
     String email,
     String password,
   ) async {
     final jsonBody = jsonEncode({'email': email, 'password': password});
-
     final url = Uri.parse('$baseUrl/api/Auth/login');
 
+    // 1) Fix the content-type header typo
     final response = await http.post(
       url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charst=UTF-8',
-      },
+      headers: const {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonBody,
     );
 
     if (response.statusCode != 200) {
+      debugPrint('login() ${response.statusCode}: ${response.body}');
       return null;
     }
 
-    final res = json.decode(response.body) as Map<String, dynamic>;
+    final raw = json.decode(response.body) as Map<String, dynamic>;
 
-    if (! await recordToken(res)) {
-      // Error login response unsuccessful
+    final normalized = <String, dynamic>{
+      'authenticated': raw['authenticated'] ?? true,
+      'username':
+          raw['username'] ??
+          raw['userName'] ??
+          raw['user']?['username'] ??
+          email,
+      'token': raw['token'] ?? raw['jwt'] ?? raw['accessToken'],
+      'userId': raw['userId'] ?? raw['id'] ?? raw['user']?['id'],
+      'expiresAt': raw['expiresAt'] ?? raw['expires'] ?? raw['exp'],
+    };
+
+    if (normalized['token'] == null || normalized['userId'] == null) {
+      debugPrint('login(): missing token/userId in response: $raw');
+      return null;
+    }
+    if (!await recordToken(normalized)) {
+      debugPrint(
+        'login(): recordToken() returned false. normalized=$normalized',
+      );
       return null;
     }
 
-    return getUser();  
-  
+    return getUser();
   }
 }

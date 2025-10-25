@@ -3,8 +3,8 @@ import 'money.dart';
 import 'transaction.dart';
 import 'accountType.dart';
 
-class Checking extends Account {
-  Checking({
+class Brokerage extends Account {
+  Brokerage({
     required int accountId,
     required String name,
     required Money balance,
@@ -12,7 +12,7 @@ class Checking extends Account {
   }) : super(
          accountId: accountId,
          name: name,
-         accountType: AccountType.checking,
+         accountType: AccountType.brokerage,
          balance: balance,
          transactions: transactions,
        );

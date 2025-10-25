@@ -3,8 +3,8 @@ import 'money.dart';
 import 'transaction.dart';
 import 'accountType.dart';
 
-class Checking extends Account {
-  Checking({
+class Savings extends Account {
+  Savings({
     required int accountId,
     required String name,
     required Money balance,
@@ -12,26 +12,13 @@ class Checking extends Account {
   }) : super(
          accountId: accountId,
          name: name,
-         accountType: AccountType.checking,
+         accountType: AccountType.savings,
          balance: balance,
          transactions: transactions,
        );
 
   @override
   bool addTransaction(Transaction transaction) {
-    final double transactionAmount = transaction.getMoney().getAmount();
-    if (transaction.isExpense() && transactionAmount > balance.getAmount()) {
-      // Insufficient funds
-      return false;
-    }
-
-    if (transaction.getMoney().currency != balance.currency) {
-      // Currency mismatch
-      return false;
-    }
-
-    Money newBalance = balance.addMoney(transaction.getMoney());
-    balance = newBalance;
     transactions.add(transaction);
     return true;
   }
@@ -45,8 +32,7 @@ class Checking extends Account {
     Money newBalance = balance.addMoney(transaction.getMoney());
     balance = newBalance;
 
-    transactions.remove(transaction);
-    return true;
+    return transactions.remove(transaction);
   }
 
   @override
