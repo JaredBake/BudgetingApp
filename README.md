@@ -9,13 +9,16 @@ This is the current best method for installation as the docker compose is not ye
 -Flutter, make sure that it is available on your PATH
 -.Net 9.0 SDK
 -PostGreSQL
-You will also need to set the following Environment variables, with a .ENV file in the directory of the asp.net application:
-TODO: add necessary env variables here
 
 Options 2: Docker Compose (WARNING: Docker compose installation is not yet ready, and may have issues)
 This is the intended long term solution to allow people to easily self host the application. 
 The only dependency for this installation is Docker, follow instructions here to install for your system: https://www.docker.com/products/docker-desktop/
-After cloning the repo, simply navigate to the root directory in a terminal and run "docker compose up". The application should be accessible on port 8080 of your machine 
+After cloning the repo, simply navigate to the root directory in a terminal and run "docker compose up". The application should be accessible on port 8080 of your machine.
+
+Using the app:
+Once you have the service running, you should see a welcome page asking you to log in or register. Click Register,
+and then fill in required info (username, password, name).
+You will then be taken to a home screen. To add an account, go to accounts and then press the (+) button. Once you have an account, you will be able to add transactions. Each time you buy something or recieve income, record it creating a transaction, and the app will be able to start recording your spending.
 
 
 #Team Organization:
