@@ -28,7 +28,7 @@ public class SeedController : ControllerBase
     {
         try
         {
-            await SeedDataBase();
+            await _seeder.SeedAsync();
             return Ok("Database seeded with fake data.");
         }
         catch (Exception ex)
@@ -43,8 +43,7 @@ public class SeedController : ControllerBase
     // {
     //     try
     //     {
-    //         await SeedDataBase();
-            
+    //         await _seeder.SeedAsync();
     //         return Ok("Database seeded with fake data.");           
     //     }
     //     catch (Exception ex)
@@ -52,12 +51,7 @@ public class SeedController : ControllerBase
     //         return StatusCode(500, $"Seeding failed: {ex.Message}");
     //     }
     // }
-
-    public async Task<bool> SeedDataBase()
-    {
-        await _seeder.SeedAsync();
-        return true;
-    }
 }
+
 
 
