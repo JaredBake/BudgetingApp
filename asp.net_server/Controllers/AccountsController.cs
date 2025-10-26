@@ -85,7 +85,7 @@ public class AccountsController : ControllerBase
     [HttpPost("User")]
     public async Task<ActionResult> JoinUserAccount([FromBody] bodyObject request)
     {
-        if (!await AuthorizeUser(request.accountId)) return Forbid();
+        if (request.userId != GetCurrentUserId()) Forbid();      
 
         var user = await _context.Users.FindAsync(request.userId);
         var account = await _context.Accounts.FindAsync(request.accountId);

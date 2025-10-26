@@ -64,7 +64,7 @@ public class FundsController : ControllerBase
     public async Task<ActionResult> JoinUserFund([FromBody] bodyObject request)
     {
 
-        if (!await AuthorizeUser(request.fundId)) return Forbid();
+        if (request.userId != GetCurrentUserId()) Forbid();
 
         var user = await _context.Users.FindAsync(request.userId);
         var fund = await _context.Funds.FindAsync(request.fundId);
