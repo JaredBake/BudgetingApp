@@ -39,15 +39,29 @@ public class AccountsController : ControllerBase
             .ToListAsync();
     }
 
+    [HttpGet("MyAccounts")]
+    public async Task<ActionResult<IEnumerable<Account>>> GetUserAccounts()
+    {
+        var userId = GetCurrentUserId();
+        
+        var userAccounts = await _context.UserAccounts
+            .Where(ua => ua.UserId == userId)
+            .Include(ua => ua.Account)
+                .ThenInclude(a => a!.Transactions)
+            .Select(ua => ua.Account)
+            .ToListAsync();
+
+        return Ok(userAccounts);
+    }
+
     [HttpGet("{Id}")]
     public async Task<ActionResult<Account>> GetAccount(int Id)
     {
         if (!await AuthorizeUser(Id)) return Forbid();
 
         var account = await _context.Accounts
-            // .Include(a => a.Transactions)
-            // .Include(a => a.UserAccounts)
-            .FindAsync(Id);
+            .Include(a => a.Transactions)
+            .FirstOrDefaultAsync(a => a.Id == Id);
 
         if (account == null)
         {

@@ -56,12 +56,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var localHostString = $"http://localhost:{Environment.GetEnvironmentVariable("LOCALHOST_PORT")}";
-
 builder.Services.AddCors(o => o.AddPolicy(
     allowCORs, builder =>
     {
-        builder.WithOrigins(localHostString) 
+        builder.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     })

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/credentials.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register.dart';
 import 'home.dart';
 import '../api/auth_service.dart';
+
+import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/models/credentials.dart';
+import 'package:flutter_application/models/data.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -38,20 +43,32 @@ class _RegisterState extends State<Register> {
         _nameController.text.trim(),
         _usernameController.text.trim(),
         _emailController.text.trim(),
-        _passwordController.text
+        _passwordController.text,
       );
 
-      if (user != null){
-        Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => Home(user: user)));
-      }
-      else {
-        setState(() {
-        _errorMessage = 'User could not be created. Please try again.';
-      });
-      }        
+      if (user != null) {
+        final credentials = Credentials(
+          userId: user['id'],
+          name: user['credentials']?['name'] ?? '',
+          userName: user['credentials']?['userName'] ?? '',
+          email: user['credentials']?['email'] ?? '',
+          // password: null   // if you made it nullable; otherwise omit
+        );
 
+        final userObj = User(
+          createdAt: DateTime.parse(user['createdAt']),
+          credentials: credentials,
+          data: Data(funds: [], accounts: []),
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => Home(user: userObj)),
+        );
+      } else {
+        setState(() {
+          _errorMessage = 'User could not be created. Please try again.';
+        });
+      }
     } catch (e) {
       setState(() {
         print(e);
