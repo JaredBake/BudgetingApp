@@ -24,8 +24,3 @@ Auto-seed database when restarting server or if database doesn't exist
 * Delete User - Should delete ALL UserAccounts && UserFunds
 * Delete Accounts - Should delete ALL UserAccounts 
 * Delete Funds - Should delete ALL UserFunds
-
-
-## Authorization
-* Protects routes with middleware authorization so certain routes cannot be accessed without being logged in as an admin
-

@@ -15,5 +15,7 @@ asp.net_server/appsettings.{Environment}.json
 
 flutter_app/macos/
 
+flutter_app/.flutter-plugins-dependencies
+
 *.txt
 TODO.md
