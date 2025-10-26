@@ -90,6 +90,8 @@ class AccountService {
           return AccountType.creditCard;
         case 'brokerage':
           return AccountType.brokerage;
+        case 'cash':
+          return AccountType.cash;
         default:
           return AccountType.checking;
       }
@@ -103,6 +105,8 @@ class AccountService {
           return AccountType.creditCard;
         case 3:
           return AccountType.brokerage;
+        case 4:
+          return AccountType.cash;
         default:
           return AccountType.checking;
       }

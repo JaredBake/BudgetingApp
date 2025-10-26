@@ -98,7 +98,7 @@ class _AccountsPageState extends State<AccountsPage> {
         color = Colors.purple;
         break;
       case AccountType.cash:
-        icon = Icons.money;
+        icon = Icons.credit_card;
         color = Colors.teal;
         break;
     }
