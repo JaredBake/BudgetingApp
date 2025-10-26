@@ -73,9 +73,8 @@ builder.Services.AddScoped<DatabaseSeeder>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var seeder = services.GetRequiredService<DatabaseSeeder>();
+{    
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
     try
     {
