@@ -29,7 +29,7 @@ namespace App.Services
             await _db.Set<T>().AddRangeAsync(entities);
             await _db.SaveChangesAsync();
         }
-        
+
         private async Task SeedUsers(string entityName)
         {
             List<User>? entities;
@@ -47,17 +47,18 @@ namespace App.Services
                 var user = entities[i];
 
                 if (user.Credentials.Password == null) continue;
-            
+
 
                 string newPassword = AuthController.HashPassword(user.Credentials.Password);
-                
+
                 entities[i].Credentials.Password = newPassword;
             }
-            
+
             await _db.Set<User>().AddRangeAsync(entities);
             await _db.SaveChangesAsync();
         }
-       
+
+
         public async Task SeedAsync()
         {
 
@@ -73,10 +74,45 @@ namespace App.Services
                 await SeedEntity<Transaction>("Transactions");
                 await SeedEntity<UserAccount>("UserAccounts");
                 await SeedEntity<UserFund>("UserFunds");
+
+                Console.WriteLine("Database Re-seeded!");
             }
             catch (NullReferenceException e)
             {
                 Console.WriteLine("Cannot load data: " + e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Seeding error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<bool> CanConnect()
+        {
+            try
+            {
+                return await _db.Database.CanConnectAsync();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        public async Task EnsureDbExists()
+        {
+            try
+            {
+                if (!await CanConnect())
+                {
+                    await _db.Database.EnsureCreatedAsync();
+                    await SeedAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating database: {ex.Message}");
             }
         }
     }
