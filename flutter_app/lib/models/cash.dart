@@ -32,6 +32,7 @@ class Cash extends Account {
     }
 
     Money newBalance = balance.spendMoney(transaction.getMoney());
+    balance = newBalance;
     transactions.add(transaction);
     return true;
   }
