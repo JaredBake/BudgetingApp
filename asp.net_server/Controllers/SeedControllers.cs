@@ -37,21 +37,21 @@ public class SeedController : ControllerBase
         }
     }
 
-    [AllowAnonymous]
-    [HttpPost("Force")]
-    public async Task<IActionResult> ForceSeed()
-    {
-        try
-        {
-            await SeedDataBase();
+    // [AllowAnonymous]
+    // [HttpPost("Force")]
+    // public async Task<IActionResult> ForceSeed()
+    // {
+    //     try
+    //     {
+    //         await SeedDataBase();
             
-            return Ok("Database seeded with fake data.");           
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Seeding failed: {ex.Message}");
-        }
-    }
+    //         return Ok("Database seeded with fake data.");           
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(500, $"Seeding failed: {ex.Message}");
+    //     }
+    // }
 
     public async Task<bool> SeedDataBase()
     {
