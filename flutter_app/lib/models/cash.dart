@@ -1,7 +1,7 @@
 import 'account.dart';
+import 'accountType.dart';
 import 'money.dart';
 import 'transaction.dart';
-import 'accountType.dart';
 
 class Cash extends Account {
   Cash({
@@ -16,7 +16,7 @@ class Cash extends Account {
          balance: balance,
          transactions: transactions,
        );
-
+  
   @override
   bool addTransaction(Transaction transaction) {
     final double transactionAmount = transaction.getMoney().getAmount();
