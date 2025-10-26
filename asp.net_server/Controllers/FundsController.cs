@@ -64,7 +64,7 @@ public class FundsController : ControllerBase
     public async Task<ActionResult> JoinUserFund([FromBody] bodyObject request)
     {
 
-        if (!await AuthorizeUser(request.fundId)) return Forbid();
+        if (!IsUser(request.userId)) return Forbid(); 
 
         var user = await _context.Users.FindAsync(request.userId);
         var fund = await _context.Funds.FindAsync(request.fundId);
@@ -175,7 +175,8 @@ public class FundsController : ControllerBase
             return NotFound($"No fund found to delete with Id: {Id}");
         }
 
-        // _context.UserFunds.RemoveRange(userFunds);
+        var userFunds = _context.UserFunds.Where(e => e.FundId == Id);
+        _context.UserFunds.RemoveRange(userFunds);
 
         _context.Funds.Remove(fund);
         await _context.SaveChangesAsync();
@@ -207,6 +208,13 @@ public class FundsController : ControllerBase
         if (User.IsInRole("Admin")) return true;
 
         return await BelongsToUser(fundId, GetCurrentUserId());
+    }
+
+    public bool IsUser(int userId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return GetCurrentUserId() == userId;
     }
 
     private int GetCurrentUserId()

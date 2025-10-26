@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -56,6 +57,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// builder.Services.AddAuthorization();
+
 builder.Services.AddCors(o => o.AddPolicy(
     allowCORs, builder =>
     {
@@ -68,6 +71,33 @@ builder.Services.AddCors(o => o.AddPolicy(
 builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{    
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+    try
+    {
+        if (await seeder.CanConnect())
+        {
+            var resetDb = Environment.GetEnvironmentVariable("RESET_DB_ON_STARTUP");
+
+            if (!string.IsNullOrEmpty(resetDb) && bool.Parse(resetDb))
+            {
+                await seeder.SeedAsync();
+            }
+        }
+
+        else {
+            await seeder.EnsureDbExists();
+        }
+
+    } catch (Exception ex)
+    {
+        Console.WriteLine($"Error during database initialization: {ex.Message}");
+        throw;
+    }
+}
 
 app.MapGet("/test", () =>
 {

@@ -130,7 +130,13 @@ public class UsersController : ControllerBase
         if (user == null)
         {
             return NotFound($"No user found with given Id: {Id}");
-        }        
+        }
+
+        var userAccounts = _context.UserAccounts.Where(e => e.UserId == user.Id);
+        var userFunds = _context.UserFunds.Where(e => e.UserId == user.Id);
+
+        _context.UserAccounts.RemoveRange(userAccounts);
+        _context.UserFunds.RemoveRange(userFunds);
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
