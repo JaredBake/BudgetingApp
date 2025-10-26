@@ -85,7 +85,7 @@ public class AccountsController : ControllerBase
     [HttpPost("User")]
     public async Task<ActionResult> JoinUserAccount([FromBody] bodyObject request)
     {
-        if (request.userId != GetCurrentUserId()) return Forbid();      
+        if (!IsUser(request.userId)) return Forbid();      
 
         var user = await _context.Users.FindAsync(request.userId);
         var account = await _context.Accounts.FindAsync(request.accountId);
@@ -232,6 +232,13 @@ public class AccountsController : ControllerBase
         if (User.IsInRole("Admin")) return true;
 
         return await BelongsToUser(accountId, GetCurrentUserId());
+    }
+
+    public bool IsUser(int userId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return GetCurrentUserId() == userId;
     }
 
     private int GetCurrentUserId()
