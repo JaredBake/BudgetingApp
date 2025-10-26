@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/account_service.dart';
 import '../models/account_model.dart';
+import '../models/account.dart';
 import '../models/accountType.dart';
 import 'account_details.dart';
 import 'create_account.dart';
@@ -18,10 +19,10 @@ class AccountsPage extends StatefulWidget {
 }
 
 class _AccountsPageState extends State<AccountsPage> {
-  List<AccountModel>? accounts;
+  List<Account>? accounts;
   bool isLoading = true;
   String? errorMessage;
-  int _selectedIndex = 0; // Accounts tab
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _AccountsPageState extends State<AccountsPage> {
     }
   }
 
-  void _navigateToAccountDetails(AccountModel account) {
+  void _navigateToAccountDetails(Account account) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -72,7 +73,7 @@ class _AccountsPageState extends State<AccountsPage> {
     );
   }
 
-  Widget _buildAccountItem(AccountModel account) {
+  Widget _buildAccountItem(Account account) {
     final accountType = account.getAccountType();
     final balance = account.getBalance();
 
@@ -110,7 +111,7 @@ class _AccountsPageState extends State<AccountsPage> {
           child: Icon(icon, color: color),
         ),
         title: Text(
-          account.getName(),
+          account.name,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(

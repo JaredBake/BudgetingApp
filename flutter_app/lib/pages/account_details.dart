@@ -7,7 +7,7 @@ import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 class AccountDetailsPage extends StatefulWidget {
-  final AccountModel account;
+  final Account account;
   final User user;
 
   const AccountDetailsPage({
@@ -199,8 +199,11 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow('Account ID', account.getId().toString()),
-                    _buildDetailRow('Account Name', account.getName()),
+                    _buildDetailRow(
+                      'Account ID',
+                      account.getAccountId().toString(),
+                    ),
+                    _buildDetailRow('Account Name', account.name),
                     _buildDetailRow(
                       'Account Type',
                       _getAccountTypeDisplayName(accountType),

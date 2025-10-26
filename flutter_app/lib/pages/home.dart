@@ -24,6 +24,7 @@ class HomeOverview {
   final double totalFundCurrentAmount;
   final double overallFundProgress;
   final Map<String, int> accountsByType;
+  final List<Account> accounts;
 
   HomeOverview({
     required this.totalAccounts,
@@ -33,6 +34,7 @@ class HomeOverview {
     required this.totalFundCurrentAmount,
     required this.overallFundProgress,
     required this.accountsByType,
+    required this.accounts,
   });
 }
 
@@ -61,8 +63,8 @@ class _HomeState extends State<Home> {
       StatsService.getUserFundStats(userId),
     ]);
 
-    final accountStats = results[0];
-    final fundStats = results[1];
+    final accountStats = results[0] as Map<String, dynamic>?;
+    final fundStats = results[1] as Map<String, dynamic>?;
 
     if (accountStats == null && fundStats == null) {
       return HomeOverview(
@@ -73,22 +75,38 @@ class _HomeState extends State<Home> {
         totalFundCurrentAmount: 0.0,
         overallFundProgress: 0.0,
         accountsByType: {},
+        accounts: const [],
       );
     }
 
+    final totalAccounts =
+        (accountStats?['totalAccounts'] as num?)?.toInt() ?? 0;
+    final totalBalance =
+        (accountStats?['totalBalance'] as num?)?.toDouble() ?? 0.0;
+
+    final totalFunds = (fundStats?['totalFunds'] as num?)?.toInt() ?? 0;
+    final totalFundGoalAmount =
+        (fundStats?['totalGoalAmount'] as num?)?.toDouble() ?? 0.0;
+    final totalFundCurrentAmount =
+        (fundStats?['totalCurrentAmount'] as num?)?.toDouble() ?? 0.0;
+    final overallFundProgress =
+        (fundStats?['overallProgressPercentage'] as num?)?.toDouble() ?? 0.0;
+
+    final rawAccountsByType =
+        (accountStats?['accountsByType'] ?? {}) as Map<String, dynamic>;
+    final accountsByType = rawAccountsByType.map<String, int>(
+      (k, v) => MapEntry(k, (v as num?)?.toInt() ?? 0),
+    );
+
     return HomeOverview(
-      totalAccounts: (accountStats?['totalAccounts'] ?? 0) as int,
-      totalBalance: (accountStats?['totalBalance'] ?? 0).toDouble(),
-      totalFunds: (fundStats?['totalFunds'] ?? 0) as int,
-      totalFundGoalAmount: (fundStats?['totalGoalAmount'] ?? 0).toDouble(),
-      totalFundCurrentAmount: (fundStats?['totalCurrentAmount'] ?? 0)
-          .toDouble(),
-      overallFundProgress: (fundStats?['overallProgressPercentage'] ?? 0)
-          .toDouble(),
-      accountsByType:
-          ((accountStats?['accountsByType'] ?? {}) as Map<String, dynamic>).map(
-            (k, v) => MapEntry(k, (v as num).toInt()),
-          ),
+      totalAccounts: totalAccounts,
+      totalBalance: totalBalance,
+      totalFunds: totalFunds,
+      totalFundGoalAmount: totalFundGoalAmount,
+      totalFundCurrentAmount: totalFundCurrentAmount,
+      overallFundProgress: overallFundProgress,
+      accountsByType: accountsByType,
+      accounts: const [],
     );
   }
 
@@ -231,6 +249,7 @@ class _HomeState extends State<Home> {
                           totalFundCurrentAmount: 0.0,
                           overallFundProgress: 0.0,
                           accountsByType: {},
+                          accounts: [],
                         );
 
                     // Empty state: No accounts
