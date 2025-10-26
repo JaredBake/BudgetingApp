@@ -1,7 +1,7 @@
 import 'account.dart';
+import 'accountType.dart';
 import 'money.dart';
 import 'transaction.dart';
-import 'accountType.dart';
 
 class Brokerage extends Account {
   Brokerage({
@@ -30,7 +30,7 @@ class Brokerage extends Account {
       return false;
     }
 
-    Money newBalance = balance.addMoney(transaction.getMoney());
+    Money newBalance = balance.spendMoney(transaction.getMoney());
     balance = newBalance;
     transactions.add(transaction);
     return true;
