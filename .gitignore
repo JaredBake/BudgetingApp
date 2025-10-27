@@ -12,6 +12,7 @@ asp.net_server/appsettings.{Environment}.json
 .env.development
 .env.production
 !.env.example
+flutter_app/.flutter-plugins-dependencies
 
 flutter_app/macos/
 

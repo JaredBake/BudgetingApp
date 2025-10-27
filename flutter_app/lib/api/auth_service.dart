@@ -8,7 +8,8 @@ import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost:5284';
+  // static const String baseUrl = 'http://localhost:5284';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   static Future<bool> recordToken(Map<String, dynamic> response) async {
     print(response);

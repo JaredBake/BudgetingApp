@@ -3,19 +3,52 @@ CS4400 Group 8: Budgeting app
 This Repository holds in progress development on a Continuous budgeting app, which will allow users to have a better understanding of their finances without the traditional constraint of monthly or periodic time windows.
 It uses a flutter front end, a containerized asp.net backend, and PostgreSQL as a database component.
 
-Installation and running:
-Option 1: Compile from source
-This is the current best method for installation as the docker compose is not yet production ready. You will need to install the following dependencies:
--Flutter, make sure that it is available on your PATH
--.Net 9.0 SDK
--PostGreSQL
-You will also need to set the following Environment variables, with a .ENV file in the directory of the asp.net application:
-TODO: add necessary env variables here
 
-Options 2: Docker Compose (WARNING: Docker compose installation is not yet ready, and may have issues)
-This is the intended long term solution to allow people to easily self host the application. 
-The only dependency for this installation is Docker, follow instructions here to install for your system: https://www.docker.com/products/docker-desktop/
-After cloning the repo, simply navigate to the root directory in a terminal and run "docker compose up". The application should be accessible on port 8080 of your machine 
+###
+Installation and running:
+
+Option 1: Compile from Source (Recommended)
+This is currently the most stable method.
+
+Dependencies
+Make sure the following tools are installed and available on your system:
+Flutter
+ (add to your PATH)
+.NET 9.0 SDK
+PostgreSQL
+
+###
+Backend Configuration
+
+Create a .env file inside the ASP.NET project directory.
+Add the following environment variables (adjust as needed):
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=budget
+DB_USER=postgres
+DB_PASSWORD=1234
+
+JWT_SECRET_KEY=67821ded0cf07a4f1cbc654033ec53a8
+LOCALHOST_PORT=8000
+
+API_KEY=
+
+###
+Run database migrations:
+dotnet ef database update
+
+###
+Start the backend:
+Make sure you are inside the asp.net_server directory
+dotnet run
+
+###
+Start the frontend:
+Make sure you are inside the flutter_app directory
+flutter run
+
+The app should be available at http://localhost:8080
 
 
 #Team Organization:

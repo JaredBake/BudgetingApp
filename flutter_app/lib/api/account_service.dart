@@ -8,7 +8,8 @@ import '../models/account.dart';
 import '../models/account_factory.dart';
 
 class AccountService {
-  static const String baseUrl = 'http://localhost:5284';
+  // static const String baseUrl = 'http://localhost:5284';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   static Future<List<Account>> getUserAccounts() async {
     final token = localStorage.getItem('token');
