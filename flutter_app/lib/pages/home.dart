@@ -8,6 +8,7 @@ import 'widgets/bottomNavBar.dart';
 import 'widgets/topNavBar.dart';
 
 import '../api/stats_service.dart';
+import '../api/account_service.dart';
 
 import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/credentials.dart';
@@ -24,6 +25,7 @@ class HomeOverview {
   final double totalFundCurrentAmount;
   final double overallFundProgress;
   final Map<String, int> accountsByType;
+  final List<Account> accounts;
 
   HomeOverview({
     required this.totalAccounts,
@@ -33,6 +35,7 @@ class HomeOverview {
     required this.totalFundCurrentAmount,
     required this.overallFundProgress,
     required this.accountsByType,
+    required this.accounts,
   });
 }
 
@@ -59,10 +62,12 @@ class _HomeState extends State<Home> {
     final results = await Future.wait([
       StatsService.getUserAccountStats(userId),
       StatsService.getUserFundStats(userId),
+      AccountService.getUserAccounts(),
     ]);
 
-    final accountStats = results[0];
-    final fundStats = results[1];
+    final accountStats = results[0] as Map<String, dynamic>?;
+    final fundStats = results[1] as Map<String, dynamic>?;
+    final accounts = results[2] as List<Account>;
 
     if (accountStats == null && fundStats == null) {
       return HomeOverview(
@@ -73,67 +78,115 @@ class _HomeState extends State<Home> {
         totalFundCurrentAmount: 0.0,
         overallFundProgress: 0.0,
         accountsByType: {},
+        accounts: const [],
       );
     }
 
+    final totalAccounts =
+        (accountStats?['totalAccounts'] as num?)?.toInt() ?? 0;
+    final totalBalance =
+        (accountStats?['totalBalance'] as num?)?.toDouble() ?? 0.0;
+
+    final totalFunds = (fundStats?['totalFunds'] as num?)?.toInt() ?? 0;
+    final totalFundGoalAmount =
+        (fundStats?['totalGoalAmount'] as num?)?.toDouble() ?? 0.0;
+    final totalFundCurrentAmount =
+        (fundStats?['totalCurrentAmount'] as num?)?.toDouble() ?? 0.0;
+    final overallFundProgress =
+        (fundStats?['overallProgressPercentage'] as num?)?.toDouble() ?? 0.0;
+
+    final rawAccountsByType =
+        (accountStats?['accountsByType'] ?? {}) as Map<String, dynamic>;
+    final accountsByType = rawAccountsByType.map<String, int>(
+      (k, v) => MapEntry(k, (v as num?)?.toInt() ?? 0),
+    );
+
     return HomeOverview(
-      totalAccounts: (accountStats?['totalAccounts'] ?? 0) as int,
-      totalBalance: (accountStats?['totalBalance'] ?? 0).toDouble(),
-      totalFunds: (fundStats?['totalFunds'] ?? 0) as int,
-      totalFundGoalAmount: (fundStats?['totalGoalAmount'] ?? 0).toDouble(),
-      totalFundCurrentAmount: (fundStats?['totalCurrentAmount'] ?? 0)
-          .toDouble(),
-      overallFundProgress: (fundStats?['overallProgressPercentage'] ?? 0)
-          .toDouble(),
-      accountsByType:
-          ((accountStats?['accountsByType'] ?? {}) as Map<String, dynamic>).map(
-            (k, v) => MapEntry(k, (v as num).toInt()),
-          ),
+      totalAccounts: totalAccounts,
+      totalBalance: totalBalance,
+      totalFunds: totalFunds,
+      totalFundGoalAmount: totalFundGoalAmount,
+      totalFundCurrentAmount: totalFundCurrentAmount,
+      overallFundProgress: overallFundProgress,
+      accountsByType: accountsByType,
+      accounts: accounts,
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  Widget _buildLegend(Map<String, double> balances) {
+    final palette = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.red,
+      Colors.purple,
+      Colors.teal,
+      Colors.amber,
+      Colors.indigo,
+    ];
+
+    final entries = balances.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: entries.asMap().entries.map((mapEntry) {
+        final idx = mapEntry.key;
+        final entry = mapEntry.value;
+        final color = palette[idx % palette.length];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(width: 12, height: 12, color: color),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${entry.key}: \$${entry.value.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Map<String, double> _computeBalancesByAccount(List<Account> accounts) {
+    final Map<String, double> sums = {};
+    for (final acct in accounts) {
+      final key = acct.name;
+      final double value = acct.getBalance().getAmount().abs();
+      sums[key] = (sums[key] ?? 0.0) + value;
+    }
+    return sums;
+  }
+
+  List<ChartSlice> _createChartSlicesFromBalances(
+    Map<String, double> balancesByType,
+  ) {
+    final palette = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.red,
+      Colors.purple,
+      Colors.teal,
+      Colors.amber,
+      Colors.indigo,
+    ];
+
+    final entries = balancesByType.entries.where((e) => e.value > 0).toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return List<ChartSlice>.generate(entries.length, (i) {
+      final entry = entries[i];
+      final label = entry.key;
+      final value = entry.value;
+      final color = palette[i % palette.length];
+      return ChartSlice(label, value, color);
     });
-  }
-
-  Color _getColorForAccountType(AccountType type) {
-    switch (type) {
-      case AccountType.savings:
-        return Colors.blue;
-      case AccountType.checking:
-        return Colors.green;
-      case AccountType.cash:
-        return Colors.orange;
-      case AccountType.creditCard:
-        return Colors.red;
-      case AccountType.brokerage:
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  List<ChartSlice> _createChartSlices(Map<String, int> accountsByType) {
-    return accountsByType.entries.map((entry) {
-      return ChartSlice(
-        entry.key,
-        entry.value.toDouble(), // Use the count as the value
-        _getColorForAccountType(_stringToAccountType(entry.key)),
-      );
-    }).toList();
-  }
-
-  AccountType _stringToAccountType(String type) {
-    try {
-      return AccountType.values.firstWhere(
-        (e) => e.toString().split('.').last.toLowerCase() == type.toLowerCase(),
-        orElse: () => AccountType.cash, // Fallback to cash for unknown types
-      );
-    } catch (e) {
-      return AccountType.cash;
-    }
   }
 
   @override
@@ -231,6 +284,7 @@ class _HomeState extends State<Home> {
                           totalFundCurrentAmount: 0.0,
                           overallFundProgress: 0.0,
                           accountsByType: {},
+                          accounts: [],
                         );
 
                     // Empty state: No accounts
@@ -322,13 +376,39 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           const SizedBox(height: 50),
-                          Center(
-                            child: BudgetPieChart(
-                              slices: _createChartSlices(data.accountsByType),
-                            ),
+                          Builder(
+                            builder: (context) {
+                              final balancesByType = _computeBalancesByAccount(
+                                data.accounts,
+                              );
+                              print('balancesByType: $balancesByType');
+
+                              if (balancesByType.isEmpty) {
+                                return const Center(
+                                  child: Text(
+                                    'No balances to show',
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                );
+                              }
+
+                              return Column(
+                                children: [
+                                  Center(
+                                    child: BudgetPieChart(
+                                      slices: _createChartSlicesFromBalances(
+                                        balancesByType,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  _buildLegend(balancesByType),
+                                ],
+                              );
+                            },
                           ),
+
                           const Spacer(),
-                          Center(),
                           const SizedBox(height: 20),
                         ],
                       ),

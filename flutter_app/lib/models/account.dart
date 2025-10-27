@@ -25,4 +25,5 @@ abstract class Account {
   List<Transaction> getTransactions();
   Money getBalance();
   int getAccountId() => this.accountId;
+  AccountType getAccountType() => this.accountType;
 }
