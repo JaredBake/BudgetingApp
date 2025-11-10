@@ -37,7 +37,11 @@ class _AccountsPageState extends State<AccountsPage> {
         errorMessage = null;
       });
 
+      // Load accounts to the user object
       final loadedAccounts = await AccountService.getUserAccounts();
+      for (var account in loadedAccounts) {
+        widget.user.getData().addAccount(account);
+      }
 
       setState(() {
         accounts = loadedAccounts;

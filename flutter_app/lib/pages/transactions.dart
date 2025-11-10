@@ -37,7 +37,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
       });
 
       final loadedTransactions = await TransactionService.getUserTransactions();
-      
+
       setState(() {
         transactions = loadedTransactions;
         isLoading = false;
@@ -54,10 +54,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TransactionDetailsPage(
-          transaction: transaction,
-          user: widget.user,
-        ),
+        builder: (context) =>
+            TransactionDetailsPage(transaction: transaction, user: widget.user),
       ),
     );
   }
@@ -74,13 +72,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
   }
 
-
-
   Widget _buildTransactionItem(Transaction transaction) {
     final isIncome = transaction.isIncome();
     final color = isIncome ? Colors.green : Colors.red;
     final icon = isIncome ? Icons.arrow_upward : Icons.arrow_downward;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
@@ -142,73 +138,73 @@ class _TransactionsPageState extends State<TransactionsPage> {
               ],
             ),
           ),
-          
+
           // Content section
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading transactions',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              errorMessage!,
-                              style: TextStyle(color: Colors.grey[600]),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _loadTransactions,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      )
-                    : transactions == null || transactions!.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.receipt_long_outlined,
-                                  size: 64,
-                                  color: Colors.grey[400],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No transactions found',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Your transactions will appear here',
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: _loadTransactions,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: transactions!.length,
-                              itemBuilder: (context, index) {
-                                return _buildTransactionItem(transactions![index]);
-                              },
-                            ),
-                          ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading transactions',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadTransactions,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : transactions == null || transactions!.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.receipt_long_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No transactions found',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Your transactions will appear here',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadTransactions,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      itemCount: transactions!.length,
+                      itemBuilder: (context, index) {
+                        return _buildTransactionItem(transactions![index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
