@@ -26,6 +26,25 @@ namespace App.Services
 
             if (entities == null) throw new NullReferenceException($"{entityName} was not read properly");
 
+            // Special handling for Transaction entities to set default Type if not specified
+            if (typeof(T) == typeof(Transaction))
+            {
+                var transactions = entities as List<Transaction>;
+                if (transactions != null)
+                {
+                    var random = new Random();
+                    foreach (var transaction in transactions)
+                    {
+                        // Set Type to Expense by default if not set (default enum value is 0 which is Expense)
+                        // Randomly assign some as Income for variety in seed data
+                        if (transaction.Type == default(TransactionType))
+                        {
+                            transaction.Type = random.Next(0, 10) < 3 ? TransactionType.Income : TransactionType.Expense;
+                        }
+                    }
+                }
+            }
+
             await _db.Set<T>().AddRangeAsync(entities);
             await _db.SaveChangesAsync();
         }
@@ -68,11 +87,11 @@ namespace App.Services
             {
                 await SeedUsers("Users"); // Special function for password handling
 
+                await SeedEntity<Category>("Categories");
                 await SeedEntity<Fund>("Funds");
                 await SeedEntity<Account>("Accounts");
                 await SeedEntity<Transaction>("Transactions");
                 await SeedEntity<UserAccount>("UserAccounts");
-                await SeedEntity<UserFund>("UserFunds");
             }
             catch (NullReferenceException e)
             {

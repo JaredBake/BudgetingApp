@@ -1,0 +1,182 @@
+[
+  {
+    "Name": "Groceries",
+    "UserId": 1
+  },
+  {
+    "Name": "Rent",
+    "UserId": 1
+  },
+  {
+    "Name": "Utilities",
+    "UserId": 1
+  },
+  {
+    "Name": "Transportation",
+    "UserId": 1
+  },
+  {
+    "Name": "Entertainment",
+    "UserId": 1
+  },
+  {
+    "Name": "Healthcare",
+    "UserId": 1
+  },
+  {
+    "Name": "Dining",
+    "UserId": 1
+  },
+  {
+    "Name": "Shopping",
+    "UserId": 1
+  },
+  {
+    "Name": "Salary",
+    "UserId": 1
+  },
+  {
+    "Name": "Groceries",
+    "UserId": 2
+  },
+  {
+    "Name": "Rent",
+    "UserId": 2
+  },
+  {
+    "Name": "Utilities",
+    "UserId": 2
+  },
+  {
+    "Name": "Transportation",
+    "UserId": 2
+  },
+  {
+    "Name": "Entertainment",
+    "UserId": 2
+  },
+  {
+    "Name": "Healthcare",
+    "UserId": 2
+  },
+  {
+    "Name": "Dining",
+    "UserId": 2
+  },
+  {
+    "Name": "Shopping",
+    "UserId": 2
+  },
+  {
+    "Name": "Salary",
+    "UserId": 2
+  },
+  {
+    "Name": "Groceries",
+    "UserId": 3
+  },
+  {
+    "Name": "Rent",
+    "UserId": 3
+  },
+  {
+    "Name": "Utilities",
+    "UserId": 3
+  },
+  {
+    "Name": "Transportation",
+    "UserId": 3
+  },
+  {
+    "Name": "Entertainment",
+    "UserId": 3
+  },
+  {
+    "Name": "Healthcare",
+    "UserId": 3
+  },
+  {
+    "Name": "Dining",
+    "UserId": 3
+  },
+  {
+    "Name": "Shopping",
+    "UserId": 3
+  },
+  {
+    "Name": "Salary",
+    "UserId": 3
+  },
+  {
+    "Name": "Groceries",
+    "UserId": 4
+  },
+  {
+    "Name": "Rent",
+    "UserId": 4
+  },
+  {
+    "Name": "Utilities",
+    "UserId": 4
+  },
+  {
+    "Name": "Transportation",
+    "UserId": 4
+  },
+  {
+    "Name": "Entertainment",
+    "UserId": 4
+  },
+  {
+    "Name": "Healthcare",
+    "UserId": 4
+  },
+  {
+    "Name": "Dining",
+    "UserId": 4
+  },
+  {
+    "Name": "Shopping",
+    "UserId": 4
+  },
+  {
+    "Name": "Salary",
+    "UserId": 4
+  },
+  {
+    "Name": "Groceries",
+    "UserId": 5
+  },
+  {
+    "Name": "Rent",
+    "UserId": 5
+  },
+  {
+    "Name": "Utilities",
+    "UserId": 5
+  },
+  {
+    "Name": "Transportation",
+    "UserId": 5
+  },
+  {
+    "Name": "Entertainment",
+    "UserId": 5
+  },
+  {
+    "Name": "Healthcare",
+    "UserId": 5
+  },
+  {
+    "Name": "Dining",
+    "UserId": 5
+  },
+  {
+    "Name": "Shopping",
+    "UserId": 5
+  },
+  {
+    "Name": "Salary",
+    "UserId": 5
+  }
+]

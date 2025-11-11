@@ -10,6 +10,7 @@ import 'pages/welcome.dart';
 import 'pages/home.dart';
 import 'pages/accounts.dart';
 import 'pages/transactions.dart';
+import 'pages/funds.dart';
 
 void main() {
   runApp(MyApp());
@@ -40,6 +41,10 @@ class MyApp extends StatelessWidget {
           '/transactions': (context) {
             final user = ModalRoute.of(context)?.settings.arguments as User;
             return TransactionsPage(user: user);
+          },
+          '/funds': (context) {
+            final user = ModalRoute.of(context)?.settings.arguments as User;
+            return FundsPage(user: user);
           },
         },
       ),

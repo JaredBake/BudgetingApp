@@ -11,6 +11,8 @@ class Transaction {
     final Money money;
     final String description;
     final TransactionType transactionType;
+    final int? categoryId;
+    final int? fundId;
 
     Transaction({
         required this.id,
@@ -18,39 +20,41 @@ class Transaction {
         required this.date, 
         required this.money, 
         required this.description, 
-        required this.transactionType
+        required this.transactionType,
+        this.categoryId,
+        this.fundId,
         });
 
     bool isIncome() {
-        if (this.transactionType == TransactionType.income) {
+        if (transactionType == TransactionType.income) {
             return true;
         }
         return false;
     }
     bool isExpense() {
-        if (this.transactionType == TransactionType.expense) {
+        if (transactionType == TransactionType.expense) {
             return true;
         }
         return false;
     }
 
     String getDescription() {
-        return this.description;
+        return description;
     }
 
     DateTime getDate() {
-        return this.date;
+        return date;
     }
 
     Money getMoney() {
         /*  Returns the money object associated with the transaction
         *   Money is a class that holds both the amount and the currency
         */
-        return this.money;
+        return money;
     }
 
     TransactionType getTransactionType() {
-        return this.transactionType;
+        return transactionType;
     }
 
     @override
@@ -61,7 +65,9 @@ class Transaction {
             date: $date,
             money: ${money.toString()},
             description: $description,
-            transactionType: $transactionType
+            transactionType: $transactionType,
+            categoryId: $categoryId,
+            fundId: $fundId
         }''';
     }
 }

@@ -34,8 +34,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .ToListAsync();
 
         return users;     
@@ -50,8 +49,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .FirstOrDefaultAsync(u => u.Id == Id);
 
         if (user == null)

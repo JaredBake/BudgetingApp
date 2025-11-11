@@ -69,6 +69,18 @@ builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 
+// Check for --seed argument to seed database at startup
+if (args.Contains("--seed"))
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        Console.WriteLine("Seeding database...");
+        await seeder.SeedAsync();
+        Console.WriteLine("Database seeded successfully!");
+    }
+}
+
 app.MapGet("/test", () =>
 {
     return true;

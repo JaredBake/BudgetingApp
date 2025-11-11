@@ -34,6 +34,18 @@ public class FundsController : ControllerBase
         return await _context.Funds.ToListAsync();
     }
 
+    [HttpGet("MyFunds")]
+    public async Task<ActionResult<IEnumerable<Fund>>> GetUserFunds()
+    {
+        var userId = GetCurrentUserId();
+        
+        var funds = await _context.Funds
+            .Where(f => f.UserId == userId)
+            .ToListAsync();
+
+        return Ok(funds);
+    }
+
     [HttpGet("{Id}")]
     public async Task<ActionResult<Fund>> GetFund(int Id)
     {
@@ -50,8 +62,10 @@ public class FundsController : ControllerBase
     }
 
     [HttpPost()]
-    public async Task<ActionResult<Account>> PostFund(Fund fund)
+    public async Task<ActionResult<Fund>> PostFund(Fund fund)
     {      
+        var userId = GetCurrentUserId();
+        fund.UserId = userId;
 
         _context.Funds.Add(fund);
         await _context.SaveChangesAsync();
@@ -59,84 +73,7 @@ public class FundsController : ControllerBase
         return CreatedAtAction(nameof(GetFund), new { Id = fund.Id }, fund);
     }
 
-    public class bodyObject { public int userId { get; set; } public int fundId { get; set; } }
-    [HttpPost("User")]
-    public async Task<ActionResult> JoinUserFund([FromBody] bodyObject request)
-    {
-
-        if (!await AuthorizeUser(request.fundId)) return Forbid();
-
-        var user = await _context.Users.FindAsync(request.userId);
-        var fund = await _context.Funds.FindAsync(request.fundId);
-
-        if (user == null) return NotFound($"User: {request.userId} not found");
-        if (fund == null) return NotFound($"Fund: {request.fundId} not found");
-
-        if (await BelongsToUser(request.fundId, request.userId))
-        {
-            return BadRequest($"User: {request.userId} is already connected to this account: {request.fundId}");
-        }
-
-        var userFund = new UserFund
-        {
-            UserId = request.userId,
-            FundId = request.fundId
-        };
-
-        _context.UserFunds.Add(userFund);
-        await _context.SaveChangesAsync();
-
-        return Ok("User association successfully created");
-    }
-
     [HttpDelete("User")]
-    public async Task<ActionResult> DeleteUserFund([FromBody] bodyObject request)
-    {
-        if (!await AuthorizeUser(request.fundId)) return Forbid();
-
-        var userFund = new UserFund
-        {
-            UserId = request.userId,
-            FundId = request.fundId
-        };
-
-        try
-        {
-            _context.UserFunds.Remove(userFund);
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await BelongsToUser(request.fundId, request.userId))
-            {
-                return BadRequest($"");
-            }
-            if (!FundExists(request.fundId))
-            {
-                return NotFound($"");
-            }
-            if (!UserExists(request.userId))
-            {
-                return NotFound($"");
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return Ok("User association successfully deleted");
-
-    }
-
-    [HttpGet("User")]
-    public async Task<ActionResult<bool>> TestBelongs([FromBody] bodyObject request)
-    {
-        if (!await AuthorizeUser(request.fundId)) return Forbid();
-        return await BelongsToUser(request.fundId, request.userId);
-    }
-
-    [HttpPut()]
     public async Task<IActionResult> PutFund(Fund fund)
     {
         if (!await AuthorizeUser(fund.Id)) return Forbid();
@@ -175,8 +112,6 @@ public class FundsController : ControllerBase
             return NotFound($"No fund found to delete with Id: {Id}");
         }
 
-        // _context.UserFunds.RemoveRange(userFunds);
-
         _context.Funds.Remove(fund);
         await _context.SaveChangesAsync();
 
@@ -195,11 +130,10 @@ public class FundsController : ControllerBase
 
     private async Task<bool> BelongsToUser(int fundId, int userId)
     {
-        var existingJoin = await _context.UserFunds
-            .FirstOrDefaultAsync(uf => uf.UserId == userId && uf.FundId == fundId);
+        var fund = await _context.Funds
+            .FirstOrDefaultAsync(f => f.Id == fundId && f.UserId == userId);
 
-        if (existingJoin == null) return false;
-        else return true;
+        return fund != null;
     }
 
     private async Task<bool> AuthorizeUser(int fundId)

@@ -11,7 +11,6 @@ class NavigationService {
           (route) => false,
           arguments: user,
         );
-        break;
       case 1: // Transactions
         Navigator.pushNamedAndRemoveUntil(
           context, 
@@ -19,7 +18,6 @@ class NavigationService {
           (route) => false,
           arguments: user,
         );
-        break;
       case 2: // Home
         Navigator.pushNamedAndRemoveUntil(
           context, 
@@ -27,19 +25,18 @@ class NavigationService {
           (route) => false,
           arguments: user,
         );
-        break;
       case 3: // Funds
-        // TODO: Navigate to funds page
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Funds page coming soon!')),
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          '/funds', 
+          (route) => false,
+          arguments: user,
         );
-        break;
       case 4: // Settings
         // TODO: Navigate to settings page
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Settings page coming soon!')),
         );
-        break;
     }
   }
 

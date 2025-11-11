@@ -50,14 +50,27 @@ class TransactionService {
         currency: data['money']?['currency'] ?? 'USD',
       ),
       description: 'Transaction #${data['id'] ?? 0}', // Fallback since backend doesn't have description
-      transactionType: _determineTransactionType(data),
+      transactionType: _parseTransactionType(data['type']),
+      categoryId: data['categoryId'],
+      fundId: data['fundId'],
     );
   }
 
-  static TransactionType _determineTransactionType(Map<String, dynamic> data) {
-    // Since backend doesn't have transaction type, we'll determine it by amount
-    final amount = (data['money']?['amount'] as num?)?.toDouble() ?? 0.0;
-    return amount >= 0 ? TransactionType.income : TransactionType.expense;
+  static TransactionType _parseTransactionType(dynamic typeValue) {
+    if (typeValue == null) {
+      return TransactionType.expense; // Default fallback
+    }
+    
+    // Handle both string and int representations
+    if (typeValue is String) {
+      return typeValue.toLowerCase() == 'income' 
+          ? TransactionType.income 
+          : TransactionType.expense;
+    } else if (typeValue is int) {
+      return typeValue == 1 ? TransactionType.income : TransactionType.expense;
+    }
+    
+    return TransactionType.expense;
   }
 
   static Future<Transaction?> getTransactionById(int id) async {
@@ -88,8 +101,11 @@ class TransactionService {
   static Future<Transaction> createTransaction({
     required int accountId,
     required double amount,
+    required TransactionType type,
     String currency = 'USD',
     String? description,
+    int? categoryId,
+    int? fundId,
   }) async {
     final token = localStorage.getItem('token');
 
@@ -104,6 +120,9 @@ class TransactionService {
         'amount': amount,
         'currency': currency,
       },
+      'type': type == TransactionType.income ? 1 : 0, // Send as int: Income=1, Expense=0
+      if (categoryId != null) 'categoryId': categoryId,
+      if (fundId != null) 'fundId': fundId,
     };
 
     final response = await http.post(
