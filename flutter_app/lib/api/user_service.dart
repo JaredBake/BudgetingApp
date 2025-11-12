@@ -36,4 +36,28 @@ class UserService {
       return false;
     }    
   }
+
+  static Future<bool> deleteUser() async {
+    final token = localStorage.getItem('token');
+    final userId = localStorage.getItem('userId');
+
+    final url = Uri.parse('$baseUrl/api/Users/$userId');
+
+    final userDelete = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (userDelete.statusCode == 200) {
+      localStorage.clear();
+      print('User deleted successfully!');
+      return true;
+    } 
+
+    print('Needs further testing: user_service.dart/ln58');
+    return false;
+  }
 }

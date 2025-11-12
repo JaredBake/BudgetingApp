@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/pages/login.dart';
 import '../../services/navigation_service.dart';
 import './settings_widget.dart';
 
@@ -102,13 +103,23 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   }
 
   void _changePassword(String password) async {
+    if (password.isEmpty){
+      print('Password field is empty, ignoring');
+      return;
+    };
+
     await UserService.changePassword(password);
     print('Updated password to $password');
   }
 
+  Future<bool> _deleteUser() async {
+    print('Deleting user!');
+    return await UserService.deleteUser();
+  }
+
   void _showUserSettingsDialog(BuildContext context) {
 
-    bool _obscureText = true;
+    bool obscureText = true;
 
     showDialog(
       context: context,
@@ -122,18 +133,18 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                 // crossAxisAlignment: ,
                 children: [
                   TextField(
-                    obscureText: _obscureText,
+                    obscureText: obscureText,
                     controller: passwordUpdaterController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter new Password',
                       suffixIcon: IconButton(
                         icon : Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          obscureText ? Icons.visibility_off : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureText = !_obscureText;
+                            obscureText = !obscureText;
                           });
                         }
                       ),
@@ -146,6 +157,18 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                   },
                   child: const Text('Save'),
                   ),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (await _deleteUser()) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => Login())
+                        );
+                      }
+                    },
+                    child: const Text('Delete User Account!'),
+                  )
+
                 ],
               )
             );
