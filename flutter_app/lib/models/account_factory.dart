@@ -17,7 +17,7 @@ class AccountFactory {
     required Money balance,
     List<Transaction>? transactions,
   }) {
-    final t = transactions ?? <Transaction>[];
+    var t = transactions ?? <Transaction>[];
 
     switch (type) {
       case AccountType.savings:

@@ -57,7 +57,7 @@ class AccountService {
         accountId: id,
         name: name,
         balance: money,
-        transactions: const [],
+        transactions: [],
       );
     }).toList();
 
@@ -272,7 +272,11 @@ class AccountService {
     }
   }
 
-  static Future<void> deleteAccount(int accountId) async {
+  static Future<bool> deleteAccount(int accountId) async {
+    /***
+     * Since the transaction service function for deleting transactions returns a boolean,
+     * I changed this to return boolean for consistency. (Santos)
+     */
     final token = localStorage.getItem('token');
 
     if (token == null) {
@@ -287,10 +291,13 @@ class AccountService {
       },
     );
 
-    if (response.statusCode != 204) {
-      throw Exception(
-        'Failed to delete account: ${response.statusCode} ${response.body}',
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      print(
+        'Failed to delete account: ${response.statusCode} - ${response.body}',
       );
+      return false;
     }
   }
 }

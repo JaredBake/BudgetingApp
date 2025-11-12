@@ -5,6 +5,8 @@ import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
+import '../models/account.dart';
+
 import 'transactions.dart';
 
 import '../api/transaction_service.dart';
@@ -64,6 +66,13 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(children: [Expanded(child: child)]),
     );
+  }
+
+  String getAccountName() {
+    Account? account = widget.user.getData().findAccount(
+      widget.transaction.getAccountId(),
+    );
+    return account != null ? account.getDescription() : 'Unknown Account';
   }
 
   void navigateToTransactionsPage() {
@@ -193,34 +202,15 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Actions',
+                      'Details',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              //TODO IMPLEMENT EDIT TRANSACTION
-                            },
-                            icon: const Icon(Icons.edit),
-                            label: const Text('Edit'),
-                          ),
-                        ),
-                      ],
-                    ),
 
-                    // _buildDetailRow(
-                    //   'Transaction ID',
-                    //   widget.transaction.id.toString(),
-                    // ),
-                    // _buildDetailRow(
-                    //   'Account',
-                    //   widget.transaction.accountId.toString(),
-                    // ),
+                    _buildDetailRow('Account', getAccountName()),
+
                     _buildDetailRow(
                       'Description',
                       widget.transaction.getDescription(),
@@ -245,7 +235,6 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
 
             const SizedBox(height: 24),
 
-            // Additional information card
             Card(
               elevation: 2,
               child: Padding(
