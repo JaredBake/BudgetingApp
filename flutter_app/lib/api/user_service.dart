@@ -1,0 +1,39 @@
+import 'dart:convert';
+
+import 'package:localstorage/localstorage.dart';
+import 'package:http/http.dart' as http;
+
+class UserService {
+  static const String baseUrl = 'http://localhost:5284';
+
+  static Future<bool> changePassword(String newPassword) async {
+
+    final token = localStorage.getItem('token');
+    final userId = localStorage.getItem('userId');
+
+    final jsonBody = jsonEncode({
+      "Id": userId,
+      'password': newPassword
+    });
+
+    final url = Uri.parse('$baseUrl/api/Users/Password');
+
+    final passwordPut = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonBody
+    );
+
+    if (passwordPut.statusCode == 201) {
+      print('Password changed successfully');
+      return true;
+    }
+    else {
+      print('Needs further testing: user_service.dart/ln:25');
+      return false;
+    }    
+  }
+}

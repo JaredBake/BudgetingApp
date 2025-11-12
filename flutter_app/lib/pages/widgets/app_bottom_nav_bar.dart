@@ -3,14 +3,18 @@ import 'package:flutter_application/models/user.dart';
 import '../../services/navigation_service.dart';
 import './settings_widget.dart';
 
+import '../../api/user_service.dart';
+
 class AppBottomNavBar extends StatefulWidget {
   final User user;
   final int currentIndex; 
+  
 
   const AppBottomNavBar({
     super.key,
     required this.user,
     this.currentIndex = 2, 
+    
   
   });
 
@@ -21,6 +25,7 @@ class AppBottomNavBar extends StatefulWidget {
 class _AppBottomNavBarState extends State<AppBottomNavBar> {
   late int _selectedIndex;
   late Settings _settings;
+  final TextEditingController passwordUpdaterController = TextEditingController();
 
   @override
   void initState() {
@@ -96,6 +101,46 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     );
   }
 
+  void _changePassword(String password) async {
+    await UserService.changePassword(password);
+    print('Updated password to $password');
+  }
+
+  void _showUserSettingsDialog(BuildContext context) {
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('User Settings'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                // crossAxisAlignment: ,
+                children: [
+                  TextField(
+                    controller: passwordUpdaterController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter new Password',
+                    ),
+                  ),
+                  ElevatedButton(
+                  onPressed: () {
+                    _changePassword(passwordUpdaterController.text);
+                  },
+                  child: const Text('Save'),
+                  ),
+                ],
+              )
+            );
+          }
+        );
+      }
+    );
+  }
+
   void _showSettingsDialog(BuildContext context) {
     bool tempDarkMode = _settings.isDarkMode;
     String tempCurrency = _settings.selectedCurrency;
@@ -110,6 +155,15 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // User Settings change
+                  InkWell(
+                    child: Text('Change User Settings'),
+                    onTap: () => {
+                      Navigator.of(context).pop(),
+                      _showUserSettingsDialog(context),                      
+                    }                      
+                    
+                  ),
                   // Dark/Light Theme Toggle
                   SwitchListTile(
                     title: const Text('Dark Mode'),
@@ -150,6 +204,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                       }
                     },
                   ),
+
                 ],
               ),
               actions: [

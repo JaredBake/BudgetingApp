@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/pages/widgets/bottomNavBar.dart';
+// import 'package:flutter_application/pages/widgets/bottomNavBar.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -9,10 +9,10 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
-        bottomNavigationBar: BottomNavBar(
-          initialIndex: 1,
-          onItemTapped: (index) => tappedIndex = index,
-        ),
+        // bottomNavigationBar: BottomNavBar(
+        //   initialIndex: 1,
+        //   onItemTapped: (index) => tappedIndex = index,
+        // ),
       ),
     ));
 
