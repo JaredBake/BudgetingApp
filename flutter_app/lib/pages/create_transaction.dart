@@ -5,6 +5,7 @@ import '../api/transaction_service.dart';
 import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 class CreateTransactionPage extends StatefulWidget {
   final User user;
@@ -335,6 +336,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: 1, // Transactions section
+        // settings: Settings(),
       ),
     );
   }

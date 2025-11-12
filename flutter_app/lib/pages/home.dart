@@ -3,8 +3,6 @@ import 'widgets/app_bottom_nav_bar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_application/models/account.dart';
 import 'widgets/pieChart.dart';
-
-import 'widgets/bottomNavBar.dart';
 import 'widgets/topNavBar.dart';
 
 import '../api/stats_service.dart';
@@ -13,8 +11,8 @@ import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/credentials.dart';
 import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
 import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
-import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/accountType.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 class HomeOverview {
   final int totalAccounts;
@@ -343,6 +341,7 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: _selectedIndex,
+        // settings: Settings(),
       ),
     );
   }
