@@ -23,12 +23,6 @@ class TransactionService {
       },
     );
 
-    if (response.statusCode != 204) {
-      print("Failed to delete transaction");
-      print("Status code: ${response.statusCode}");
-      print("Body: ${response.body}");
-    }
-
     return response.statusCode == 204;
   }
 
@@ -53,7 +47,10 @@ class TransactionService {
           .map(
             (data) => _parseTransaction(
               data as Map<String, dynamic>,
-              TransactionType.income,
+              data['money'] != null &&
+                      (data['money']['amount'] as num).toDouble() >= 0
+                  ? TransactionType.income
+                  : TransactionType.expense,
             ),
           )
           .toList();
@@ -168,7 +165,9 @@ class TransactionService {
       'accountId': transaction.getAccountId(),
       'date': transaction.getDate().toUtc().toIso8601String(),
       'money': {
-        'amount': transaction.getMoney().getAmount(),
+        'amount': transaction.transactionType == TransactionType.expense
+            ? -transaction.getMoney().getAmount()
+            : transaction.getMoney().getAmount(),
         'currency': transaction.getMoney().getCurrency(),
       },
       'description': transaction.getDescription(),
@@ -178,13 +177,6 @@ class TransactionService {
           .split('.')
           .last,
     };
-
-    // final transactionData = {
-    //   'accountId': transaction.accountId,
-    //   'date': DateTime.now().toUtc().toIso8601String(),
-    //   'money': {'amount': amount, 'currency': currency},
-    // };
-
     final response = await http.post(
       Uri.parse('$baseUrl/api/Transactions'),
       headers: {

@@ -101,10 +101,8 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
         transaction: transaction,
       );
 
-      // Call callback to refresh the transactions list
       widget.onTransactionCreated?.call();
 
-      // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -112,6 +110,11 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
             backgroundColor: Colors.green,
           ),
         );
+
+        var account = widget.user.getData().findAccount(_selectedAccountId!);
+        if (account != null) {
+          account.addTransaction(createdTransaction);
+        }
         Navigator.pop(context);
       }
     } catch (e) {

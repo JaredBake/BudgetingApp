@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/user.dart';
+
+import '../api/transaction_service.dart';
+
 import '../models/account_model.dart';
 import '../models/accountType.dart';
+import '../models/transaction.dart';
+import '../models/TransactionType.dart';
+
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import '../api/account_service.dart';
+
+import 'accounts.dart';
 
 class AccountDetailsPage extends StatefulWidget {
   final Account account;
@@ -21,6 +30,53 @@ class AccountDetailsPage extends StatefulWidget {
 }
 
 class _AccountDetailsPageState extends State<AccountDetailsPage> {
+  List<Transaction> transactions = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTransactions();
+  }
+
+  Future<void> _loadTransactions() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final loadedTransactions = await TransactionService.getUserTransactions();
+      final accountId = widget.account.getAccountId();
+
+      final accountTransactions =
+          loadedTransactions
+              .where((t) => t.getAccountId() == accountId)
+              .toList()
+            ..sort((a, b) => b.getDate().compareTo(a.getDate()));
+
+      for (var t in accountTransactions) {
+        widget.account.addTransaction(t);
+      }
+
+      print("Transactions fetched: ${accountTransactions.length}");
+      print(
+        "Account stored transactions: ${widget.account.getTransactions().length}",
+      );
+
+      setState(() {
+        transactions = accountTransactions;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
   Widget _buildDetailRow(String label, String value, {bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -53,6 +109,13 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void navigateToAccountsPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => AccountsPage(user: widget.user)),
     );
   }
 
@@ -199,10 +262,6 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow(
-                      'Account ID',
-                      account.getAccountId().toString(),
-                    ),
                     _buildDetailRow('Account Name', account.name),
                     _buildDetailRow(
                       'Account Type',
@@ -210,16 +269,80 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                     ),
                     _buildDetailRow('Current Balance', balance.toString()),
                     _buildDetailRow('Currency', balance.getCurrency()),
-                    _buildDetailRow(
-                      'Transactions',
-                      '${account.getTransactions().length}',
-                    ),
+                    _buildDetailRow('Transactions', '${transactions.length}'),
                   ],
                 ),
               ),
             ),
 
             const SizedBox(height: 24),
+
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Actions',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              //TODO: EDIT account
+                            },
+                            icon: const Icon(Icons.edit),
+                            label: const Text('Edit'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              AccountService.deleteAccount(
+                                account.getAccountId(),
+                              ).then((success) {
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Account deleted successfully',
+                                      ),
+                                    ),
+                                  );
+                                  navigateToAccountsPage();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Failed to delete account'),
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.delete),
+                            label: const Text('Delete'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             // Recent transactions card (if any)
             if (account.getTransactions().isNotEmpty)
