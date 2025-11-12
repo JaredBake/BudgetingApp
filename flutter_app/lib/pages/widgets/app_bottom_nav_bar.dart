@@ -108,6 +108,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   void _showUserSettingsDialog(BuildContext context) {
 
+    bool _obscureText = true;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -120,11 +122,23 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                 // crossAxisAlignment: ,
                 children: [
                   TextField(
+                    obscureText: _obscureText,
                     controller: passwordUpdaterController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter new Password',
+                      suffixIcon: IconButton(
+                        icon : Icon(
+                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        }
+                      ),
                     ),
+                    
                   ),
                   ElevatedButton(
                   onPressed: () {
