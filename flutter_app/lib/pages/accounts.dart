@@ -3,6 +3,7 @@ import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/pages/widgets/settings_widget.dart';
 import '../api/account_service.dart';
 import '../models/account_model.dart';
+import '../models/account.dart';
 import '../models/accountType.dart';
 import 'account_details.dart';
 import 'create_account.dart';
@@ -19,10 +20,10 @@ class AccountsPage extends StatefulWidget {
 }
 
 class _AccountsPageState extends State<AccountsPage> {
-  List<AccountModel>? accounts;
+  List<Account>? accounts;
   bool isLoading = true;
   String? errorMessage;
-  int _selectedIndex = 0; // Accounts tab
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -37,7 +38,11 @@ class _AccountsPageState extends State<AccountsPage> {
         errorMessage = null;
       });
 
+      // Load accounts to the user object
       final loadedAccounts = await AccountService.getUserAccounts();
+      for (var account in loadedAccounts) {
+        widget.user.getData().addAccount(account);
+      }
 
       setState(() {
         accounts = loadedAccounts;
@@ -51,7 +56,7 @@ class _AccountsPageState extends State<AccountsPage> {
     }
   }
 
-  void _navigateToAccountDetails(AccountModel account) {
+  void _navigateToAccountDetails(Account account) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -73,7 +78,7 @@ class _AccountsPageState extends State<AccountsPage> {
     );
   }
 
-  Widget _buildAccountItem(AccountModel account) {
+  Widget _buildAccountItem(Account account) {
     final accountType = account.getAccountType();
     final balance = account.getBalance();
 
@@ -98,7 +103,7 @@ class _AccountsPageState extends State<AccountsPage> {
         color = Colors.purple;
         break;
       case AccountType.cash:
-        icon = Icons.money;
+        icon = Icons.credit_card;
         color = Colors.teal;
         break;
     }
@@ -111,7 +116,7 @@ class _AccountsPageState extends State<AccountsPage> {
           child: Icon(icon, color: color),
         ),
         title: Text(
-          account.getName(),
+          account.name,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
