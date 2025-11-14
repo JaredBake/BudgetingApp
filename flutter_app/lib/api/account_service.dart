@@ -4,11 +4,13 @@ import 'package:localstorage/localstorage.dart';
 import '../models/account_model.dart';
 import '../models/accountType.dart';
 import '../models/money.dart';
+import '../models/account.dart';
+import '../models/account_factory.dart';
 
 class AccountService {
   static const String baseUrl = 'http://localhost:5284';
 
-  static Future<List<AccountModel>> getUserAccounts() async {
+  static Future<List<Account>> getUserAccounts() async {
     final token = localStorage.getItem('token');
 
     if (token == null) {
@@ -23,19 +25,44 @@ class AccountService {
       },
     );
 
-    if (response.statusCode == 200) {
-      final accountsData = jsonDecode(response.body) as List<dynamic>;
-      final accounts = accountsData
-          .map((data) => _parseAccount(data as Map<String, dynamic>))
-          .toList();
-
-      // Sort by account name
-      accounts.sort((a, b) => a.getName().compareTo(b.getName()));
-
-      return accounts;
-    } else {
-      throw Exception('Failed to load accounts');
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load accounts: ${response.statusCode} ${response.body}',
+      );
     }
+
+    final accountsData = jsonDecode(response.body) as List<dynamic>;
+
+    final accounts = accountsData.cast<Map<String, dynamic>>().map((data) {
+      final accountType = _parseAccountType(data['accountType']);
+
+      final balanceJson =
+          (data['balance'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+      final amount =
+          (balanceJson['amount'] as num?)?.toDouble() ??
+          (data['balanceAmount'] as num?)?.toDouble() ??
+          0.0;
+      final currency = (balanceJson['currency'] as String?) ?? 'USD';
+
+      final money = Money(amount: amount, currency: currency);
+
+      final id =
+          (data['id'] as num?)?.toInt() ??
+          (data['accountId'] as num?)?.toInt() ??
+          0;
+      final name = (data['name'] as String?) ?? 'Account $id';
+
+      return AccountFactory.create(
+        accountType,
+        accountId: id,
+        name: name,
+        balance: money,
+        transactions: [],
+      );
+    }).toList();
+
+    accounts.sort((a, b) => a.name.compareTo(b.name));
+    return accounts;
   }
 
   static AccountModel _parseAccount(Map<String, dynamic> data) {
@@ -63,6 +90,8 @@ class AccountService {
           return AccountType.creditCard;
         case 'brokerage':
           return AccountType.brokerage;
+        case 'cash':
+          return AccountType.cash;
         default:
           return AccountType.checking;
       }
@@ -76,6 +105,8 @@ class AccountService {
           return AccountType.creditCard;
         case 3:
           return AccountType.brokerage;
+        case 4:
+          return AccountType.cash;
         default:
           return AccountType.checking;
       }
@@ -108,12 +139,7 @@ class AccountService {
     }
   }
 
-  static Future<AccountModel> createAccount({
-    required String name,
-    required AccountType accountType,
-    required double initialBalance,
-    required String currency,
-  }) async {
+  static Future<Account> createAccount(Account account) async {
     final token = localStorage.getItem('token');
     final userId = localStorage.getItem('userId');
 
@@ -121,12 +147,17 @@ class AccountService {
       throw Exception('User not authenticated');
     }
 
+    // Build request payload from the domain Account
     final accountData = {
-      'name': name,
-      'accountType': _accountTypeToInt(accountType),
-      'balance': {'amount': initialBalance, 'currency': currency},
+      'name': account.name,
+      'accountType': _accountTypeToInt(account.accountType),
+      'balance': {
+        'amount': account.getBalance().getAmount(),
+        'currency': account.getBalance().currency,
+      },
     };
 
+    // Send POST request
     final response = await http.post(
       Uri.parse('$baseUrl/api/Accounts'),
       headers: {
@@ -138,12 +169,23 @@ class AccountService {
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      final account = _parseAccount(data);
 
-      // Associate the account with the current user
-      await _associateAccountWithUser(account.getId(), int.parse(userId));
+      // 🏗️ Build a proper domain Account using the factory
+      final created = AccountFactory.create(
+        _parseAccountType(data['accountType']),
+        accountId: (data['id'] as num?)?.toInt() ?? 0,
+        name: (data['name'] as String?) ?? '',
+        balance: Money(
+          amount: ((data['balance']?['amount']) as num?)?.toDouble() ?? 0.0,
+          currency: (data['balance']?['currency'] as String?) ?? 'USD',
+        ),
+        transactions: [],
+      );
 
-      return account;
+      // Associate account with the user
+      await _associateAccountWithUser(created.accountId, int.parse(userId));
+
+      return created; // return domain Account
     } else {
       throw Exception(
         'Failed to create account: ${response.statusCode} ${response.body}',
@@ -230,7 +272,11 @@ class AccountService {
     }
   }
 
-  static Future<void> deleteAccount(int accountId) async {
+  static Future<bool> deleteAccount(int accountId) async {
+    /***
+     * Since the transaction service function for deleting transactions returns a boolean,
+     * I changed this to return boolean for consistency. (Santos)
+     */
     final token = localStorage.getItem('token');
 
     if (token == null) {
@@ -245,10 +291,13 @@ class AccountService {
       },
     );
 
-    if (response.statusCode != 204) {
-      throw Exception(
-        'Failed to delete account: ${response.statusCode} ${response.body}',
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      print(
+        'Failed to delete account: ${response.statusCode} - ${response.body}',
       );
+      return false;
     }
   }
 }

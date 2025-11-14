@@ -10,9 +10,6 @@ class StatsService {
 
   static Future<Map<String, dynamic>?> getUserFundStats(int userId) async {
     final token = localStorage.getItem('token');
-    // print("*******************************");
-    // print(token);
-    // print("*******************************");
     final url = Uri.parse('$baseUrl/api/Stats/users/$userId/funds');
 
     final response = await http.get(

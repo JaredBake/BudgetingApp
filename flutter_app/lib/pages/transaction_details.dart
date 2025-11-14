@@ -6,6 +6,12 @@ import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
+import '../models/account.dart';
+
+import 'transactions.dart';
+
+import '../api/transaction_service.dart';
+
 class TransactionDetailsPage extends StatefulWidget {
   final Transaction transaction;
   final User user;
@@ -21,9 +27,6 @@ class TransactionDetailsPage extends StatefulWidget {
 }
 
 class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
-
-
-
   Widget _buildDetailRow(String label, String value, {bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -46,8 +49,10 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
               style: TextStyle(
                 fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
                 fontSize: highlight ? 18 : 16,
-                color: highlight 
-                    ? (widget.transaction.isIncome() ? Colors.green : Colors.red)
+                color: highlight
+                    ? (widget.transaction.isIncome()
+                          ? Colors.green
+                          : Colors.red)
                     : Colors.black87,
               ),
             ),
@@ -57,20 +62,55 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
     );
   }
 
+  Widget _buildButtonRow(Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(children: [Expanded(child: child)]),
+    );
+  }
+
+  String getAccountName() {
+    Account? account = widget.user.getData().findAccount(
+      widget.transaction.getAccountId(),
+    );
+    return account != null ? account.getDescription() : 'Unknown Account';
+  }
+
+  void navigateToTransactionsPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionsPage(user: widget.user),
+      ),
+    );
+  }
+
   String _formatDate(DateTime date) {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
-    
+
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   String _formatTime(DateTime date) {
-    final hour = date.hour == 0 ? 12 : (date.hour > 12 ? date.hour - 12 : date.hour);
+    final hour = date.hour == 0
+        ? 12
+        : (date.hour > 12 ? date.hour - 12 : date.hour);
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
-    
+
     return '$hour:$minute $period';
   }
 
@@ -105,7 +145,10 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   gradient: LinearGradient(
-                    colors: [statusColor.withOpacity(0.1), statusColor.withOpacity(0.05)],
+                    colors: [
+                      statusColor.withOpacity(0.1),
+                      statusColor.withOpacity(0.05),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -115,11 +158,7 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: statusColor.withOpacity(0.2),
-                      child: Icon(
-                        statusIcon,
-                        size: 30,
-                        color: statusColor,
-                      ),
+                      child: Icon(statusIcon, size: 30, color: statusColor),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -132,7 +171,10 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -149,9 +191,9 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Transaction details card
             Card(
               elevation: 2,
@@ -161,27 +203,39 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Transaction Details',
+                      'Details',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow('Transaction ID', widget.transaction.id.toString()),
-                    _buildDetailRow('Account ID', widget.transaction.accountId.toString()),
-                    _buildDetailRow('Description', widget.transaction.getDescription()),
-                    _buildDetailRow('Date', _formatDate(widget.transaction.getDate())),
-                    _buildDetailRow('Time', _formatTime(widget.transaction.getDate())),
-                    _buildDetailRow('Currency', widget.transaction.getMoney().getCurrency()),
+
+                    _buildDetailRow('Account', getAccountName()),
+
+                    _buildDetailRow(
+                      'Description',
+                      widget.transaction.getDescription(),
+                    ),
+                    _buildDetailRow(
+                      'Date',
+                      _formatDate(widget.transaction.getDate()),
+                    ),
+                    _buildDetailRow(
+                      'Time',
+                      _formatTime(widget.transaction.getDate()),
+                    ),
+                    _buildDetailRow(
+                      'Currency',
+                      widget.transaction.getMoney().getCurrency(),
+                    ),
                     _buildDetailRow('Type', statusText),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
-            // Additional information card
+
             Card(
               elevation: 2,
               child: Padding(
@@ -190,40 +244,61 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Additional Information',
+                      'Actions',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow('Amount', widget.transaction.getMoney().getAmount().toString()),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Description',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // TODO: Edit transaction
+                              // Navigator.push(...);
+                            },
+                            icon: const Icon(Icons.edit),
+                            label: const Text("Edit"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.transaction.getDescription().isNotEmpty 
-                                ? widget.transaction.getDescription()
-                                : 'No description provided',
-                            style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              TransactionService.deleteTransaction(
+                                widget.transaction.id,
+                              ).then((success) {
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Transaction deleted'),
+                                    ),
+                                  );
+                                  navigateToTransactionsPage();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Failed to delete transaction',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.delete),
+                            label: const Text("Delete"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

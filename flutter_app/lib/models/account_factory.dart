@@ -16,9 +16,8 @@ class AccountFactory {
     required String name,
     required Money balance,
     List<Transaction>? transactions,
-    Map<String, dynamic>? extra,
   }) {
-    final t = transactions ?? <Transaction>[];
+    var t = transactions ?? <Transaction>[];
 
     switch (type) {
       case AccountType.savings:

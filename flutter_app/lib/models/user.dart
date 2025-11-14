@@ -21,6 +21,10 @@ class User {
     return this.credentials;
   }
 
+  Data getData() {
+    return this.data;
+  }
+
   bool addTransaction(Transaction transaction) {
     // TODO: Implement logic to add a transaction
     return true;

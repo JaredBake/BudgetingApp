@@ -20,9 +20,14 @@ abstract class Account {
     required this.transactions,
   });
 
+  String getDescription() {
+    return this.name;
+  }
+
   bool addTransaction(Transaction transaction);
   bool removeTransaction(Transaction transaction);
   List<Transaction> getTransactions();
   Money getBalance();
   int getAccountId() => this.accountId;
+  AccountType getAccountType() => this.accountType;
 }
