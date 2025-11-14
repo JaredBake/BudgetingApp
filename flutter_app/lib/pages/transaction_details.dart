@@ -62,12 +62,12 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
     );
   }
 
-  Widget _buildButtonRow(Widget child) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(children: [Expanded(child: child)]),
-    );
-  }
+  // Widget _buildButtonRow(Widget child) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //     child: Row(children: [Expanded(child: child)]),
+  //   );
+  // }
 
   String getAccountName() {
     Account? account = widget.user.getData().findAccount(

@@ -12,7 +12,6 @@ import 'pages/home.dart';
 import 'pages/accounts.dart';
 import 'pages/transactions.dart';
 
-import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/data.dart';
 import 'package:flutter_application/models/credentials.dart';
 

@@ -329,6 +329,8 @@ class _HomeState extends State<Home> {
                                                   .getUserId(),
                                             ),
                                       );
+                                      
+                                    print(account);
                                   // TODO
                                   // Here if account is not null
                                   // We will add the account to the user data
