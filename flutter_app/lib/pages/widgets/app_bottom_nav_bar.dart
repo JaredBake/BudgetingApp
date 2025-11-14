@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/pages/login.dart';
+import 'package:localstorage/localstorage.dart';
 import '../../services/navigation_service.dart';
 import './settings_widget.dart';
 import 'package:file_picker/file_picker.dart';
@@ -116,6 +117,10 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   Future<bool> _deleteUser() async {
     print('Deleting user!');
     return await UserService.deleteUser();
+  }
+
+  void _logout() {
+    localStorage.clear();
   }
 
   Future<String> _pickAndUploadFile(String filterDecision) async {
@@ -349,14 +354,39 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                         ),
                       ),
                       const SizedBox(height: 32),
+                      const Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,                          
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       FilledButton.icon(
+                        onPressed: () {
+                          _logout();
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (_) => Login())
+                          );
+                        },
+                        icon: const Icon(Icons.check_circle),
+                        label: const Text('Logout'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      OutlinedButton.icon(
                         onPressed: () {
                           Navigator.of(context).pop();
                           _showSettingsDialog(context);
                         },
                         icon: const Icon(Icons.arrow_back),
                         label: const Text('Go Back...'),
-                        style: FilledButton.styleFrom(
+                        style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
