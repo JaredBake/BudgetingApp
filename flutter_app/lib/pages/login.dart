@@ -163,6 +163,9 @@ class _LoginState extends State<Login> {
                     }
                     return null;
                   },
+                  onFieldSubmitted: (value) {
+                    _isLoading ? null : _login();
+                  },
                 ),
                 const SizedBox(height: 24),
                 if (_errorMessage != null)
