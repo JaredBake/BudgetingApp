@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_application/models/user.dart';
 
 import 'package:localstorage/localstorage.dart';
+import 'base_url.dart';
 
 class StatsService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
 
   static Future<Map<String, dynamic>?> getUserFundStats(int userId) async {
     final token = localStorage.getItem('token');

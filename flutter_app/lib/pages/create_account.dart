@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application/models/money.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/account_service.dart';
-import '../models/accountType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
