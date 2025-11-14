@@ -6,11 +6,12 @@ import '../api/account_service.dart';
 import '../models/accountType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/account_factory.dart';
-import 'package:flutter_application/models/accountType.dart';
+
 
 class CreateAccountPage extends StatefulWidget {
   final User user;
@@ -65,6 +66,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       );
 
       final account = await AccountService.createAccount(acc);
+
+      print(account);
 
       // Call callback to refresh the accounts list
       widget.onAccountCreated?.call();
@@ -346,6 +349,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: 0, // Accounts section
+        // settings: Settings(),
       ),
     );
   }

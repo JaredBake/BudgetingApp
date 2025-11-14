@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 import '../api/account_service.dart';
 import '../models/account_model.dart';
 import '../models/account.dart';
@@ -282,6 +283,7 @@ class _AccountsPageState extends State<AccountsPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: _selectedIndex,
+        // settings: Settings(),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../models/transaction.dart';
 import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 import '../models/account.dart';
 
@@ -61,12 +62,12 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
     );
   }
 
-  Widget _buildButtonRow(Widget child) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(children: [Expanded(child: child)]),
-    );
-  }
+  // Widget _buildButtonRow(Widget child) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //     child: Row(children: [Expanded(child: child)]),
+  //   );
+  // }
 
   String getAccountName() {
     Account? account = widget.user.getData().findAccount(
@@ -309,6 +310,7 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: 1, // Transactions section
+        // settings: Settings(),
       ),
     );
   }

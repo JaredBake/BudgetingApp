@@ -4,12 +4,18 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/welcome.dart';
 import 'pages/home.dart';
 import 'pages/accounts.dart';
 import 'pages/transactions.dart';
+
+import 'package:flutter_application/models/data.dart';
+import 'package:flutter_application/models/credentials.dart';
+
+import '../api/auth_service.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,16 +24,84 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<bool> userLoggedIn() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await initLocalStorage();
+
+    if (localStorage.getItem('token')!.isNotEmpty) {
+      print('User logged in already');
+      return true;
+    };
+    print ('User not logged in');
+    return false;
+  } 
+
+  Future<User?> _getInitialRoute() async {
+    if (await userLoggedIn()) {
+      print('Attempting to get user');
+      try {
+        final user = await AuthService.getUser();
+    
+        final credentials = Credentials(
+          userId: user['id'],
+          name: user['credentials']?['name'] ?? '',
+          userName: user['credentials']?['userName'] ?? '',
+          email: user['credentials']?['email'] ?? '',
+        );
+
+        User userObject = User(
+          createdAt: DateTime.parse(user['createdAt']),
+          credentials: credentials,
+          data: Data(funds: [], accounts: [])
+        );
+
+        print(userObject);
+
+        return userObject;    
+      } catch (e) {
+        print ('Error loading user: $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Budgeting App',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: WelcomePage(),
+        home: FutureBuilder<User?>(
+          future: _getInitialRoute(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator()
+                )
+              );
+            }
+
+            if (snapshot.hasError) {
+              print(snapshot.error);
+              print('Snapshot had error');
+              return WelcomePage();
+            }
+
+            if (snapshot.hasData && snapshot.data != null) {
+              print('Routing home');
+              return Home(user: snapshot.data!);
+            } else {
+              print('something else');
+              return WelcomePage();
+            }
+          }
+        ),
         routes: {
           '/home': (context) {
             final user = ModalRoute.of(context)?.settings.arguments as User;
