@@ -13,17 +13,19 @@ class Money {
   }
 
   Money addMoney(Money other) {
-    if (this.currency != other.currency) {
+    if (currency != other.currency) {
       throw Exception('Cannot add money with different currencies');
     }
     return Money(amount: this.amount + other.amount, currency: this.currency);
   }
 
-    Money spendMoney() {
-        return Money(amount: this.amount - 10, currency: this.currency);
+  Money spendMoney(Money other) {
+    if (currency != other.currency) {
+      throw Exception('Cannot spend money with different currencies');
     }
+    return Money(amount: this.amount - other.amount, currency: this.currency);
+  }
 
   @override
   String toString() => '$currency $amount';
-
 }

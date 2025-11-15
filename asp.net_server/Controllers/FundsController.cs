@@ -73,6 +73,8 @@ public class FundsController : ControllerBase
         return CreatedAtAction(nameof(GetFund), new { Id = fund.Id }, fund);
     }
 
+    
+
     [HttpDelete("User")]
     public async Task<IActionResult> PutFund(Fund fund)
     {
@@ -141,6 +143,13 @@ public class FundsController : ControllerBase
         if (User.IsInRole("Admin")) return true;
 
         return await BelongsToUser(fundId, GetCurrentUserId());
+    }
+
+    public bool IsUser(int userId)
+    {
+        if (User.IsInRole("Admin")) return true;
+
+        return GetCurrentUserId() == userId;
     }
 
     private int GetCurrentUserId()

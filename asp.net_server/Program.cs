@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 
 string allowCORs = "_AllowSpecificOrigins";
 
@@ -56,6 +57,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// builder.Services.AddAuthorization();
+
 builder.Services.AddCors(o => o.AddPolicy(
     allowCORs, builder =>
     {
@@ -69,15 +72,30 @@ builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 
-// Check for --seed argument to seed database at startup
-if (args.Contains("--seed"))
-{
-    using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
+{    
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+    try
     {
-        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-        Console.WriteLine("Seeding database...");
-        await seeder.SeedAsync();
-        Console.WriteLine("Database seeded successfully!");
+        if (await seeder.CanConnect())
+        {
+            var resetDb = Environment.GetEnvironmentVariable("RESET_DB_ON_STARTUP");
+
+            if (!string.IsNullOrEmpty(resetDb) && bool.Parse(resetDb))
+            {
+                await seeder.SeedAsync();
+            }
+        }
+
+        else {
+            await seeder.EnsureDbExists();
+        }
+
+    } catch (Exception ex)
+    {
+        Console.WriteLine($"Error during database initialization: {ex.Message}");
+        throw;
     }
 }
 

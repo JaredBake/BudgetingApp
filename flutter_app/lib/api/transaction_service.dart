@@ -28,17 +28,15 @@ class TransactionService {
       final transactions = transactionsData
           .map((data) => _parseTransaction(data as Map<String, dynamic>))
           .toList();
-      
+
       // Sort by date (newest first) - already sorted on backend but just to be sure
       transactions.sort((a, b) => b.date.compareTo(a.date));
-      
+
       return transactions;
     } else {
       throw Exception('Failed to load transactions');
     }
   }
-
-
 
   static Transaction _parseTransaction(Map<String, dynamic> data) {
     return Transaction(
@@ -138,7 +136,9 @@ class TransactionService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return _parseTransaction(data);
     } else {
-      throw Exception('Failed to create transaction: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to create transaction: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
@@ -160,7 +160,7 @@ class TransactionService {
     if (response.statusCode == 200) {
       final accountsData = jsonDecode(response.body) as List<dynamic>;
       List<Map<String, dynamic>> accounts = [];
-      
+
       for (var accountData in accountsData) {
         accounts.add({
           'id': accountData['id'],
@@ -169,7 +169,7 @@ class TransactionService {
           'balance': accountData['balance'],
         });
       }
-      
+
       return accounts;
     } else {
       throw Exception('Failed to load accounts');

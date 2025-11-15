@@ -37,7 +37,7 @@ class _AccountsPageState extends State<AccountsPage> {
       });
 
       final loadedAccounts = await AccountService.getUserAccounts();
-      
+
       setState(() {
         accounts = loadedAccounts;
         isLoading = false;
@@ -54,10 +54,8 @@ class _AccountsPageState extends State<AccountsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AccountDetailsPage(
-          account: account,
-          user: widget.user,
-        ),
+        builder: (context) =>
+            AccountDetailsPage(account: account, user: widget.user),
       ),
     );
   }
@@ -74,15 +72,13 @@ class _AccountsPageState extends State<AccountsPage> {
     );
   }
 
-
-
   Widget _buildAccountItem(AccountModel account) {
     final accountType = account.getAccountType();
     final balance = account.getBalance();
-    
+
     IconData icon;
     Color color;
-    
+
     switch (accountType) {
       case AccountType.checking:
         icon = Icons.account_balance;
@@ -100,8 +96,12 @@ class _AccountsPageState extends State<AccountsPage> {
         icon = Icons.trending_up;
         color = Colors.purple;
         break;
+      case AccountType.cash:
+        icon = Icons.money;
+        color = Colors.teal;
+        break;
     }
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
@@ -131,10 +131,7 @@ class _AccountsPageState extends State<AccountsPage> {
             ),
             Text(
               '${account.getTransactions().length} transactions',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
         ),
@@ -153,6 +150,8 @@ class _AccountsPageState extends State<AccountsPage> {
         return 'Credit Card';
       case AccountType.brokerage:
         return 'Brokerage Account';
+      case AccountType.cash:
+        return 'Cash Account';
     }
   }
 
@@ -189,83 +188,83 @@ class _AccountsPageState extends State<AccountsPage> {
               ],
             ),
           ),
-          
+
           // Content section
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading accounts',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              errorMessage!,
-                              style: TextStyle(color: Colors.grey[600]),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _loadAccounts,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      )
-                    : accounts == null || accounts!.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.account_balance_wallet_outlined,
-                                  size: 64,
-                                  color: Colors.grey[400],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No accounts found',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Create your first account to get started',
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton.icon(
-                                  onPressed: _navigateToCreateAccount,
-                                  icon: const Icon(Icons.add),
-                                  label: const Text('Create Account'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: _loadAccounts,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: accounts!.length,
-                              itemBuilder: (context, index) {
-                                return _buildAccountItem(accounts![index]);
-                              },
-                            ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading accounts',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadAccounts,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : accounts == null || accounts!.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No accounts found',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Create your first account to get started',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: _navigateToCreateAccount,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Create Account'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
                           ),
+                        ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadAccounts,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      itemCount: accounts!.length,
+                      itemBuilder: (context, index) {
+                        return _buildAccountItem(accounts![index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

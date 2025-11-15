@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/user.dart';
 import '../models/account_model.dart';
 import '../models/accountType.dart';
@@ -20,9 +21,6 @@ class AccountDetailsPage extends StatefulWidget {
 }
 
 class _AccountDetailsPageState extends State<AccountDetailsPage> {
-
-
-
   Widget _buildDetailRow(String label, String value, {bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -45,8 +43,10 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
               style: TextStyle(
                 fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
                 fontSize: highlight ? 18 : 16,
-                color: highlight 
-                    ? (widget.account.getBalance().getAmount() >= 0 ? Colors.green : Colors.red)
+                color: highlight
+                    ? (widget.account.getBalance().getAmount() >= 0
+                          ? Colors.green
+                          : Colors.red)
                     : Colors.black87,
               ),
             ),
@@ -66,6 +66,8 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
         return 'Credit Card';
       case AccountType.brokerage:
         return 'Brokerage Account';
+      case AccountType.cash:
+        return 'Cash Account';
     }
   }
 
@@ -79,6 +81,8 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
         return Icons.credit_card;
       case AccountType.brokerage:
         return Icons.trending_up;
+      case AccountType.cash:
+        return Icons.money;
     }
   }
 
@@ -92,6 +96,8 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
         return Colors.orange;
       case AccountType.brokerage:
         return Colors.purple;
+      case AccountType.cash:
+        return Colors.teal;
     }
   }
 
@@ -127,7 +133,10 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   gradient: LinearGradient(
-                    colors: [accountColor.withOpacity(0.1), accountColor.withOpacity(0.05)],
+                    colors: [
+                      accountColor.withOpacity(0.1),
+                      accountColor.withOpacity(0.05),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -137,11 +146,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: accountColor.withOpacity(0.2),
-                      child: Icon(
-                        accountIcon,
-                        size: 30,
-                        color: accountColor,
-                      ),
+                      child: Icon(accountIcon, size: 30, color: accountColor),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -149,12 +154,17 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: balance.getAmount() >= 0 ? Colors.green : Colors.red,
+                        color: balance.getAmount() >= 0
+                            ? Colors.green
+                            : Colors.red,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: accountColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -171,9 +181,9 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Account details card
             Card(
               elevation: 2,
@@ -191,17 +201,23 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                     const SizedBox(height: 16),
                     _buildDetailRow('Account ID', account.getId().toString()),
                     _buildDetailRow('Account Name', account.getName()),
-                    _buildDetailRow('Account Type', _getAccountTypeDisplayName(accountType)),
+                    _buildDetailRow(
+                      'Account Type',
+                      _getAccountTypeDisplayName(accountType),
+                    ),
                     _buildDetailRow('Current Balance', balance.toString()),
                     _buildDetailRow('Currency', balance.getCurrency()),
-                    _buildDetailRow('Transactions', '${account.getTransactions().length}'),
+                    _buildDetailRow(
+                      'Transactions',
+                      '${account.getTransactions().length}',
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Recent transactions card (if any)
             if (account.getTransactions().isNotEmpty)
               Card(
@@ -216,9 +232,8 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                         children: [
                           Text(
                             'Recent Transactions',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           TextButton(
                             onPressed: () {
@@ -240,11 +255,11 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: Icon(
-                              transaction.isIncome() 
-                                  ? Icons.arrow_downward 
+                              transaction.isIncome()
+                                  ? Icons.arrow_downward
                                   : Icons.arrow_upward,
-                              color: transaction.isIncome() 
-                                  ? Colors.green 
+                              color: transaction.isIncome()
+                                  ? Colors.green
                                   : Colors.red,
                             ),
                             title: Text(transaction.getDescription()),
@@ -254,8 +269,8 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                             trailing: Text(
                               '${transaction.isIncome() ? '+' : '-'}${transaction.getMoney().toString()}',
                               style: TextStyle(
-                                color: transaction.isIncome() 
-                                    ? Colors.green 
+                                color: transaction.isIncome()
+                                    ? Colors.green
                                     : Colors.red,
                                 fontWeight: FontWeight.w500,
                               ),
