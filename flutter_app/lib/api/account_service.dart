@@ -6,9 +6,10 @@ import '../models/accountType.dart';
 import '../models/money.dart';
 import '../models/account.dart';
 import '../models/account_factory.dart';
+import 'base_url.dart';
 
 class AccountService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
 
   static Future<List<Account>> getUserAccounts() async {
     final token = localStorage.getItem('token');

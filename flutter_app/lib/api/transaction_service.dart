@@ -4,9 +4,10 @@ import 'package:localstorage/localstorage.dart';
 import '../models/transaction.dart';
 import '../models/money.dart';
 import '../models/TransactionType.dart';
+import 'base_url.dart';
 
 class TransactionService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
 
   static Future<bool> deleteTransaction(int transactionId) async {
     final token = localStorage.getItem('token');
@@ -193,6 +194,51 @@ class TransactionService {
     } else {
       throw Exception(
         'Failed to create transaction: ${response.statusCode} ${response.body}',
+      );
+    }
+  }
+
+  static Future<Transaction> updateTransaction({
+    required Transaction transaction,
+  }) async {
+    final token = localStorage.getItem('token');
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final transactionData = {
+      'id': transaction.getId(),
+      'accountId': transaction.getAccountId(),
+      'date': transaction.getDate().toUtc().toIso8601String(),
+      'money': {
+        'amount': transaction.transactionType == TransactionType.expense
+            ? -transaction.getMoney().getAmount()
+            : transaction.getMoney().getAmount(),
+        'currency': transaction.getMoney().getCurrency(),
+      },
+      'description': transaction.getDescription(),
+      'transactionType': transaction
+          .getTransactionType()
+          .toString()
+          .split('.')
+          .last,
+    };
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/Transactions'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(transactionData),
+    );
+
+    if (response.statusCode == 204) {
+      // PUT returns NoContent, so we return the updated transaction
+      return transaction;
+    } else {
+      throw Exception(
+        'Failed to update transaction: ${response.statusCode} ${response.body}',
       );
     }
   }
