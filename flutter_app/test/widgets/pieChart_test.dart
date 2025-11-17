@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/pages/widgets/pieChart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void main() {
+ void main() {
 
   testWidgets('BudgetPieChart builds and contains a PieChart', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
@@ -30,4 +30,4 @@ void main() {
     );
     expect(sizedBoxFinder, findsOneWidget);
   });
-}
+ }

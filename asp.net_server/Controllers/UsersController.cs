@@ -34,8 +34,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .ToListAsync();
 
         return users;     
@@ -50,8 +49,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .FirstOrDefaultAsync(u => u.Id == Id);
 
         if (user == null)
@@ -176,10 +174,8 @@ public class UsersController : ControllerBase
         }
 
         var userAccounts = _context.UserAccounts.Where(e => e.UserId == user.Id);
-        var userFunds = _context.UserFunds.Where(e => e.UserId == user.Id);
 
         _context.UserAccounts.RemoveRange(userAccounts);
-        _context.UserFunds.RemoveRange(userFunds);
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();

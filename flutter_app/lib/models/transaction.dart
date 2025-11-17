@@ -3,25 +3,37 @@ import 'category.dart';
 import 'TransactionType.dart';
 
 class Transaction {
-  final int id;
-  final int accountId;
-  final DateTime date;
-  final Money money;
-  final String description;
-  final TransactionType transactionType;
+    final int id;
+    final int accountId;
+    final DateTime date;
+    final Money money;
+    final String description;
+    final TransactionType transactionType;
+    final int? categoryId;
+    final int? fundId;
 
-  Transaction({
-    required this.id,
-    required this.accountId,
-    required this.date,
-    required this.money,
-    required this.description,
-    required this.transactionType,
-  });
+    Transaction({
+        required this.id,
+        required this.accountId, 
+        required this.date, 
+        required this.money, 
+        required this.description, 
+        required this.transactionType,
+        this.categoryId,
+        this.fundId,
+        });
 
-  bool isIncome() {
-    if (this.transactionType == TransactionType.income) {
-      return true;
+    bool isIncome() {
+        if (transactionType == TransactionType.income) {
+            return true;
+        }
+        return false;
+    }
+    bool isExpense() {
+        if (transactionType == TransactionType.expense) {
+            return true;
+        }
+        return false;
     }
     return false;
   }
@@ -53,12 +65,12 @@ class Transaction {
     /*  Returns the money object associated with the transaction
         *   Money is a class that holds both the amount and the currency
         */
-    return this.money;
-  }
+        return money;
+    }
 
-  TransactionType getTransactionType() {
-    return this.transactionType;
-  }
+    TransactionType getTransactionType() {
+        return transactionType;
+    }
 
   @override
   String toString() {
@@ -68,7 +80,9 @@ class Transaction {
             date: $date,
             money: ${money.toString()},
             description: $description,
-            transactionType: $transactionType
+            transactionType: $transactionType,
+            categoryId: $categoryId,
+            fundId: $fundId
         }''';
   }
 }

@@ -8,11 +8,11 @@ class Data {
   Data({required this.funds, required this.accounts});
 
   List<Account> getAccounts() {
-    return this.accounts;
+    return accounts;
   }
 
   List<Fund> getFunds() {
-    return this.funds;
+    return funds;
   }
 
   bool addAccount(Account account) {

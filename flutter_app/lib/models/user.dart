@@ -18,7 +18,7 @@ class User {
   });
 
   Credentials getCredentials() {
-    return this.credentials;
+    return credentials;
   }
 
   Data getData() {

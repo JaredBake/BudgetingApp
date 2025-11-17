@@ -89,23 +89,18 @@ class _AccountsPageState extends State<AccountsPage> {
       case AccountType.checking:
         icon = Icons.account_balance;
         color = Colors.blue;
-        break;
       case AccountType.savings:
         icon = Icons.savings;
         color = Colors.green;
-        break;
       case AccountType.creditCard:
         icon = Icons.credit_card;
         color = Colors.orange;
-        break;
       case AccountType.brokerage:
         icon = Icons.trending_up;
         color = Colors.purple;
-        break;
       case AccountType.cash:
         icon = Icons.credit_card;
         color = Colors.teal;
-        break;
     }
 
     return Card(

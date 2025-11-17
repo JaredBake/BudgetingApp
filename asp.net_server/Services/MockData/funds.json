@@ -6,7 +6,8 @@
     },
     "Current": {
       "Amount": 15000.00
-    }
+    },
+    "UserId": 3
   },
   {
     "Description": "College Tuition",
@@ -15,7 +16,8 @@
     },
     "Current": {
       "Amount": 5000.00
-    }
+    },
+    "UserId": 1
   },
   {
     "Description": "Travel the World",
@@ -24,7 +26,8 @@
     },
     "Current": {
       "Amount": 9200.00
-    }
+    },
+    "UserId": 2
   },
   {
     "Description": "Emergency Savings",
@@ -33,7 +36,8 @@
     },
     "Current": {
       "Amount": 3000.00
-    }
+    },
+    "UserId": 1
   },
   {
     "Description": "New Car Fund",
@@ -42,7 +46,8 @@
     },
     "Current": {
       "Amount": 7000.00
-    }
+    },
+    "UserId": 5
   },
   {
     "Description": "Wedding Fund",
@@ -51,7 +56,8 @@
     },
     "Current": {
       "Amount": 2500.00
-    }
+    },
+    "UserId": 2
   },
   {
     "Description": "Startup Capital",
@@ -60,7 +66,8 @@
     },
     "Current": {
       "Amount": 12000.00
-    }
+    },
+    "UserId": 3
   },
   {
     "Description": "Charity Giving",
@@ -69,7 +76,8 @@
     },
     "Current": {
       "Amount": 1000.00
-    }
+    },
+    "UserId": 4
   },
   {
     "Description": "Tech Gadgets",
@@ -78,7 +86,8 @@
     },
     "Current": {
       "Amount": 800.00
-    }
+    },
+    "UserId": 1
   },
   {
     "Description": "Adventure Gear",
@@ -87,7 +96,8 @@
     },
     "Current": {
       "Amount": 1200.00
-    }
+    },
+    "UserId": 5
   },
   {
     "Description": "Pet Care Savings",
@@ -96,7 +106,8 @@
     },
     "Current": {
       "Amount": 750.00
-    }
+    },
+    "UserId": 4
   },
   {
     "Description": "Garden Renovation",
@@ -105,6 +116,7 @@
     },
     "Current": {
       "Amount": 4200.00
-    }
+    },
+    "UserId": 2
   }
 ]

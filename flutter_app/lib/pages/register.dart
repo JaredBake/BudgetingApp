@@ -10,7 +10,7 @@ import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/data.dart';
 
 class Register extends StatefulWidget {
-  const Register({Key? key}) : super(key: key);
+  const Register({super.key});
 
   @override
   State<Register> createState() => _RegisterState();
