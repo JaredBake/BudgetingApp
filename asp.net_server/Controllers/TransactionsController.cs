@@ -122,7 +122,6 @@ public class TransactionsController : ControllerBase
     }    [HttpPut()]
     public async Task<IActionResult> PutTransaction(Transaction transaction)
     {
-        // Validate positive amount
         if (transaction.Money.Amount <= 0)
         {
             return BadRequest("Transaction amount must be greater than zero.");
@@ -144,8 +143,8 @@ public class TransactionsController : ControllerBase
 
         try
         {
-            // Load the existing transaction to compare fund assignments
-            var existingTransaction = await _context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == transaction.Id);
+            // Fetch the existing transaction from the database (this will be tracked)
+            var existingTransaction = await _context.Transactions.FindAsync(transaction.Id);
             
             if (existingTransaction == null)
             {
@@ -153,23 +152,35 @@ public class TransactionsController : ControllerBase
                 return NotFound($"No transaction found to update with Id: {transaction.Id}");
             }
 
+            // Store old values before updating for fund balance reversal
+            var oldFundId = existingTransaction.FundId;
+            var oldAmount = existingTransaction.Money.Amount;
+            var oldType = existingTransaction.Type;
+
             // Revert the old fund balance if it had a fund assigned
-            if (existingTransaction.FundId != null)
+            if (oldFundId != null)
             {
-                var oldFund = await _context.Funds.FindAsync(existingTransaction.FundId);
+                var oldFund = await _context.Funds.FindAsync(oldFundId);
                 if (oldFund != null)
                 {
                     // Reverse the previous transaction effect
-                    if (existingTransaction.Type == TransactionType.Income)
+                    if (oldType == TransactionType.Income)
                     {
-                        oldFund.Current.Amount -= existingTransaction.Money.Amount;
+                        oldFund.Current.Amount -= oldAmount;
                     }
                     else // Expense
                     {
-                        oldFund.Current.Amount += existingTransaction.Money.Amount;
+                        oldFund.Current.Amount += oldAmount;
                     }
                 }
             }
+
+            // Update the existing transaction's properties
+            existingTransaction.AccountId = transaction.AccountId;
+            existingTransaction.Date = transaction.Date;
+            existingTransaction.Money = transaction.Money;
+            existingTransaction.FundId = transaction.FundId;
+            existingTransaction.Type = transaction.Type;
 
             // Apply the new fund balance if a fund is assigned
             if (transaction.FundId != null)
@@ -192,7 +203,6 @@ public class TransactionsController : ControllerBase
                 }
             }
 
-            _context.Entry(transaction).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             await dbTransaction.CommitAsync();

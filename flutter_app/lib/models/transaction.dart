@@ -35,30 +35,22 @@ class Transaction {
         }
         return false;
     }
-    return false;
-  }
 
-  bool isExpense() {
-    if (this.transactionType == TransactionType.expense) {
-      return true;
-    }
-    return false;
-  }
 
   int getId() {
-    return this.id;
+    return id;
   }
 
   int getAccountId() {
-    return this.accountId;
+    return accountId;
   }
 
   String getDescription() {
-    return this.description;
+    return description;
   }
 
   DateTime getDate() {
-    return this.date;
+    return date;
   }
 
   Money getMoney() {
