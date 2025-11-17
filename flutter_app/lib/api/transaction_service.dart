@@ -77,7 +77,7 @@ class TransactionService {
         amount: (data['money']?['amount'] as num?)?.toDouble() ?? 0.0,
         currency: data['money']?['currency'] ?? 'USD',
       ),
-      description: 'Transaction #${data['id'] ?? 0}', // Fallback since backend doesn't have description
+      description: data['description'] ?? 'Transaction #${data['id'] ?? 0}',
       transactionType: _parseTransactionType(data['type']),
       categoryId: data['categoryId'],
       fundId: data['fundId'],
@@ -177,17 +177,13 @@ class TransactionService {
       'accountId': transaction.getAccountId(),
       'date': transaction.getDate().toUtc().toIso8601String(),
       'money': {
-        'amount': transaction.transactionType == TransactionType.expense
-            ? -transaction.getMoney().getAmount()
-            : transaction.getMoney().getAmount(),
+        'amount': transaction.getMoney().getAmount(),
         'currency': transaction.getMoney().getCurrency(),
       },
+      'type': transaction.transactionType == TransactionType.income ? 1 : 0,
       'description': transaction.getDescription(),
-      'transactionType': transaction
-          .getTransactionType()
-          .toString()
-          .split('.')
-          .last,
+      if (transaction.categoryId != null) 'categoryId': transaction.categoryId,
+      if (transaction.fundId != null) 'fundId': transaction.fundId,
     };
     final response = await http.post(
       Uri.parse('$baseUrl/api/Transactions'),
@@ -223,17 +219,13 @@ class TransactionService {
       'accountId': transaction.getAccountId(),
       'date': transaction.getDate().toUtc().toIso8601String(),
       'money': {
-        'amount': transaction.transactionType == TransactionType.expense
-            ? -transaction.getMoney().getAmount()
-            : transaction.getMoney().getAmount(),
+        'amount': transaction.getMoney().getAmount(),
         'currency': transaction.getMoney().getCurrency(),
       },
+      'type': transaction.transactionType == TransactionType.income ? 1 : 0,
       'description': transaction.getDescription(),
-      'transactionType': transaction
-          .getTransactionType()
-          .toString()
-          .split('.')
-          .last,
+      if (transaction.categoryId != null) 'categoryId': transaction.categoryId,
+      if (transaction.fundId != null) 'fundId': transaction.fundId,
     };
     final response = await http.put(
       Uri.parse('$baseUrl/api/Transactions'),

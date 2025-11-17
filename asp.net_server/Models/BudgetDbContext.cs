@@ -158,6 +158,7 @@ namespace App.Models
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public required Money Money { get; set; }
         public required TransactionType Type { get; set; }
+        public string? Description { get; set; }
         public int? CategoryId { get; set; }
         public int? FundId { get; set; }
 

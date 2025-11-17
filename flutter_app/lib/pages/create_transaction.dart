@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/transaction_service.dart';
+import '../api/category_service.dart';
+import '../api/fund_service.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
@@ -31,7 +33,11 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
   TransactionType _selectedTransactionType = TransactionType.expense;
 
   List<Map<String, dynamic>> _accounts = [];
+  List<Map<String, dynamic>> _categories = [];
+  List<Map<String, dynamic>> _funds = [];
   int? _selectedAccountId;
+  int? _selectedCategoryId;
+  int? _selectedFundId;
   bool _isLoading = false;
   bool _isLoadingAccounts = true;
   String? _errorMessage;
@@ -40,6 +46,8 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
   void initState() {
     super.initState();
     _loadAccounts();
+    _loadCategories();
+    _loadFunds();
   }
 
   @override
@@ -73,6 +81,30 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     }
   }
 
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await CategoryService.getUserCategories();
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      // Silently fail for categories - they're optional
+      print('Error loading categories: $e');
+    }
+  }
+
+  Future<void> _loadFunds() async {
+    try {
+      final funds = await FundService.getUserFunds();
+      setState(() {
+        _funds = funds;
+      });
+    } catch (e) {
+      // Silently fail for funds - they're optional
+      print('Error loading funds: $e');
+    }
+  }
+
   Future<void> _createTransaction() async {
     if (!_formKey.currentState!.validate() || _selectedAccountId == null) {
       return;
@@ -86,15 +118,17 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
 
       final amount = double.parse(_amountController.text);
 
-      Money money = new Money(amount: amount, currency: 'USD');
+      Money money = Money(amount: amount, currency: 'USD');
 
-      Transaction transaction = new Transaction(
+      Transaction transaction = Transaction(
         id: 0,
         accountId: _selectedAccountId!,
         date: DateTime.now(),
         money: money,
         description: _descriptionController.text.trim(),
         transactionType: _selectedTransactionType,
+        categoryId: _selectedCategoryId,
+        fundId: _selectedFundId,
       );
 
       final createdTransaction = await TransactionService.createTransaction(
@@ -130,6 +164,62 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     final balance = account['balance']?['amount']?.toString() ?? '0';
     final currency = account['balance']?['currency'] ?? 'USD';
     return '$name ($currency $balance)';
+  }
+
+  Future<void> _showCreateCategoryDialog() async {
+    final categoryController = TextEditingController();
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create New Category'),
+        content: TextField(
+          controller: categoryController,
+          decoration: const InputDecoration(
+            labelText: 'Category Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, categoryController.text),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      try {
+        final newCategory = await CategoryService.createCategory(name: result);
+        await _loadCategories();
+        setState(() {
+          _selectedCategoryId = newCategory['id'];
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Category created successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create category: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -191,7 +281,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
-                              value: _selectedAccountId,
+                              initialValue: _selectedAccountId,
                               decoration: const InputDecoration(
                                 labelText: 'Account',
                                 border: OutlineInputBorder(),
@@ -273,7 +363,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
 
                             // Dropdown for Transaction Type
                             DropdownButtonFormField<TransactionType>(
-                              value: _selectedTransactionType,
+                              initialValue: _selectedTransactionType,
                               decoration: const InputDecoration(
                                 labelText: 'Transaction Type',
                                 border: OutlineInputBorder(),
@@ -291,6 +381,77 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                                 if (value == null) return;
                                 setState(() {
                                   _selectedTransactionType = value;
+                                });
+                              },
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Category Selection
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<int?>(
+                                    initialValue: _selectedCategoryId,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Category (Optional)',
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.category),
+                                    ),
+                                    items: [
+                                      const DropdownMenuItem<int?>(
+                                        value: null,
+                                        child: Text('No Category'),
+                                      ),
+                                      ..._categories.map((category) {
+                                        return DropdownMenuItem<int?>(
+                                          value: category['id'],
+                                          child: Text(category['name'] ?? 'Category ${category['id']}'),
+                                        );
+                                      }),
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedCategoryId = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  color: Colors.green,
+                                  onPressed: _showCreateCategoryDialog,
+                                  tooltip: 'Create New Category',
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Fund Selection
+                            DropdownButtonFormField<int?>(
+                              initialValue: _selectedFundId,
+                              decoration: const InputDecoration(
+                                labelText: 'Fund (Optional)',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.savings),
+                              ),
+                              items: [
+                                const DropdownMenuItem<int?>(
+                                  value: null,
+                                  child: Text('No Fund'),
+                                ),
+                                ..._funds.map((fund) {
+                                  return DropdownMenuItem<int?>(
+                                    value: fund['id'],
+                                    child: Text(fund['description'] ?? 'Fund ${fund['id']}'),
+                                  );
+                                }),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedFundId = value;
                                 });
                               },
                             ),
