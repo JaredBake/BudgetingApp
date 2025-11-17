@@ -8,7 +8,9 @@ import 'package:flutter_test/flutter_test.dart';
   testWidgets('BudgetPieChart builds and contains a PieChart', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
       home: Scaffold(
-        body: BudgetPieChart(),
+        body: BudgetPieChart(
+          slices: [],
+        ),
       ),
     ));
 
