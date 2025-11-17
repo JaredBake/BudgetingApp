@@ -4,6 +4,7 @@ import 'package:flutter_application/models/money.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/account_service.dart';
 import 'widgets/topNavBar.dart';
+import 'package:flutter_application/models/accountType.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
