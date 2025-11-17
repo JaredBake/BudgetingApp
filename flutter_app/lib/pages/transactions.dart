@@ -10,6 +10,7 @@ import 'transaction_details.dart';
 import 'create_transaction.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 class TransactionsPage extends StatefulWidget {
   final User user;
@@ -220,6 +221,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: _selectedIndex,
+        // settings: Settings(),
       ),
     );
   }

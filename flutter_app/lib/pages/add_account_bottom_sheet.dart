@@ -59,6 +59,8 @@ class _AddAccountBottomSheetState extends State<AddAccountBottomSheet> {
           'transactions': [],
         };
 
+        print(accountData);
+
         // TODO: Call endpoint to create the account
 
         setState(() {
@@ -168,7 +170,7 @@ class _AddAccountBottomSheetState extends State<AddAccountBottomSheet> {
 
                 // Account Type Dropdown
                 DropdownButtonFormField<AccountType>(
-                  value: _selectedAccountType,
+                  initialValue: _selectedAccountType,
                   style: const TextStyle(color: Colors.white),
                   dropdownColor: Colors.grey.shade800,
                   decoration: InputDecoration(
@@ -214,7 +216,7 @@ class _AddAccountBottomSheetState extends State<AddAccountBottomSheet> {
                     Expanded(
                       flex: 2,
                       child: DropdownButtonFormField<String>(
-                        value: _selectedCurrency,
+                        initialValue: _selectedCurrency,
                         style: const TextStyle(color: Colors.white),
                         dropdownColor: Colors.grey.shade800,
                         decoration: InputDecoration(

@@ -5,16 +5,12 @@ import 'accountType.dart';
 
 class Checking extends Account {
   Checking({
-    required int accountId,
-    required String name,
-    required Money balance,
-    required List<Transaction> transactions,
+    required super.accountId,
+    required super.name,
+    required super.balance,
+    required super.transactions,
   }) : super(
-         accountId: accountId,
-         name: name,
          accountType: AccountType.checking,
-         balance: balance,
-         transactions: transactions,
        );
 
   @override

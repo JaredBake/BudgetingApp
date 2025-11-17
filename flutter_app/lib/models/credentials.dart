@@ -16,18 +16,18 @@ class Credentials {
   });
 
   int getUserId() {
-    return this.userId;
+    return userId;
   }
 
   String getName() {
-    return this.name;
+    return name;
   }
 
   String getUserName() {
-    return this.userName;
+    return userName;
   }
 
   String getEmail() {
-    return this.email;
+    return email;
   }
 }

@@ -34,8 +34,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .ToListAsync();
 
         return users;     
@@ -50,8 +49,7 @@ public class UsersController : ControllerBase
             .Include(u => u.UserAccounts)
                 .ThenInclude(ua => ua.Account)
                     .ThenInclude(a => a!.Transactions)
-            .Include(u => u.UserFunds)
-                .ThenInclude(uf => uf.Fund)
+            .Include(u => u.Funds)
             .FirstOrDefaultAsync(u => u.Id == Id);
 
         if (user == null)
@@ -84,7 +82,45 @@ public class UsersController : ControllerBase
 
         return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
     }
-    
+
+    public struct PasswordBodyObject { public int Id { get; set; } public String password { get; set; } };
+    [HttpPut("Password")]
+    public async Task<IActionResult> PutPassword([FromBody] PasswordBodyObject req)
+    {
+        if (!AuthorizeUser(req.Id)) return Forbid();
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == req.Id);
+
+        if (user == null)
+        {
+            return BadRequest("User does not exist with that Id!");
+        }
+
+        if (req.password == null)
+        {
+            throw new NullReferenceException("Request password cannot be null!");
+        }
+
+        user.Credentials.Password = AuthController.HashPassword(req.password);
+
+        _context.Entry(user).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!UserExists(req.Id))
+                return NotFound();
+
+            else
+                throw;
+        }
+
+        return CreatedAtAction(nameof(GetUser), new { user.Id }, user);
+    }
 
     [HttpPut("{Id}")]
     public async Task<IActionResult> PutUser(int Id, Credentials creds)
@@ -100,7 +136,12 @@ public class UsersController : ControllerBase
             return BadRequest("User does not exist with that Id!");
         }
 
-        user.Credentials = creds; 
+        if (creds.Password != null)
+        {
+            creds.Password = AuthController.HashPassword(creds.Password);
+        }
+
+        user.Credentials = creds;
 
         _context.Entry(user).State = EntityState.Modified;
 
@@ -133,10 +174,8 @@ public class UsersController : ControllerBase
         }
 
         var userAccounts = _context.UserAccounts.Where(e => e.UserId == user.Id);
-        var userFunds = _context.UserFunds.Where(e => e.UserId == user.Id);
 
         _context.UserAccounts.RemoveRange(userAccounts);
-        _context.UserFunds.RemoveRange(userFunds);
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();

@@ -17,5 +17,7 @@ flutter_app/macos/
 
 flutter_app/.flutter-plugins-dependencies
 
+flutter_app/pubspec.lock
+
 *.txt
 TODO.md

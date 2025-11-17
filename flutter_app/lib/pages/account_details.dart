@@ -11,6 +11,7 @@ import '../models/TransactionType.dart';
 
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import '../pages/widgets/settings_widget.dart';
 import '../api/account_service.dart';
 
 import 'accounts.dart';

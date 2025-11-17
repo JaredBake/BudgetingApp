@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
 import '../api/account_service.dart';
 import '../models/account_model.dart';
 import '../models/account.dart';
@@ -88,23 +89,18 @@ class _AccountsPageState extends State<AccountsPage> {
       case AccountType.checking:
         icon = Icons.account_balance;
         color = Colors.blue;
-        break;
       case AccountType.savings:
         icon = Icons.savings;
         color = Colors.green;
-        break;
       case AccountType.creditCard:
         icon = Icons.credit_card;
         color = Colors.orange;
-        break;
       case AccountType.brokerage:
         icon = Icons.trending_up;
         color = Colors.purple;
-        break;
       case AccountType.cash:
         icon = Icons.credit_card;
         color = Colors.teal;
-        break;
     }
 
     return Card(
@@ -282,6 +278,7 @@ class _AccountsPageState extends State<AccountsPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: _selectedIndex,
+        // settings: Settings(),
       ),
     );
   }

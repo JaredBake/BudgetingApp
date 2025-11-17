@@ -13,10 +13,9 @@ namespace App.Models
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Fund> Funds { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Category> Categories { get; set; }
         
         public DbSet<UserAccount> UserAccounts { get; set; }
-
-        public DbSet<UserFund> UserFunds { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,19 +60,11 @@ namespace App.Models
                 .WithMany(a => a.UserAccounts)
                 .HasForeignKey(ua => ua.AccountId);
 
-            // User Fund Account Juncation Table Relationships
-            modelBuilder.Entity<UserFund>()
-                .HasKey(uf => new { uf.UserId, uf.FundId });
-
-            modelBuilder.Entity<UserFund>()
-                .HasOne(uf => uf.User)
-                .WithMany(u => u.UserFunds)
-                .HasForeignKey(uf => uf.UserId);
-
-            modelBuilder.Entity<UserFund>()
-                .HasOne(uf => uf.Fund)
-                .WithMany(f => f.UserFunds)
-                .HasForeignKey(uf => uf.FundId);
+            // Fund to User relationship
+            modelBuilder.Entity<Fund>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Funds)
+                .HasForeignKey(f => f.UserId);
 
             modelBuilder.Entity<Account>()
                 .HasMany(a => a.Transactions)
@@ -87,11 +78,8 @@ namespace App.Models
             modelBuilder.Entity<UserAccount>()
                 .HasIndex(ua => ua.AccountId);
 
-            modelBuilder.Entity<UserFund>()
-                .HasIndex(uf => uf.UserId);
-            
-            modelBuilder.Entity<UserFund>()
-                .HasIndex(uf => uf.FundId);
+            modelBuilder.Entity<Fund>()
+                .HasIndex(f => f.UserId);
 
         }       
     }
@@ -109,18 +97,6 @@ namespace App.Models
         
     }
 
-    public class UserFund
-    {
-        public required int UserId { get; set; }
-        public required int FundId { get; set; }
-
-        [JsonIgnore]
-        public virtual User? User { get; set; } = null!;
-
-        [JsonIgnore]
-        public virtual Fund? Fund { get; set; } = null!;        
-    }
-
     public class Money
     {
         public required decimal Amount { get; set; }
@@ -130,6 +106,11 @@ namespace App.Models
     public enum AccountType
     {
         Checking, Saving, CreditCard, Brokerage
+    }
+
+    public enum TransactionType
+    {
+        Expense, Income
     }
 
     public class Account
@@ -150,9 +131,24 @@ namespace App.Models
         public string? Description { get; set; }
         public required Money GoalAmount { get; set; }
         public required Money Current { get; set; }
+        public int UserId { get; set; }
 
-        public virtual ICollection<UserFund> UserFunds { get; set; } = new List<UserFund>();
+        [JsonIgnore]
+        public virtual User? User { get; set; } = null!;
+        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
         
+    }
+
+    public class Category
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public required int UserId { get; set; }
+
+        [JsonIgnore]
+        public virtual User? User { get; set; } = null!;
+
+        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 
     public class Transaction
@@ -161,9 +157,18 @@ namespace App.Models
         public required int AccountId { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public required Money Money { get; set; }
+        public required TransactionType Type { get; set; }
+        public int? CategoryId { get; set; }
+        public int? FundId { get; set; }
 
         [JsonIgnore]
         public virtual Account? Account { get; set; } = null!;
+
+        [JsonIgnore]
+        public virtual Category? Category { get; set; } = null!;
+
+        [JsonIgnore]
+        public virtual Fund? Fund { get; set; } = null!;
 
     }
     
@@ -194,13 +199,10 @@ namespace App.Models
         public required Credentials Credentials { get; set; }
 
         public virtual ICollection<UserAccount> UserAccounts { get; set; } = new List<UserAccount>();
-        public virtual ICollection<UserFund> UserFunds { get; set; } = new List<UserFund>();
+        public virtual ICollection<Fund> Funds { get; set; } = new List<Fund>();
 
         [NotMapped]
         public IEnumerable<Account> Accounts => UserAccounts.Select(ua => ua.Account!);
-
-        [NotMapped]
-        public IEnumerable<Fund> Funds => UserFunds.Select(uf => uf.Fund!);
 
     }
 }

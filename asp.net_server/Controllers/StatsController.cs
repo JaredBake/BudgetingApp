@@ -37,11 +37,10 @@ public class StatsController : ControllerBase
 
                 TotalTransactions = await _db.Transactions.CountAsync(),
                 TotalUserAccountLinks = await _db.UserAccounts.CountAsync(),
-                TotalUserFundLinks = await _db.UserFunds.CountAsync(),
             };
 
             stats.AverageAccountsPerUser = stats.TotalUsers > 0 ? Math.Round((double)stats.TotalUserAccountLinks / stats.TotalUsers, 2) : 0;
-            stats.AverageFundsPerUser = stats.TotalUsers > 0 ? Math.Round((double)stats.TotalUserFundLinks / stats.TotalUsers, 2) : 0;
+            stats.AverageFundsPerUser = stats.TotalUsers > 0 ? Math.Round((double)stats.TotalFunds / stats.TotalUsers, 2) : 0;
             stats.AverageTransactionsPerAccount = stats.TotalAccounts > 0 ? Math.Round((double)stats.TotalTransactions / stats.TotalAccounts, 2) : 0;
 
             
@@ -118,21 +117,16 @@ public class StatsController : ControllerBase
         if (!userExists)
             return NotFound($"User with ID {userId} not found");
 
-        var fundCount = await _db.UserFunds
-            .Where(uf => uf.UserId == userId)
+        var fundCount = await _db.Funds
+            .Where(f => f.UserId == userId)
             .CountAsync();
 
-        var fundIds = await _db.UserFunds
-            .Where(uf => uf.UserId == userId)
-            .Select(uf => uf.FundId)
-            .ToListAsync();
-
         var totalGoals = await _db.Funds
-            .Where(f => fundIds.Contains(f.Id))
+            .Where(f => f.UserId == userId)
             .SumAsync(f => f.GoalAmount.Amount);
 
         var totalCurrent = await _db.Funds
-            .Where(f => fundIds.Contains(f.Id))
+            .Where(f => f.UserId == userId)
             .SumAsync(f => f.Current.Amount);
 
         var progressPercentage = totalGoals > 0 ? (totalCurrent / totalGoals) * 100 : 0;
@@ -255,7 +249,7 @@ public class StatsController : ControllerBase
                 Name = u.Credentials.Name,
                 Email = u.Credentials.Email,
                 AccountCount = u.UserAccounts.Count,
-                FundCount = u.UserFunds.Count
+                FundCount = u.Funds.Count
             })
             .OrderByDescending(u => u.AccountCount)
             .Take(limit)
@@ -292,7 +286,6 @@ public class OverviewStatistics
     public int TotalFunds { get; set; }
     public int TotalTransactions { get; set; }
     public int TotalUserAccountLinks { get; set; }
-    public int TotalUserFundLinks { get; set; }
     public double AverageAccountsPerUser { get; set; }
     public double AverageFundsPerUser { get; set; }
     public double AverageTransactionsPerAccount { get; set; }

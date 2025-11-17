@@ -5,7 +5,7 @@ import 'register.dart';
 import 'login.dart';
 
 class WelcomePage extends StatelessWidget {
-  const WelcomePage({Key? key}) : super(key: key);
+  const WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +16,8 @@ class WelcomePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+
             children: [
               Container(
                 height: 300,
@@ -33,7 +35,10 @@ class WelcomePage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(
+                height: 40, 
+                width: double.infinity // Lol this centers the whole column because it has infinite width
+              ), 
 
               // Welcome text
               const Text(
@@ -67,7 +72,7 @@ class WelcomePage extends StatelessWidget {
 
               // Login button
               SizedBox(
-                width: double.infinity,
+                width: 400.0,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
@@ -99,7 +104,7 @@ class WelcomePage extends StatelessWidget {
 
               // Register button
               SizedBox(
-                width: double.infinity,
+                width: 400.0,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
