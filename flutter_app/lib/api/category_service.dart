@@ -67,11 +67,22 @@ class CategoryService {
         'name': data['name'],
         'userId': data['userId'],
       };
-    } else if (response.statusCode == 400) {
-      // Handle duplicate category error
-      throw Exception('Category already exists');
     } else {
-      throw Exception('Failed to create category: ${response.statusCode} ${response.body}');
+      // Try to extract error message from response body
+      String errorMessage = 'Failed to create category';
+      try {
+        final errorData = jsonDecode(response.body);
+        if (errorData is Map && errorData.containsKey('title')) {
+          errorMessage = errorData['title'];
+        } else if (errorData is String) {
+          errorMessage = errorData;
+        } else {
+          errorMessage = response.body;
+        }
+      } catch (e) {
+        errorMessage = response.body.isNotEmpty ? response.body : 'Unknown error';
+      }
+      throw Exception(errorMessage);
     }
   }
 

@@ -65,7 +65,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost()]
-    public async Task<ActionResult<Category>> PostCategory(Category category)
+    public async Task<ActionResult<Category>> PostCategory([FromBody] Category category)
     {
         var userId = GetCurrentUserId();
         
