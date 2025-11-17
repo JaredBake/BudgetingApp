@@ -24,5 +24,5 @@ abstract class Account {
   bool removeTransaction(Transaction transaction);
   List<Transaction> getTransactions();
   Money getBalance();
-  int getAccountId() => this.accountId;
+  int getAccountId() => accountId;
 }

@@ -156,7 +156,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -202,7 +202,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       const SizedBox(height: 16),
 
                       DropdownButtonFormField<String>(
-                        value: 'USD', // Hardcode USD as the selected value
+                        initialValue: 'USD', // Hardcode USD as the selected value
                         decoration: const InputDecoration(
                           labelText: 'Currency',
                           border: OutlineInputBorder(),

@@ -5,16 +5,12 @@ import 'accountType.dart';
 
 class Brokerage extends Account {
   Brokerage({
-    required int accountId,
-    required String name,
-    required Money balance,
-    required List<Transaction> transactions,
+    required super.accountId,
+    required super.name,
+    required super.balance,
+    required super.transactions,
   }) : super(
-         accountId: accountId,
-         name: name,
          accountType: AccountType.brokerage,
-         balance: balance,
-         transactions: transactions,
        );
 
   @override

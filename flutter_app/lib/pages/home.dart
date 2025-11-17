@@ -13,7 +13,6 @@ import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/models/credentials.dart';
 import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
 import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
-import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/accountType.dart';
 
 class HomeOverview {
