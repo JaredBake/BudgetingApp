@@ -2,8 +2,6 @@ import 'money.dart';
 import 'category.dart';
 import 'TransactionType.dart';
 
-
-
 class Transaction {
     final int id;
     final int accountId;
@@ -37,17 +35,34 @@ class Transaction {
         }
         return false;
     }
+    return false;
+  }
 
-    String getDescription() {
-        return description;
+  bool isExpense() {
+    if (this.transactionType == TransactionType.expense) {
+      return true;
     }
+    return false;
+  }
 
-    DateTime getDate() {
-        return date;
-    }
+  int getId() {
+    return this.id;
+  }
 
-    Money getMoney() {
-        /*  Returns the money object associated with the transaction
+  int getAccountId() {
+    return this.accountId;
+  }
+
+  String getDescription() {
+    return this.description;
+  }
+
+  DateTime getDate() {
+    return this.date;
+  }
+
+  Money getMoney() {
+    /*  Returns the money object associated with the transaction
         *   Money is a class that holds both the amount and the currency
         */
         return money;
@@ -57,9 +72,9 @@ class Transaction {
         return transactionType;
     }
 
-    @override
-    String toString() {
-        return '''Transaction{
+  @override
+  String toString() {
+    return '''Transaction{
             id: $id,
             accountId: $accountId,
             date: $date,
@@ -69,5 +84,5 @@ class Transaction {
             categoryId: $categoryId,
             fundId: $fundId
         }''';
-    }
+  }
 }

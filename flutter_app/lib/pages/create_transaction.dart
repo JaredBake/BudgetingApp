@@ -7,6 +7,12 @@ import '../api/fund_service.dart';
 import '../models/TransactionType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
+
+import '../models/money.dart';
+import '../models/transaction.dart';
+import '../models/TransactionType.dart';
+import '../models/account.dart';
 
 class CreateTransactionPage extends StatefulWidget {
   final User user;
@@ -26,7 +32,8 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+  TransactionType _selectedTransactionType = TransactionType.expense;
+
   List<Map<String, dynamic>> _accounts = [];
   List<Map<String, dynamic>> _categories = [];
   List<Map<String, dynamic>> _funds = [];
@@ -65,7 +72,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
       });
 
       final accounts = await TransactionService.getUserAccounts();
-      
+
       setState(() {
         _accounts = accounts;
         _isLoadingAccounts = false;
@@ -215,10 +222,8 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
         fundId: _selectedFundId,
       );
 
-      // Call callback to refresh the transactions list
       widget.onTransactionCreated?.call();
-      
-      // Show success message
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -226,6 +231,11 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
             backgroundColor: Colors.green,
           ),
         );
+
+        var account = widget.user.getData().findAccount(_selectedAccountId!);
+        if (account != null) {
+          account.addTransaction(createdTransaction);
+        }
         Navigator.pop(context);
       }
     } catch (e) {
@@ -243,8 +253,6 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     return '$name ($currency $balance)';
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -260,78 +268,75 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
       body: _isLoadingAccounts
           ? const Center(child: CircularProgressIndicator())
           : _accounts.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.account_balance_wallet_outlined,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No accounts found',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'You need at least one account to create a transaction',
-                        style: TextStyle(color: Colors.grey[600]),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
                   ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Account Selection
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Select Account',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                DropdownButtonFormField<int>(
-                                  initialValue: _selectedAccountId,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Account',
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.account_balance),
-                                  ),
-                                  items: _accounts.map((account) {
-                                    return DropdownMenuItem<int>(
-                                      value: account['id'],
-                                      child: Text(_getAccountDisplayName(account)),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedAccountId = value;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Please select an account';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'No accounts found',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'You need at least one account to create a transaction',
+                    style: TextStyle(color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Account Selection
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Account',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
-                          ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<int>(
+                              value: _selectedAccountId,
+                              decoration: const InputDecoration(
+                                labelText: 'Account',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.account_balance),
+                              ),
+                              items: _accounts.map((account) {
+                                return DropdownMenuItem<int>(
+                                  value: account['id'],
+                                  child: Text(_getAccountDisplayName(account)),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedAccountId = value;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please select an account';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
                         ),
                         
                         const SizedBox(height: 16),
@@ -490,79 +495,141 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                                     prefixIcon: Icon(Icons.description),
                                     hintText: 'What was this transaction for?',
                                   ),
-                                  maxLines: 3,
-                                  maxLength: 200,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d*\.?\d{0,2}'),
                                 ),
                               ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter an amount';
+                                }
+                                final amount = double.tryParse(value);
+                                if (amount == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                if (amount == 0) {
+                                  return 'Amount must be greater than 0';
+                                }
+                                return null;
+                              },
                             ),
+
+                            const SizedBox(height: 16),
+
+                            // Dropdown for Transaction Type
+                            DropdownButtonFormField<TransactionType>(
+                              value: _selectedTransactionType,
+                              decoration: const InputDecoration(
+                                labelText: 'Transaction Type',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.swap_horiz),
+                              ),
+                              items: TransactionType.values.map((type) {
+                                return DropdownMenuItem<TransactionType>(
+                                  value: type,
+                                  child: Text(
+                                    type.isIncome() ? 'Income' : 'Expense',
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setState(() {
+                                  _selectedTransactionType = value;
+                                });
+                              },
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Description (Optional)
+                            TextFormField(
+                              controller: _descriptionController,
+                              decoration: const InputDecoration(
+                                labelText: 'Description (Optional)',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.description),
+                                hintText: 'What was this transaction for?',
+                              ),
+                              maxLines: 3,
+                              maxLength: 200,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Error Message
+                    if (_errorMessage != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.red.withOpacity(0.3),
                           ),
                         ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Error Message
-                        if (_errorMessage != null)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.withOpacity(0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.error_outline, color: Colors.red),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        
-                        // Create Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _createTransaction,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Text(
-                                    'Create Transaction',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                          ],
+                        ),
+                      ),
+
+                    // Create Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _createTransaction,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ],
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Create Transaction',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+              ),
+            ),
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: 1, // Transactions section
+        // settings: Settings(),
       ),
     );
   }

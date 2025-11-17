@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application/models/money.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/account_service.dart';
-import '../models/accountType.dart';
 import 'widgets/topNavBar.dart';
 import 'widgets/app_bottom_nav_bar.dart';
+import 'package:flutter_application/pages/widgets/settings_widget.dart';
+
+import 'package:localstorage/localstorage.dart';
+import 'package:flutter_application/models/account.dart';
+import 'package:flutter_application/models/account_factory.dart';
+
 
 class CreateAccountPage extends StatefulWidget {
   final User user;
@@ -48,13 +54,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       });
 
       final balance = double.parse(_balanceController.text);
+      final money = Money(amount: balance, currency: 'USD');
 
-      await AccountService.createAccount(
+      final acc = AccountFactory.create(
+        _selectedAccountType,
+        accountId: 0,
         name: _nameController.text.trim(),
-        accountType: _selectedAccountType,
-        initialBalance: balance,
-        currency: 'USD',
+        balance: money,
+        transactions: const [],
       );
+
+      final account = await AccountService.createAccount(acc);
+
+      print(account);
 
       // Call callback to refresh the accounts list
       widget.onAccountCreated?.call();
@@ -336,6 +348,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       bottomNavigationBar: AppBottomNavBar(
         user: widget.user,
         currentIndex: 0, // Accounts section
+        // settings: Settings(),
       ),
     );
   }

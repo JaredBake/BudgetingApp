@@ -6,10 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
  void main() {
 
   testWidgets('BudgetPieChart builds and contains a PieChart', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(
+    await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: BudgetPieChart(
-          slices: [],
+          slices: [
+            ChartSlice('Rent', 500, Colors.blue),
+            ChartSlice('Food', 300, Colors.red),
+            ChartSlice('Utilities', 200, Colors.green),
+          ],
         ),
       ),
     ));

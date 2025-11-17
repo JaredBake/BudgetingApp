@@ -59,6 +59,8 @@ class _AddAccountBottomSheetState extends State<AddAccountBottomSheet> {
           'transactions': [],
         };
 
+        print(accountData);
+
         // TODO: Call endpoint to create the account
 
         setState(() {

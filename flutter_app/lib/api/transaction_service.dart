@@ -4,9 +4,28 @@ import 'package:localstorage/localstorage.dart';
 import '../models/transaction.dart';
 import '../models/money.dart';
 import '../models/TransactionType.dart';
+import 'base_url.dart';
 
 class TransactionService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
+
+  static Future<bool> deleteTransaction(int transactionId) async {
+    final token = localStorage.getItem('token');
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/api/Transactions/$transactionId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    return response.statusCode == 204;
+  }
 
   static Future<List<Transaction>> getUserTransactions() async {
     final token = localStorage.getItem('token');
@@ -26,7 +45,15 @@ class TransactionService {
     if (response.statusCode == 200) {
       final transactionsData = jsonDecode(response.body) as List<dynamic>;
       final transactions = transactionsData
-          .map((data) => _parseTransaction(data as Map<String, dynamic>))
+          .map(
+            (data) => _parseTransaction(
+              data as Map<String, dynamic>,
+              data['money'] != null &&
+                      (data['money']['amount'] as num).toDouble() >= 0
+                  ? TransactionType.income
+                  : TransactionType.expense,
+            ),
+          )
           .toList();
 
       // Sort by date (newest first) - already sorted on backend but just to be sure
@@ -38,7 +65,10 @@ class TransactionService {
     }
   }
 
-  static Transaction _parseTransaction(Map<String, dynamic> data) {
+  static Transaction _parseTransaction(
+    Map<String, dynamic> data,
+    TransactionType transactionType,
+  ) {
     return Transaction(
       id: data['id'] ?? 0,
       accountId: data['accountId'] ?? 0,
@@ -88,7 +118,8 @@ class TransactionService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return _parseTransaction(data);
+
+      return _parseTransaction(data, TransactionType.income);
     } else if (response.statusCode == 404) {
       return null;
     } else {
@@ -96,14 +127,45 @@ class TransactionService {
     }
   }
 
+  // static Future<Transaction> createTransaction({
+  //   required int accountId,
+  //   required double amount,
+  //   String currency = 'USD',
+  //   String? description,
+  // }) async {
+  //   final token = localStorage.getItem('token');
+
+  //   if (token == null) {
+  //     throw Exception('User not authenticated');
+  //   }
+
+  //   final transactionData = {
+  //     'accountId': accountId,
+  //     'date': DateTime.now().toUtc().toIso8601String(),
+  //     'money': {'amount': amount, 'currency': currency},
+  //   };
+
+  //   final response = await http.post(
+  //     Uri.parse('$baseUrl/api/Transactions'),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': 'Bearer $token',
+  //     },
+  //     body: jsonEncode(transactionData),
+  //   );
+
+  //   if (response.statusCode == 201) {
+  //     final data = jsonDecode(response.body) as Map<String, dynamic>;
+  //     return _parseTransaction(data);
+  //   } else {
+  //     throw Exception(
+  //       'Failed to create transaction: ${response.statusCode} ${response.body}',
+  //     );
+  //   }
+  // }
+
   static Future<Transaction> createTransaction({
-    required int accountId,
-    required double amount,
-    required TransactionType type,
-    String currency = 'USD',
-    String? description,
-    int? categoryId,
-    int? fundId,
+    required Transaction transaction,
   }) async {
     final token = localStorage.getItem('token');
 
@@ -112,17 +174,21 @@ class TransactionService {
     }
 
     final transactionData = {
-      'accountId': accountId,
-      'date': DateTime.now().toUtc().toIso8601String(),
+      'accountId': transaction.getAccountId(),
+      'date': transaction.getDate().toUtc().toIso8601String(),
       'money': {
-        'amount': amount,
-        'currency': currency,
+        'amount': transaction.transactionType == TransactionType.expense
+            ? -transaction.getMoney().getAmount()
+            : transaction.getMoney().getAmount(),
+        'currency': transaction.getMoney().getCurrency(),
       },
-      'type': type == TransactionType.income ? 1 : 0, // Send as int: Income=1, Expense=0
-      if (categoryId != null) 'categoryId': categoryId,
-      if (fundId != null) 'fundId': fundId,
+      'description': transaction.getDescription(),
+      'transactionType': transaction
+          .getTransactionType()
+          .toString()
+          .split('.')
+          .last,
     };
-
     final response = await http.post(
       Uri.parse('$baseUrl/api/Transactions'),
       headers: {
@@ -134,10 +200,56 @@ class TransactionService {
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return _parseTransaction(data);
+      Transaction t = _parseTransaction(data, transaction.transactionType);
+      return t;
     } else {
       throw Exception(
         'Failed to create transaction: ${response.statusCode} ${response.body}',
+      );
+    }
+  }
+
+  static Future<Transaction> updateTransaction({
+    required Transaction transaction,
+  }) async {
+    final token = localStorage.getItem('token');
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final transactionData = {
+      'id': transaction.getId(),
+      'accountId': transaction.getAccountId(),
+      'date': transaction.getDate().toUtc().toIso8601String(),
+      'money': {
+        'amount': transaction.transactionType == TransactionType.expense
+            ? -transaction.getMoney().getAmount()
+            : transaction.getMoney().getAmount(),
+        'currency': transaction.getMoney().getCurrency(),
+      },
+      'description': transaction.getDescription(),
+      'transactionType': transaction
+          .getTransactionType()
+          .toString()
+          .split('.')
+          .last,
+    };
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/Transactions'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(transactionData),
+    );
+
+    if (response.statusCode == 204) {
+      // PUT returns NoContent, so we return the updated transaction
+      return transaction;
+    } else {
+      throw Exception(
+        'Failed to update transaction: ${response.statusCode} ${response.body}',
       );
     }
   }
