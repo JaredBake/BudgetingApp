@@ -30,27 +30,31 @@ class TestUsers:
         })
         assert response.status_code == 201
     
-    def test_update_user(self, authenticated_client):
-        """User - Put (26)"""
-        response = authenticated_client.put("/api/Users/26", json={
-            "name": "Updated_name,",
-            "userName": "testDummy",
-            "email": "test@gmail.com"
-        })
-        assert response.status_code == 201
+
+    # We probably shouldn't be updating / deleting the admin user if we plan to continue using it...
+
     
-    def test_delete_user(self, authenticated_client):
-        """Users - Delete"""
-        response = authenticated_client.delete("/api/Users/5")
-        assert response.status_code == 200
+    # def test_update_user(self, authenticated_client):
+    #     """User - Put (26)"""
+    #     response = authenticated_client.put("/api/Users/26", json={
+    #         "name": "Updated_name,",
+    #         "userName": "testDummy",
+    #         "email": "test@gmail.com"
+    #     })
+    #     assert response.status_code == 201
     
-    def test_change_password(self, authenticated_client):
-        """User - Change Password"""
-        response = authenticated_client.put("/api/Users/password/", json={
-            "Id": "1",
-            "password": "admin1234"
-        })
-        assert response.status_code == 201
+    # def test_delete_user(self, authenticated_client):
+    #     """Users - Delete"""
+    #     response = authenticated_client.delete("/api/Users/5")
+    #     assert response.status_code == 200
+    
+    # def test_change_password(self, authenticated_client):
+    #     """User - Change Password"""
+    #     response = authenticated_client.put("/api/Users/password/", json={
+    #         "Id": "1",
+    #         "password": "admin1234"
+    #     })
+    #     assert response.status_code == 201
 
 
 class TestUsersDefaultAuth:

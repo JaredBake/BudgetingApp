@@ -36,7 +36,7 @@ class TestAccounts:
     def test_update_account(self, authenticated_client):
         """Account - Update"""
         response = authenticated_client.put("/api/Accounts/", json={
-            "id": 3,
+            "id": 2,
             "userId": 3,
             "name": "Savings-Updated",
             "accountType": 1,
@@ -49,7 +49,7 @@ class TestAccounts:
     
     def test_delete_account(self, authenticated_client):
         """Account - Delete"""
-        response = authenticated_client.delete("/api/Accounts/3")
+        response = authenticated_client.delete("/api/Accounts/2")
         assert response.status_code == 204
 
 
@@ -58,6 +58,13 @@ class TestUserAccount:
     
     def test_user_account_workflow(self, authenticated_client):
         """Test complete UserAccount workflow: belongs check, join, remove"""
+        # Join user to account
+        response = authenticated_client.post("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200
+
         # Test belongs (before join)
         response = authenticated_client.get("/api/Accounts/User", json={
             "userId": 2,
@@ -71,14 +78,7 @@ class TestUserAccount:
             "userId": 2,
             "accountId": 51
         })
-        assert response.status_code == 200
-        
-        # Join user to account
-        response = authenticated_client.post("/api/Accounts/User", json={
-            "userId": 2,
-            "accountId": 51
-        })
-        assert response.status_code == 200
+        assert response.status_code == 200        
         
         # Test belongs (after remove)
         response = authenticated_client.get("/api/Accounts/User", json={

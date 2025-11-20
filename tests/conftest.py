@@ -10,7 +10,7 @@ class APIClient:
         self.base_url = base_url
         self.session = requests.Session()
         self.admin_token: Optional[str] = None
-        self.default_token: Optional[str] = None
+        self.default_token: Optional[str] = None        
         
     def set_bearer_token(self, token: str):
         """Set bearer token for requests"""
@@ -37,11 +37,13 @@ class APIClient:
         """DELETE request"""
         return self.session.delete(f"{self.base_url}{endpoint}", **kwargs)
 
-
 @pytest.fixture(scope="session")
 def api_client():
     """Create API client for testing"""
-    return APIClient()
+    client = APIClient()
+
+    client.post("/api/Seed", json={}) # Resets the DB on startup
+    return client
 
 
 @pytest.fixture(scope="session")

@@ -23,10 +23,10 @@ class TestUsers:
     def test_post_user(self, authenticated_client):
         """Users - Post"""
         response = authenticated_client.post("/api/Users/PostUser", json={
-            "UserName": "testDummy",
+            "UserName": "testingDummy",
             "Name": "Shawn Crook,",
             "Password": "password123",
-            "Email": "test@gmail.com"
+            "Email": "testPost@gmail.com"
         })
         assert response.status_code == 201
     
@@ -44,13 +44,15 @@ class TestUsers:
         response = authenticated_client.delete("/api/Users/5")
         assert response.status_code == 200
     
-    def test_change_password(self, authenticated_client):
-        """User - Change Password"""
-        response = authenticated_client.put("/api/Users/password/", json={
-            "Id": "1",
-            "password": "admin1234"
-        })
-        assert response.status_code == 201
+    # Don't change the admins password during testing
+
+    # def test_change_password(self, authenticated_client):
+    #     """User - Change Password"""
+    #     response = authenticated_client.put("/api/Users/password/", json={
+    #         "Id": "1",
+    #         "password": "admin1234"
+    #     })
+    #     assert response.status_code == 201
 
 
 class TestUsersDefaultAuth:
