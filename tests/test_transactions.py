@@ -11,15 +11,15 @@ class TestTransactions:
         assert response.status_code == 200
         
         res = response.json()
-        assert len(res) == 957
+        assert len(res) == 958
     
     def test_get_transaction_by_id(self, authenticated_client):
-        """Transactions - GetOne (957)"""
-        response = authenticated_client.get("/api/Transactions/957")
+        """Transactions - GetOne (958)"""
+        response = authenticated_client.get("/api/Transactions/958")
         assert response.status_code == 200
         
         res = response.json()
-        assert res["id"] == 957
+        assert res["id"] == 958
     
     def test_post_transaction(self, authenticated_client):
         """Transaction - Post"""

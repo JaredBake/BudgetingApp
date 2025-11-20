@@ -44,7 +44,7 @@ def api_client():
 
     client.post("/api/Seed", json={}) # Resets the DB on startup
     yield client
-    client.post("/api/Seed", json={}) # Resets the DB on teardown
+    client.post("/api/Seed", json={}) # Resets the DB on teardown, as changes / deletes are made
 
 
 @pytest.fixture(scope="session")
@@ -74,6 +74,19 @@ def default_auth(api_client):
     token = data["token"]
     return token
 
+@pytest.fixture(scope="session")
+def test_auth(api_client):
+    """Authenticate as testing user and return token"""
+    response = api_client.post("/api/Auth/login/", json={
+        "username": "BadTest",
+        "password": "badtest123"
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["authenticated"] is True
+    token = data["token"]
+    return token
+
 
 @pytest.fixture
 def authenticated_client(api_client, admin_auth):
@@ -87,5 +100,12 @@ def authenticated_client(api_client, admin_auth):
 def default_authenticated_client(api_client, default_auth):
     """API client with default user authentication"""
     api_client.set_bearer_token(default_auth)
+    yield api_client
+    api_client.clear_token()
+
+@pytest.fixture
+def test_authenticated_client(api_client, test_auth):
+    """API client with default user authentication"""
+    api_client.set_bearer_token(test_auth)
     yield api_client
     api_client.clear_token()

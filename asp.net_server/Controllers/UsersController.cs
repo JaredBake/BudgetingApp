@@ -136,6 +136,11 @@ public class UsersController : ControllerBase
             return BadRequest("User does not exist with that Id!");
         }
 
+        if (user.Credentials.Role != UserRole.Admin && creds.Role == UserRole.Admin)
+        {
+            return BadRequest("User does not haver permission to promote self to admin");
+        }
+
         if (creds.Password != null)
         {
             creds.Password = AuthController.HashPassword(creds.Password);
