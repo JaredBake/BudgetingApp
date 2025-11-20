@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application/models/money.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/account_service.dart';
-import '../models/accountType.dart';
 import 'widgets/topNavBar.dart';
+import 'package:flutter_application/models/accountType.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
@@ -169,7 +169,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -215,7 +215,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       const SizedBox(height: 16),
 
                       DropdownButtonFormField<String>(
-                        value: 'USD', // Hardcode USD as the selected value
+                        initialValue: 'USD', // Hardcode USD as the selected value
                         decoration: const InputDecoration(
                           labelText: 'Currency',
                           border: OutlineInputBorder(),

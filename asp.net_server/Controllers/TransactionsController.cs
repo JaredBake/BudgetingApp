@@ -65,6 +65,12 @@ public class TransactionsController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult<Account>> PostTransaction(Transaction transaction)
     {
+        // Validate positive amount
+        if (transaction.Money.Amount <= 0)
+        {
+            return BadRequest("Transaction amount must be greater than zero.");
+        }
+
         var account = await _context.Accounts.Include(a => a.Transactions).FirstOrDefaultAsync(a => a.Id == transaction.AccountId);
         if (account == null) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
 
@@ -73,13 +79,54 @@ public class TransactionsController : ControllerBase
             ? DateTime.SpecifyKind(transaction.Date, DateTimeKind.Utc)
             : transaction.Date.ToUniversalTime();
 
-        _context.Transactions.Add(transaction);
-        await _context.SaveChangesAsync();
+        // Start a database transaction for atomicity
+        using var dbTransaction = await _context.Database.BeginTransactionAsync();
 
-        return CreatedAtAction(nameof(GetTransaction), new { Id = transaction.Id }, transaction);
+        try
+        {
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            // Update fund balance if a fund is assigned
+            if (transaction.FundId != null)
+            {
+                var fund = await _context.Funds.FindAsync(transaction.FundId);
+                if (fund == null)
+                {
+                    await dbTransaction.RollbackAsync();
+                    return NotFound($"Fund does not exist with Id: {transaction.FundId}");
+                }
+
+                // Income adds to fund, Expense subtracts from fund
+                if (transaction.Type == TransactionType.Income)
+                {
+                    fund.Current.Amount += transaction.Money.Amount;
+                }
+                else // Expense
+                {
+                    fund.Current.Amount -= transaction.Money.Amount;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            await dbTransaction.CommitAsync();
+
+            return CreatedAtAction(nameof(GetTransaction), new { Id = transaction.Id }, transaction);
+        }
+        catch (Exception)
+        {
+            await dbTransaction.RollbackAsync();
+            throw;
+        }
     }    [HttpPut()]
     public async Task<IActionResult> PutTransaction(Transaction transaction)
     {
+        if (transaction.Money.Amount <= 0)
+        {
+            return BadRequest("Transaction amount must be greater than zero.");
+        }
+
         if (!TransactionExists(transaction.Id)) return NotFound($"No transaction found to update with Id: {transaction.Id}");
         
         if (!AccountExists(transaction.AccountId)) return NotFound($"Account does not exist with Id: {transaction.AccountId}");
@@ -91,14 +138,80 @@ public class TransactionsController : ControllerBase
             ? DateTime.SpecifyKind(transaction.Date, DateTimeKind.Utc)
             : transaction.Date.ToUniversalTime();
 
-        _context.Entry(transaction).State = EntityState.Modified;
+        // Start a database transaction for atomicity
+        using var dbTransaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
+            // Fetch the existing transaction from the database (this will be tracked)
+            var existingTransaction = await _context.Transactions.FindAsync(transaction.Id);
+            
+            if (existingTransaction == null)
+            {
+                await dbTransaction.RollbackAsync();
+                return NotFound($"No transaction found to update with Id: {transaction.Id}");
+            }
+
+            // Store old values before updating for fund balance reversal
+            var oldFundId = existingTransaction.FundId;
+            var oldAmount = existingTransaction.Money.Amount;
+            var oldType = existingTransaction.Type;
+
+            // Revert the old fund balance if it had a fund assigned
+            if (oldFundId != null)
+            {
+                var oldFund = await _context.Funds.FindAsync(oldFundId);
+                if (oldFund != null)
+                {
+                    // Reverse the previous transaction effect
+                    if (oldType == TransactionType.Income)
+                    {
+                        oldFund.Current.Amount -= oldAmount;
+                    }
+                    else // Expense
+                    {
+                        oldFund.Current.Amount += oldAmount;
+                    }
+                }
+            }
+
+            // Update the existing transaction's properties
+            existingTransaction.AccountId = transaction.AccountId;
+            existingTransaction.Date = transaction.Date;
+            existingTransaction.Money = transaction.Money;
+            existingTransaction.FundId = transaction.FundId;
+            existingTransaction.Type = transaction.Type;
+
+            // Apply the new fund balance if a fund is assigned
+            if (transaction.FundId != null)
+            {
+                var newFund = await _context.Funds.FindAsync(transaction.FundId);
+                if (newFund == null)
+                {
+                    await dbTransaction.RollbackAsync();
+                    return NotFound($"Fund does not exist with Id: {transaction.FundId}");
+                }
+
+                // Income adds to fund, Expense subtracts from fund
+                if (transaction.Type == TransactionType.Income)
+                {
+                    newFund.Current.Amount += transaction.Money.Amount;
+                }
+                else // Expense
+                {
+                    newFund.Current.Amount -= transaction.Money.Amount;
+                }
+            }
+
             await _context.SaveChangesAsync();
+
+            await dbTransaction.CommitAsync();
+
+            return NoContent();
         }
         catch (DbUpdateConcurrencyException)
         {
+            await dbTransaction.RollbackAsync();
             if (!TransactionExists(transaction.Id))
             {
                 return NotFound($"No transaction found to update with Id: {transaction.Id}");
@@ -108,8 +221,11 @@ public class TransactionsController : ControllerBase
                 throw;
             }
         }
-
-        return NoContent();
+        catch (Exception)
+        {
+            await dbTransaction.RollbackAsync();
+            throw;
+        }
     }
 
     [HttpDelete("{Id}")]

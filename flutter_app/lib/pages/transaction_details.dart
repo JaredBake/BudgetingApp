@@ -9,6 +9,7 @@ import 'package:flutter_application/pages/widgets/settings_widget.dart';
 import '../models/account.dart';
 
 import 'transactions.dart';
+import 'edit_transaction.dart';
 
 import '../api/transaction_service.dart';
 
@@ -256,8 +257,20 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // TODO: Edit transaction
-                              // Navigator.push(...);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditTransactionPage(
+                                    transaction: widget.transaction,
+                                    user: widget.user,
+                                    onTransactionUpdated: () {
+                                      // Refresh the transaction details by navigating back
+                                      // and then to transactions page which will reload
+                                      navigateToTransactionsPage();
+                                    },
+                                  ),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.edit),
                             label: const Text("Edit"),

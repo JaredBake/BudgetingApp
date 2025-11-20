@@ -18,7 +18,7 @@ class Fund {
         /*  Adds money to the current amount of the fund
         *   Throws an exception if the currencies do not match
         */  
-        if (amount.getCurrency() != this.currentAmount.getCurrency()) {
+        if (amount.getCurrency() != currentAmount.getCurrency()) {
             throw Exception('Cannot add money with different currencies');
         }
 
@@ -36,11 +36,11 @@ class Fund {
         /*  Spends money from the current amount of the fund
         *   Throws an exception if the currencies do not match
         */
-        if (amount.getCurrency() != this.currentAmount.getCurrency()) {
+        if (amount.getCurrency() != currentAmount.getCurrency()) {
             throw Exception('Cannot spend money with different currencies');
         }
 
-        if (amount.getAmount() > this.currentAmount.getAmount()) {
+        if (amount.getAmount() > currentAmount.getAmount()) {
             throw Exception('Cannot spend more money than is available in the fund');
         }
 

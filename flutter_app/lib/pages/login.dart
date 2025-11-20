@@ -12,7 +12,7 @@ import 'package:flutter_application/models/data.dart';
 import '../api/auth_service.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   _LoginState createState() => _LoginState();

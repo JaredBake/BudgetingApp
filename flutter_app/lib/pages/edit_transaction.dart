@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application/models/user.dart';
 import '../api/transaction_service.dart';
-import '../api/category_service.dart';
-import '../api/fund_service.dart';
 import 'widgets/topNavBar.dart';
+
+import 'transaction_details.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 import '../models/money.dart';
@@ -12,32 +12,31 @@ import '../models/transaction.dart';
 import '../models/TransactionType.dart';
 import '../models/account.dart';
 
-class CreateTransactionPage extends StatefulWidget {
+class EditTransactionPage extends StatefulWidget {
+  final Transaction transaction;
   final User user;
-  final VoidCallback? onTransactionCreated;
+  final VoidCallback? onTransactionUpdated;
 
-  const CreateTransactionPage({
+  const EditTransactionPage({
     super.key,
+    required this.transaction,
     required this.user,
-    this.onTransactionCreated,
+    this.onTransactionUpdated,
   });
 
   @override
-  State<CreateTransactionPage> createState() => _CreateTransactionPageState();
+  State<EditTransactionPage> createState() => _EditTransactionPageState();
 }
 
-class _CreateTransactionPageState extends State<CreateTransactionPage> {
+class _EditTransactionPageState extends State<EditTransactionPage> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  TransactionType _selectedTransactionType = TransactionType.expense;
+  late final TextEditingController _amountController;
+  late final TextEditingController _descriptionController;
+  late TransactionType _selectedTransactionType;
+  late DateTime _selectedDate;
 
   List<Map<String, dynamic>> _accounts = [];
-  List<Map<String, dynamic>> _categories = [];
-  List<Map<String, dynamic>> _funds = [];
   int? _selectedAccountId;
-  int? _selectedCategoryId;
-  int? _selectedFundId;
   bool _isLoading = false;
   bool _isLoadingAccounts = true;
   String? _errorMessage;
@@ -45,9 +44,16 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
   @override
   void initState() {
     super.initState();
+    // Pre-fill form with existing transaction data
+    final amount = widget.transaction.getMoney().getAmount().abs();
+    _amountController = TextEditingController(text: amount.toStringAsFixed(2));
+    _descriptionController = TextEditingController(
+      text: widget.transaction.getDescription(),
+    );
+    _selectedTransactionType = widget.transaction.getTransactionType();
+    _selectedDate = widget.transaction.getDate();
+    _selectedAccountId = widget.transaction.getAccountId();
     _loadAccounts();
-    _loadCategories();
-    _loadFunds();
   }
 
   @override
@@ -69,8 +75,11 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
       setState(() {
         _accounts = accounts;
         _isLoadingAccounts = false;
-        if (accounts.isNotEmpty) {
-          _selectedAccountId = accounts.first['id'];
+        if (_selectedAccountId != null &&
+            !accounts.any((a) => a['id'] == _selectedAccountId)) {
+          if (accounts.isNotEmpty) {
+            _selectedAccountId = accounts.first['id'];
+          }
         }
       });
     } catch (e) {
@@ -81,31 +90,49 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     }
   }
 
-  Future<void> _loadCategories() async {
-    try {
-      final categories = await CategoryService.getUserCategories();
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null && picked != _selectedDate) {
       setState(() {
-        _categories = categories;
+        _selectedDate = picked;
       });
-    } catch (e) {
-      // Silently fail for categories - they're optional
-      print('Error loading categories: $e');
     }
   }
 
-  Future<void> _loadFunds() async {
-    try {
-      final funds = await FundService.getUserFunds();
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+    );
+    if (picked != null) {
       setState(() {
-        _funds = funds;
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          picked.hour,
+          picked.minute,
+        );
       });
-    } catch (e) {
-      // Silently fail for funds - they're optional
-      print('Error loading funds: $e');
     }
   }
 
-  Future<void> _createTransaction() async {
+  void _navigateToTransactionDetails(Transaction transaction) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            TransactionDetailsPage(transaction: transaction, user: widget.user),
+      ),
+    );
+  }
+
+  Future<void> _updateTransaction() async {
     if (!_formKey.currentState!.validate() || _selectedAccountId == null) {
       return;
     }
@@ -120,36 +147,30 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
 
       Money money = Money(amount: amount, currency: 'USD');
 
-      Transaction transaction = Transaction(
-        id: 0,
+      Transaction updatedTransaction = Transaction(
+        id: widget.transaction.getId(),
         accountId: _selectedAccountId!,
-        date: DateTime.now(),
+        date: _selectedDate,
         money: money,
         description: _descriptionController.text.trim(),
         transactionType: _selectedTransactionType,
-        categoryId: _selectedCategoryId,
-        fundId: _selectedFundId,
       );
 
-      final createdTransaction = await TransactionService.createTransaction(
-        transaction: transaction,
+      await TransactionService.updateTransaction(
+        transaction: updatedTransaction,
       );
 
-      widget.onTransactionCreated?.call();
+      widget.onTransactionUpdated?.call();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Transaction created successfully!'),
+            content: Text('Transaction updated successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-
-        var account = widget.user.getData().findAccount(_selectedAccountId!);
-        if (account != null) {
-          account.addTransaction(createdTransaction);
-        }
-        Navigator.pop(context);
+        //Navigator.pop(context);
+        _navigateToTransactionDetails(updatedTransaction);
       }
     } catch (e) {
       setState(() {
@@ -166,60 +187,33 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     return '$name ($currency $balance)';
   }
 
-  Future<void> _showCreateCategoryDialog() async {
-    final categoryController = TextEditingController();
+  String _formatDate(DateTime date) {
+    final months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
 
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create New Category'),
-        content: TextField(
-          controller: categoryController,
-          decoration: const InputDecoration(
-            labelText: 'Category Name',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, categoryController.text),
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
 
-    if (result != null && result.isNotEmpty) {
-      try {
-        final newCategory = await CategoryService.createCategory(name: result);
-        await _loadCategories();
-        setState(() {
-          _selectedCategoryId = newCategory['id'];
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Category created successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to create category: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
+  String _formatTime(DateTime date) {
+    final hour = date.hour == 0
+        ? 12
+        : (date.hour > 12 ? date.hour - 12 : date.hour);
+    final minute = date.minute.toString().padLeft(2, '0');
+    final period = date.hour >= 12 ? 'PM' : 'AM';
+
+    return '$hour:$minute $period';
   }
 
   @override
@@ -228,7 +222,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: TopNavBar(
-          title: 'Create Transaction',
+          title: 'Edit Transaction',
           backgroundColor: Colors.green,
           showBackButton: true,
           showProfileButton: false,
@@ -253,7 +247,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'You need at least one account to create a transaction',
+                    'You need at least one account to edit a transaction',
                     style: TextStyle(color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -281,7 +275,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
-                              initialValue: _selectedAccountId,
+                              value: _selectedAccountId,
                               decoration: const InputDecoration(
                                 labelText: 'Account',
                                 border: OutlineInputBorder(),
@@ -363,7 +357,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
 
                             // Dropdown for Transaction Type
                             DropdownButtonFormField<TransactionType>(
-                              initialValue: _selectedTransactionType,
+                              value: _selectedTransactionType,
                               decoration: const InputDecoration(
                                 labelText: 'Transaction Type',
                                 border: OutlineInputBorder(),
@@ -387,73 +381,46 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
 
                             const SizedBox(height: 16),
 
-                            // Category Selection
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButtonFormField<int?>(
-                                    initialValue: _selectedCategoryId,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Category (Optional)',
-                                      border: OutlineInputBorder(),
-                                      prefixIcon: Icon(Icons.category),
-                                    ),
-                                    items: [
-                                      const DropdownMenuItem<int?>(
-                                        value: null,
-                                        child: Text('No Category'),
-                                      ),
-                                      ..._categories.map((category) {
-                                        return DropdownMenuItem<int?>(
-                                          value: category['id'],
-                                          child: Text(category['name'] ?? 'Category ${category['id']}'),
-                                        );
-                                      }),
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedCategoryId = value;
-                                      });
-                                    },
-                                  ),
+                            // Date Selection
+                            InkWell(
+                              onTap: () => _selectDate(context),
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Date',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.calendar_today),
                                 ),
-                                const SizedBox(width: 8),
-                                IconButton(
-                                  icon: const Icon(Icons.add_circle_outline),
-                                  color: Colors.green,
-                                  onPressed: _showCreateCategoryDialog,
-                                  tooltip: 'Create New Category',
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(_formatDate(_selectedDate)),
+                                    const Icon(Icons.arrow_drop_down),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
 
                             const SizedBox(height: 16),
 
-                            // Fund Selection
-                            DropdownButtonFormField<int?>(
-                              initialValue: _selectedFundId,
-                              decoration: const InputDecoration(
-                                labelText: 'Fund (Optional)',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.savings),
-                              ),
-                              items: [
-                                const DropdownMenuItem<int?>(
-                                  value: null,
-                                  child: Text('No Fund'),
+                            // Time Selection
+                            InkWell(
+                              onTap: () => _selectTime(context),
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Time',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.access_time),
                                 ),
-                                ..._funds.map((fund) {
-                                  return DropdownMenuItem<int?>(
-                                    value: fund['id'],
-                                    child: Text(fund['description'] ?? 'Fund ${fund['id']}'),
-                                  );
-                                }),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedFundId = value;
-                                });
-                              },
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(_formatTime(_selectedDate)),
+                                    const Icon(Icons.arrow_drop_down),
+                                  ],
+                                ),
+                              ),
                             ),
 
                             const SizedBox(height: 16),
@@ -504,12 +471,12 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                         ),
                       ),
 
-                    // Create Button
+                    // Update Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _createTransaction,
+                        onPressed: _isLoading ? null : _updateTransaction,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -529,7 +496,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                                 ),
                               )
                             : const Text(
-                                'Create Transaction',
+                                'Update Transaction',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
