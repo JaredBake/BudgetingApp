@@ -19,6 +19,7 @@ flutter_app/.flutter-plugins-dependencies
 
 flutter_app/pubspec.lock
 
+.coverage
 
 *.txt
 TODO.md
