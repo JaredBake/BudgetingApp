@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace App.Controllers;
 
-[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/[controller]")]
 public class SeedController : ControllerBase
@@ -16,7 +15,6 @@ public class SeedController : ControllerBase
         _seeder = seeder;
     }
 
-    [AllowAnonymous]
     [HttpGet()]
     public bool check() { return true; }
 
@@ -36,21 +34,6 @@ public class SeedController : ControllerBase
             return StatusCode(500, $"Seeding failed: {ex.Message}");
         }
     }
-
-    // [AllowAnonymous]
-    // [HttpPost("Force")]
-    // public async Task<IActionResult> ForceSeed()
-    // {
-    //     try
-    //     {
-    //         await _seeder.SeedAsync();
-    //         return Ok("Database seeded with fake data.");           
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(500, $"Seeding failed: {ex.Message}");
-    //     }
-    // }
 }
 
 

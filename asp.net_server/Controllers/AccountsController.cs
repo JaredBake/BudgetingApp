@@ -221,6 +221,7 @@ public class AccountsController : ControllerBase
     private async Task<bool> BelongsToUser(int accountId, int userId)
     {
         var existingJoin = await _context.UserAccounts
+            .AsNoTracking()
             .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.AccountId == accountId);
 
         if (existingJoin == null) return false;

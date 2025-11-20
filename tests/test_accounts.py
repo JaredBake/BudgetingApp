@@ -1,0 +1,266 @@
+"""Test Accounts endpoints"""
+import pytest
+
+
+class TestAccounts:
+    """Test Accounts CRUD operations with Admin auth"""
+    
+    def test_get_all_accounts(self, authenticated_client):
+        """Account - GetAll"""
+        response = authenticated_client.get("/api/Accounts/GetAll")
+        assert response.status_code == 200
+    
+    def test_get_account_by_id(self, authenticated_client):
+        """Account - GetOne (16)"""
+        response = authenticated_client.get("/api/Accounts/16")
+        assert response.status_code == 200
+        
+        res = response.json()
+        assert res["name"] == "Account 16"
+        assert res["accountType"] == 1
+    
+    def test_post_account(self, authenticated_client):
+        """Account - Post"""
+        response = authenticated_client.post("/api/Accounts/", json={
+            "name": "Savings",
+            "accountType": 1,
+            "balance": {
+                "amount": 2000.10,
+                "currency": "$USD"
+            }
+        })
+        assert response.status_code == 201
+        
+        res = response.json()
+        assert res["name"] == "Savings"
+
+        id = res["id"]
+
+        response = authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 200
+
+        res = response.json()
+        assert res["name"] == "Savings"
+        assert res["balance"]["amount"] == 2000.10
+    
+    def test_update_account(self, authenticated_client):
+        """Account - Update"""
+        response = authenticated_client.put("/api/Accounts/", json={
+            "id": 2,
+            "name": "Savings-Updated",
+            "accountType": 1,
+            "balance": {
+                "amount": 2000,
+                "currency": "$USD"
+            }
+        })
+        assert response.status_code == 200
+
+        res = response.json()
+        id = res["id"]
+
+        response = authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 200
+
+        assert res["name"] == "Savings-Updated"
+        assert res["balance"]["amount"] == 2000
+        
+    
+    def test_delete_account(self, authenticated_client):
+        """Account - Delete"""
+        id = 5
+        
+        response = authenticated_client.delete(f"/api/Accounts/{id}")
+        assert response.status_code == 204        
+
+        response = authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 404
+
+
+class TestUserAccount:
+    """Test UserAccount relationship operations"""
+    
+    def test_user_account_workflow(self, authenticated_client):
+        """Test complete UserAccount workflow: belongs check, join, remove"""
+        # Test belongs (before join)
+        response = authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200
+        assert response.json() is False
+
+        # Join user to account
+        response = authenticated_client.post("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200
+
+        # Test belongs (after join)
+        response = authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200
+        assert response.json() is True
+        
+        # Remove user from account
+        response = authenticated_client.delete("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200        
+        
+        # Test belongs (after remove)
+        response = authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 200
+        assert response.json() is False
+
+
+class TestAccountsDefaultAuthFail:
+    """Test Accounts endpoints with Default user auth (should fail)
+        Default User is ID: 2
+        Default User only has access to account 2 & 49 to start
+    """
+    
+    def test_get_account_fail(self, default_authenticated_client):
+        """Account - GetOne - Default User (should fail)"""
+        response = default_authenticated_client.get("/api/Accounts/16")
+        assert response.status_code == 403
+    
+    def test_update_account_fail(self, default_authenticated_client):
+        """Account - Update - Default User (should fail)"""
+        response = default_authenticated_client.put("/api/Accounts/", json={
+            "id": 3, # Default User does NOT have access to accountId 3
+            "name": "Savings-Updated",
+            "accountType": 1,
+            "balance": {
+                "amount": 2000,
+                "currency": "$USD"
+            }
+        })
+        assert response.status_code == 403
+    
+    def test_delete_account_fail(self, default_authenticated_client):
+        """Account - Delete - Default User (should fail)"""
+        response = default_authenticated_client.delete("/api/Accounts/3")
+        assert response.status_code == 403
+    
+    def test_user_account_test_belongs_fail(self, default_authenticated_client):
+        """Account - TestBelongs - Default User (should fail)"""
+        response = default_authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 403
+    
+    def test_user_account_remove_fail(self, default_authenticated_client):
+        """Account - RemoveUser - Default User (should fail)"""
+        response = default_authenticated_client.delete("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 51
+        })
+        assert response.status_code == 403
+    
+    def test_user_account_join_fail(self, default_authenticated_client):
+        """Account - JoinUser - Default User (should fail)"""
+        response = default_authenticated_client.post("/api/Accounts/User", json={
+            "userId": 3,
+            "accountId": 2
+        })
+        assert response.status_code == 403
+
+class TestAccountsDefaultAuthPass:
+    """Test Accounts endpoints with Default user auth (should pass)"""    
+    
+    
+    def test_update_account_pass(self, default_authenticated_client):
+        """Account - Update - Default User (should fail)"""
+        response = default_authenticated_client.put("/api/Accounts/", json={
+            "id": 2,
+            "name": "Savings-Updated-Test-Pass",
+            "accountType": 1,
+            "balance": {
+                "amount": 2000,
+                "currency": "$USD"
+            }
+        })
+        assert response.status_code == 200
+
+        res = response.json()
+        id = res["id"]
+
+        response = default_authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 200
+
+        assert res["name"] == "Savings-Updated-Test-Pass"
+        assert res["balance"]["amount"] == 2000
+    
+    def test_delete_account_pass(self, default_authenticated_client):
+        """Account - Delete - Default User (should pass)"""
+        response = default_authenticated_client.delete("/api/Accounts/3")
+        assert response.status_code == 403
+
+        id = 49 # Default User has access to account #49 by default
+
+        response = default_authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 200
+        
+        response = default_authenticated_client.delete(f"/api/Accounts/{id}")
+        assert response.status_code == 204        
+
+        response = default_authenticated_client.get(f"/api/Accounts/{id}")
+        assert response.status_code == 403
+    
+    def test_user_account_test_belongs_pass(self, default_authenticated_client):
+        """Account - TestBelongs - Default User (should pass)"""
+        response = default_authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 2
+        })
+        assert response.status_code == 200
+        assert response.json() is True
+
+        response = default_authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 3
+        })
+        assert response.status_code == 403
+        
+    
+    def test_user_account_remove_pass(self, default_authenticated_client):
+
+        """Account - RemoveUser - Default User (should pass)"""
+        response = default_authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 15
+        })
+        assert response.status_code == 200
+        assert response.json() is True
+
+        response = default_authenticated_client.delete("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 15
+        })
+
+        assert response.status_code == 200
+        assert response.text == "User association successfully deleted"
+    
+    def test_user_account_join_pass(self, default_authenticated_client):
+        """Account - JoinUser - Default User (should pass)"""
+        response = default_authenticated_client.post("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 3
+        })
+        assert response.status_code == 200
+
+        response = default_authenticated_client.get("/api/Accounts/User", json={
+            "userId": 2,
+            "accountId": 3
+        })
+        assert response.status_code == 200
+        

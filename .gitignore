@@ -19,5 +19,10 @@ flutter_app/.flutter-plugins-dependencies
 
 flutter_app/pubspec.lock
 
+.coverage
+report.html
+__pycache__/
+.pytest_cache/
+
 *.txt
 TODO.md

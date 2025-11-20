@@ -223,5 +223,13 @@
       "Password": "1234567!",
       "Email": "zoroark@pokemail.com"
     }
+  },
+  {
+    "Credentials": {
+      "UserName": "BadTest",
+      "Name": "BadTest",
+      "Password": "badtest123",
+      "Email": "DeleteMe@gmail.com"
+    }
   }
 ]
