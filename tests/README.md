@@ -149,10 +149,6 @@ Basic connectivity tests for all API controllers:
 - Overview statistics
 - User accounts count
 
-### Database Tests (`test_database.py`)
-- Seed database (admin)
-- Seed database (default user - should fail)
-
 ## Fixtures
 
 ### `api_client`

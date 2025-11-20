@@ -43,7 +43,8 @@ def api_client():
     client = APIClient()
 
     client.post("/api/Seed", json={}) # Resets the DB on startup
-    return client
+    yield client
+    client.post("/api/Seed", json={}) # Resets the DB on teardown
 
 
 @pytest.fixture(scope="session")
