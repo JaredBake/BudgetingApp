@@ -16,6 +16,8 @@ class TopNavBar extends StatelessWidget {
     this.showProfileButton = false,
   });
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Container(
