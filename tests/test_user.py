@@ -19,16 +19,30 @@ class TestUsers:
         assert res["id"] == 3
         assert res["credentials"]["name"] == "Charizard Smith"
         assert res["userAccounts"][0]["accountId"] == 16
+
+    def test_update_user(self, authenticated_client):
+        """User - Put (26)"""
+        response = authenticated_client.put("/api/Users/26", json={
+            "name": "Updated_name,",
+            "userName": "testDummy",
+            "email": "test@gmail.com"
+        })
+        assert response.status_code == 201
     
     def test_post_user(self, authenticated_client):
         """Users - Post"""
         response = authenticated_client.post("/api/Users/PostUser", json={
-            "UserName": "testDummy",
+            "UserName": "testDummyAgain",
             "Name": "Shawn Crook,",
             "Password": "password123",
-            "Email": "test@gmail.com"
+            "Email": "testagain@gmail.com"
         })
-        assert response.status_code == 201       
+        assert response.status_code == 201     
+
+    def test_delete_user(self, authenticated_client):
+        """Users - Delete"""
+        response = authenticated_client.delete("/api/Users/5")
+        assert response.status_code == 200  
     
 
     def test_change_password(self, authenticated_client, api_client):
