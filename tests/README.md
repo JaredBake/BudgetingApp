@@ -2,41 +2,8 @@
 
 This is a comprehensive pytest test suite converted from Insomnia REST API tests for the Budget App.
 
-## Project Structure
 
-```
-budget_app_tests/
-├── conftest.py                 # Pytest configuration and fixtures
-├── pytest.ini                  # Pytest settings
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-└── tests/
-    ├── test_controllers.py     # Controller connection tests
-    ├── test_authentication.py  # Authentication flow tests
-    ├── test_users.py          # User CRUD operations
-    ├── test_accounts.py       # Account CRUD operations
-    ├── test_funds.py          # Fund CRUD operations
-    ├── test_transactions.py   # Transaction CRUD operations
-    ├── test_stats.py          # Statistics endpoints
-    └── test_database.py       # Database seeding tests
-```
-
-## Setup
-
-1. **Install Python 3.8+**
-
-2. **Create a virtual environment:**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. **Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
-
-4. **Ensure your Budget App API is running:**
+**Ensure your Budget App API is running:**
 ```bash
 # Your API should be running on localhost:5284
 ```
@@ -188,20 +155,14 @@ def __init__(self, base_url: str = "http://your-api-url:port"):
 
 1. **Run tests in order**: Some tests may depend on data created by previous tests. Consider using test markers or separate test sessions.
 
-2. **Database state**: If tests fail due to database state, you may need to reseed the database using the seed endpoint.
+2. **Database state**: If tests fail due to database state, you may need to reseed the database using the seed endpoint. Currently, the DB resets before and after each time the test suite is activated but this may change
 
-3. **Parallel execution**: For faster test runs, install pytest-xdist:
-```bash
-pip install pytest-xdist
-pytest -n auto  # Run tests in parallel
-```
-
-4. **Debugging**: Use `-s` flag to see print statements:
+3. **Debugging**: Use `-s` flag to see print statements:
 ```bash
 pytest -s tests/test_users.py
 ```
 
-5. **Stop on first failure**:
+4. **Stop on first failure**:
 ```bash
 pytest -x
 ```
