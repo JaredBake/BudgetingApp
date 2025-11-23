@@ -192,7 +192,7 @@ class _HomeState extends State<Home> {
         preferredSize: const Size.fromHeight(60),
         child: TopNavBar(
           title: 'Home',
-          backgroundColor: Colors.grey,
+          backgroundColor: Colors.green,
           showBackButton: true,
           showProfileButton: true,
           onProfilePressed: () {
