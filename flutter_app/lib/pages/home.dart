@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import 'widgets/app_bottom_nav_bar.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_application/models/account.dart';
+import 'package:flutter_application/models/user.dart';
+import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
+import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
+import 'package:flutter_application/pages/widgets/profile_widget.dart'; // Add this import
+
+import '../api/account_service.dart';
+import '../api/stats_service.dart';
+import 'widgets/app_bottom_nav_bar.dart';
 import 'widgets/pieChart.dart';
 import 'widgets/topNavBar.dart';
-
-import '../api/stats_service.dart';
-import '../api/account_service.dart';
-
-import 'package:flutter_application/models/user.dart';
-import 'package:flutter_application/models/credentials.dart';
-import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
-import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
-import 'package:flutter_application/models/accountType.dart';
-import 'package:flutter_application/pages/widgets/settings_widget.dart';
 
 class HomeOverview {
   final int totalAccounts;
@@ -199,6 +195,21 @@ class _HomeState extends State<Home> {
           backgroundColor: Colors.green,
           showBackButton: true,
           showProfileButton: true,
+          onProfilePressed: () {
+            // Navigate to ProfileWidget instead of Profile page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Profile'),
+                    backgroundColor: Colors.grey,
+                  ),
+                  body: ProfileWidget(user: widget.user), // Use ProfileWidget here
+                ),
+              ),
+            );
+          },
         ),
       ),
       body: Container(
@@ -230,9 +241,9 @@ class _HomeState extends State<Home> {
                   future: _overviewFuture,
                   builder: (context, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
-                      return Expanded(
+                      return const Expanded(
                         child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2), // Add const here
                         ),
                       );
                     }
@@ -242,18 +253,10 @@ class _HomeState extends State<Home> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon( // Add const here
                                 Icons.error_outline,
                                 size: 60,
                                 color: Colors.white38,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "Couldn't load your data${snap.error}",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 18,
-                                ),
                               ),
                               const SizedBox(height: 8),
                               TextButton(
@@ -264,7 +267,7 @@ class _HomeState extends State<Home> {
                                     );
                                   });
                                 },
-                                child: Text('Tap to retry'),
+                                child: const Text('Tap to retry'), // Add const here
                               ),
                             ],
                           ),
@@ -292,13 +295,13 @@ class _HomeState extends State<Home> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon( // Add const here
                                 Icons.account_balance_wallet_outlined,
                                 size: 100,
                                 color: Colors.white24,
                               ),
                               const SizedBox(height: 24),
-                              Text(
+                              const Text( // Add const here
                                 'No accounts yet',
                                 style: TextStyle(
                                   fontSize: 24,
@@ -307,7 +310,7 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
+                              const Text( // Add const here
                                 'Add your first account to get started',
                                 style: TextStyle(
                                   fontSize: 16,
