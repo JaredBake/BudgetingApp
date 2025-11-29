@@ -15,6 +15,8 @@ import '../pages/widgets/settings_widget.dart';
 import '../api/account_service.dart';
 
 import 'accounts.dart';
+import 'edit_account.dart';
+import 'package:flutter_application/models/account_factory.dart';
 
 class AccountDetailsPage extends StatefulWidget {
   final Account account;
@@ -34,11 +36,47 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
   List<Transaction> transactions = [];
   bool isLoading = true;
   String? errorMessage;
+  Account? _currentAccount;
 
   @override
   void initState() {
     super.initState();
-    _loadTransactions();
+    _currentAccount = widget.account;
+    _loadAccountAndTransactions();
+  }
+
+  Future<void> _loadAccountAndTransactions() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      // Reload account data from API
+      final accountModel = await AccountService.getAccountById(
+        widget.account.getAccountId(),
+      );
+
+      if (accountModel != null) {
+        // Convert AccountModel to Account using the factory
+        final accountType = accountModel.getAccountType();
+        _currentAccount = AccountFactory.create(
+          accountType,
+          accountId: accountModel.getId(),
+          name: accountModel.getName(),
+          balance: accountModel.getBalance(),
+          transactions: [],
+        );
+      }
+
+      // Load transactions
+      await _loadTransactions();
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadTransactions() async {
@@ -49,7 +87,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
       });
 
       final loadedTransactions = await TransactionService.getUserTransactions();
-      final accountId = widget.account.getAccountId();
+      final accountId = (_currentAccount ?? widget.account).getAccountId();
 
       final accountTransactions =
           loadedTransactions
@@ -57,13 +95,14 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
               .toList()
             ..sort((a, b) => b.getDate().compareTo(a.getDate()));
 
+      final account = _currentAccount ?? widget.account;
       for (var t in accountTransactions) {
-        widget.account.addTransaction(t);
+        account.addTransaction(t);
       }
 
       print("Transactions fetched: ${accountTransactions.length}");
       print(
-        "Account stored transactions: ${widget.account.getTransactions().length}",
+        "Account stored transactions: ${account.getTransactions().length}",
       );
 
       setState(() {
@@ -167,7 +206,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final account = widget.account;
+    final account = _currentAccount ?? widget.account;
     final accountType = account.getAccountType();
     final balance = account.getBalance();
     final accountColor = _getAccountColor(accountType);
@@ -296,8 +335,20 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              //TODO: EDIT account
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditAccountPage(
+                                    account: _currentAccount ?? widget.account,
+                                    user: widget.user,
+                                    onAccountUpdated: () {
+                                      // Account was updated, reload data
+                                      _loadAccountAndTransactions();
+                                    },
+                                  ),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.edit),
                             label: const Text('Edit'),
@@ -306,7 +357,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {

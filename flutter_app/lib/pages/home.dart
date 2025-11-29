@@ -3,13 +3,14 @@ import 'package:flutter_application/models/account.dart';
 import 'package:flutter_application/models/user.dart';
 import 'package:flutter_application/pages/add_account_bottom_sheet.dart';
 import 'package:flutter_application/pages/widgets/home_overview_banner.dart';
-import 'package:flutter_application/pages/widgets/profile_widget.dart'; // Add this import
+import 'package:flutter_application/pages/widgets/profile_widget.dart';
 
 import '../api/account_service.dart';
 import '../api/stats_service.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 import 'widgets/pieChart.dart';
 import 'widgets/topNavBar.dart';
+import 'accounts.dart';
 
 class HomeOverview {
   final int totalAccounts;
@@ -205,7 +206,9 @@ class _HomeState extends State<Home> {
                     title: const Text('Profile'),
                     backgroundColor: Colors.grey,
                   ),
-                  body: ProfileWidget(user: widget.user), // Use ProfileWidget here
+                  body: ProfileWidget(
+                    user: widget.user,
+                  ), // Use ProfileWidget here
                 ),
               ),
             );
@@ -243,7 +246,9 @@ class _HomeState extends State<Home> {
                     if (snap.connectionState == ConnectionState.waiting) {
                       return const Expanded(
                         child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2), // Add const here
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ), // Add const here
                         ),
                       );
                     }
@@ -253,21 +258,63 @@ class _HomeState extends State<Home> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon( // Add const here
-                                Icons.error_outline,
-                                size: 60,
-                                color: Colors.white38,
+                              const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 100,
+                                color: Colors.white24,
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                'No accounts yet',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70,
+                                ),
                               ),
                               const SizedBox(height: 8),
-                              TextButton(
+                              const Text(
+                                'Navigate to Accounts to add your first account',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white54,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 32),
+                              ElevatedButton.icon(
                                 onPressed: () {
-                                  setState(() {
-                                    _overviewFuture = _fetchOverview(
-                                      widget.user.getCredentials().getUserId(),
-                                    );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AccountsPage(user: widget.user),
+                                    ),
+                                  ).then((_) {
+                                    // Refresh the overview when returning from accounts page
+                                    setState(() {
+                                      _overviewFuture = _fetchOverview(
+                                        widget.user
+                                            .getCredentials()
+                                            .getUserId(),
+                                      );
+                                    });
                                   });
                                 },
-                                child: const Text('Tap to retry'), // Add const here
+                                icon: const Icon(Icons.account_balance),
+                                label: const Text('Go to Accounts'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 16,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -295,13 +342,15 @@ class _HomeState extends State<Home> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon( // Add const here
+                              const Icon(
+                                // Add const here
                                 Icons.account_balance_wallet_outlined,
                                 size: 100,
                                 color: Colors.white24,
                               ),
                               const SizedBox(height: 24),
-                              const Text( // Add const here
+                              const Text(
+                                // Add const here
                                 'No accounts yet',
                                 style: TextStyle(
                                   fontSize: 24,
@@ -310,7 +359,8 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              const Text( // Add const here
+                              const Text(
+                                // Add const here
                                 'Add your first account to get started',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -332,8 +382,8 @@ class _HomeState extends State<Home> {
                                                   .getUserId(),
                                             ),
                                       );
-                                      
-                                    print(account);
+
+                                  print(account);
                                   // TODO
                                   // Here if account is not null
                                   // We will add the account to the user data
