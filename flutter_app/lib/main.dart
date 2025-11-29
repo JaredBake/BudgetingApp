@@ -131,12 +131,12 @@ class MyAppState extends ChangeNotifier {
 }
 
 Future<void> fetchPosts() async {
-  final response = await http.get(Uri.parse('http://localhost:5284/test'));
+  final response = await http.get(Uri.parse('/api/test'));
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
     print('GET Response: $data');
-    print('HTTP GET test successful with budget app on localhost:5284');
+    print('HTTP GET test successful with budget app API');
   } else {
     print('GET Request failed with status: ${response.statusCode}');
   }
