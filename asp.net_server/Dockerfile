@@ -8,16 +8,20 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["App.csproj", "./"]
+COPY "./Services/" "/app/Services/"
 RUN dotnet restore "App.csproj"
 COPY . .
 WORKDIR "/src/"
 RUN dotnet build "./App.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./App.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+COPY --from=build "/app/Services/" "/app/Services/"
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=publish "/app/Services/" "/app/Services/"
 ENTRYPOINT ["dotnet", "App.dll"]

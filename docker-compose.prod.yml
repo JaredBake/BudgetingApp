@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: budgetapp_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-budgetapp}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - budgetapp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ASP.NET API
+  api:
+    build:
+      context: ./asp.net_server
+      dockerfile: Dockerfile
+    container_name: budgetapp_api
+    restart: unless-stopped
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-budgetapp}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=5432
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - RESET_DB_ON_STARTUP=${RESET_DB_ON_STARTUP:-false}
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - budgetapp_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/test || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: budgetapp_web
+    restart: unless-stopped
+    volumes:
+      - ./flutter_app/build/web:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - budgetapp_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+  # cloudflared Tunnel  
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: budgetapp_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - budgetapp_network
+
+networks:
+  budgetapp_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

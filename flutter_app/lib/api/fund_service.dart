@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import '../models/money.dart';
+import 'base_url.dart';
 
 class FundService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
 
   static Future<List<Map<String, dynamic>>> getUserFunds() async {
     final token = localStorage.getItem('token');

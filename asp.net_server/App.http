@@ -1,4 +1,4 @@
-@App_HostAddress = http://localhost:5284
+@App_HostAddress = https://budget.terraract.xyz
 
 GET {{App_HostAddress}}/weatherforecast/
 Accept: application/json

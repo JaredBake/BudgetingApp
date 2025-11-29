@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:localstorage/localstorage.dart';
 import 'package:http/http.dart' as http;
-
+import 'base_url.dart'; 
 class UserService {
-  static const String baseUrl = 'http://localhost:5284';
+  static String baseUrl = BaseUrl.getUrl();
 
   static Future<bool> changePassword(String newPassword) async {
 
