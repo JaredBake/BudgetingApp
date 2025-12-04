@@ -86,13 +86,13 @@ namespace App.Services
 
             try
             {
-                await SeedUsers("Users"); // Special function for password handling
+                await SeedUsers("users"); // Special function for password handling
 
-                await SeedEntity<Category>("Categories");
-                await SeedEntity<Fund>("Funds");
-                await SeedEntity<Account>("Accounts");
-                await SeedEntity<Transaction>("Transactions");
-                await SeedEntity<UserAccount>("UserAccounts");
+                await SeedEntity<Category>("categories");
+                await SeedEntity<Fund>("funds");
+                await SeedEntity<Account>("accounts");
+                await SeedEntity<Transaction>("transactions");
+                await SeedEntity<UserAccount>("userAccounts");
                
                 Console.WriteLine("Database Re-seeded!");
             }
